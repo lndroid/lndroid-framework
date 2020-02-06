@@ -1,0 +1,4393 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 59,
+    "identityHash": "42891c13da22a6c730b313a6d3adc621",
+    "entities": [
+      {
+        "tableName": "AuthRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `createTime` INTEGER, `background` INTEGER, `pluginId` TEXT, `txId` TEXT, `type` TEXT, `componentClassName` TEXT, `componentPackageName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.background",
+            "columnName": "background",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pluginId",
+            "columnName": "pluginId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.componentClassName",
+            "columnName": "componentClassName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.componentPackageName",
+            "columnName": "componentPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_AuthRequest_userId_txId",
+            "unique": true,
+            "columnNames": [
+              "userId",
+              "txId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_AuthRequest_userId_txId` ON `${TABLE_NAME}` (`userId`, `txId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Channel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `txId` TEXT, `authUserId` INTEGER, `description` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `minHtlcMsat` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER, `chainHashHex` TEXT, `closingTxHashHex` TEXT, `closeHeight` INTEGER, `settledBalance` INTEGER, `timeLockedBalance` INTEGER, `closeType` INTEGER, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `createTime` INTEGER, `openTime` INTEGER, `closeTime` INTEGER, `active` INTEGER, `remotePubkey` TEXT, `channelPoint` TEXT, `chanId` INTEGER, `capacity` INTEGER, `localBalance` INTEGER, `remoteBalance` INTEGER, `commitFee` INTEGER, `commitWeight` INTEGER, `feePerKw` INTEGER, `unsettledBalance` INTEGER, `totalSatoshisSent` INTEGER, `totalSatoshisReceived` INTEGER, `numUpdates` INTEGER, `csvDelay` INTEGER, `isPrivate` INTEGER, `initiator` INTEGER, `chanStatusFlags` TEXT, `localChanReserveSat` INTEGER, `remoteChanReserveSat` INTEGER, `staticRemoteKey` INTEGER, `lifetime` INTEGER, `uptime` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satPerByte",
+            "columnName": "satPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.minHtlcMsat",
+            "columnName": "minHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.minConfs",
+            "columnName": "minConfs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.spendUnconfirmed",
+            "columnName": "spendUnconfirmed",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chainHashHex",
+            "columnName": "chainHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closingTxHashHex",
+            "columnName": "closingTxHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closeHeight",
+            "columnName": "closeHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.settledBalance",
+            "columnName": "settledBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.timeLockedBalance",
+            "columnName": "timeLockedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closeType",
+            "columnName": "closeType",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorMessage",
+            "columnName": "errorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.openTime",
+            "columnName": "openTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closeTime",
+            "columnName": "closeTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.remotePubkey",
+            "columnName": "remotePubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.channelPoint",
+            "columnName": "channelPoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanId",
+            "columnName": "chanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.capacity",
+            "columnName": "capacity",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.localBalance",
+            "columnName": "localBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.remoteBalance",
+            "columnName": "remoteBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.commitFee",
+            "columnName": "commitFee",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.commitWeight",
+            "columnName": "commitWeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feePerKw",
+            "columnName": "feePerKw",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.unsettledBalance",
+            "columnName": "unsettledBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalSatoshisSent",
+            "columnName": "totalSatoshisSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalSatoshisReceived",
+            "columnName": "totalSatoshisReceived",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.numUpdates",
+            "columnName": "numUpdates",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.csvDelay",
+            "columnName": "csvDelay",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isPrivate",
+            "columnName": "isPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.initiator",
+            "columnName": "initiator",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanStatusFlags",
+            "columnName": "chanStatusFlags",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.localChanReserveSat",
+            "columnName": "localChanReserveSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.remoteChanReserveSat",
+            "columnName": "remoteChanReserveSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.staticRemoteKey",
+            "columnName": "staticRemoteKey",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lifetime",
+            "columnName": "lifetime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.uptime",
+            "columnName": "uptime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Channel_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Channel_state` ON `${TABLE_NAME}` (`state`)"
+          },
+          {
+            "name": "index_Channel_chanId",
+            "unique": false,
+            "columnNames": [
+              "chanId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Channel_chanId` ON `${TABLE_NAME}` (`chanId`)"
+          },
+          {
+            "name": "index_Channel_channelPoint",
+            "unique": true,
+            "columnNames": [
+              "channelPoint"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Channel_channelPoint` ON `${TABLE_NAME}` (`channelPoint`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ChannelBalance",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `balance` INTEGER, `pendingOpenBalance` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.balance",
+            "columnName": "balance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pendingOpenBalance",
+            "columnName": "pendingOpenBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ChannelEdge",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `channelId` INTEGER, `chanPoint` TEXT, `node1Pubkey` TEXT, `node2Pubkey` TEXT, `capacity` INTEGER, `node1Policy` TEXT, `node2Policy` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.channelId",
+            "columnName": "channelId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanPoint",
+            "columnName": "chanPoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node1Pubkey",
+            "columnName": "node1Pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node2Pubkey",
+            "columnName": "node2Pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.capacity",
+            "columnName": "capacity",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node1Policy",
+            "columnName": "node1Policy",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node2Policy",
+            "columnName": "node2Policy",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_ChannelEdge_channelId",
+            "unique": true,
+            "columnNames": [
+              "channelId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ChannelEdge_channelId` ON `${TABLE_NAME}` (`channelId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Contact",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `pubkey` TEXT, `name` TEXT, `description` TEXT, `url` TEXT, `routeHints` TEXT, `features` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.routeHints",
+            "columnName": "routeHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Contact_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Contact_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ContactPaymentsPrivilege",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `contactId` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.contactId",
+            "columnName": "contactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_ContactPaymentsPrivilege_userId_contactId",
+            "unique": true,
+            "columnNames": [
+              "userId",
+              "contactId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ContactPaymentsPrivilege_userId_contactId` ON `${TABLE_NAME}` (`userId`, `contactId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Invoice",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `description` TEXT, `preimageHex` TEXT, `preimageHashHex` TEXT, `valueSat` INTEGER, `createTime` INTEGER, `settleTime` INTEGER, `paymentRequest` TEXT, `descriptionHashHex` TEXT, `expiry` INTEGER, `fallbackAddr` TEXT, `cltvExpiry` INTEGER, `isPrivate` INTEGER, `addIndex` INTEGER, `settleIndex` INTEGER, `amountPaidMsat` INTEGER, `state` INTEGER, `htlcsCount` INTEGER, `isKeysend` INTEGER, `features` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.preimageHex",
+            "columnName": "preimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.preimageHashHex",
+            "columnName": "preimageHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.valueSat",
+            "columnName": "valueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.settleTime",
+            "columnName": "settleTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentRequest",
+            "columnName": "paymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.descriptionHashHex",
+            "columnName": "descriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.expiry",
+            "columnName": "expiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.fallbackAddr",
+            "columnName": "fallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.cltvExpiry",
+            "columnName": "cltvExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isPrivate",
+            "columnName": "isPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.addIndex",
+            "columnName": "addIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.settleIndex",
+            "columnName": "settleIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amountPaidMsat",
+            "columnName": "amountPaidMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.htlcsCount",
+            "columnName": "htlcsCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isKeysend",
+            "columnName": "isKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Invoice_preimageHashHex",
+            "unique": true,
+            "columnNames": [
+              "preimageHashHex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Invoice_preimageHashHex` ON `${TABLE_NAME}` (`preimageHashHex`)"
+          },
+          {
+            "name": "index_Invoice_preimageHex",
+            "unique": true,
+            "columnNames": [
+              "preimageHex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Invoice_preimageHex` ON `${TABLE_NAME}` (`preimageHex`)"
+          },
+          {
+            "name": "index_Invoice_addIndex",
+            "unique": false,
+            "columnNames": [
+              "addIndex"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_addIndex` ON `${TABLE_NAME}` (`addIndex`)"
+          },
+          {
+            "name": "index_Invoice_settleIndex",
+            "unique": false,
+            "columnNames": [
+              "settleIndex"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_settleIndex` ON `${TABLE_NAME}` (`settleIndex`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "InvoiceHTLC",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `invoiceId` INTEGER, `chanId` INTEGER, `htlcIndex` INTEGER, `amountMsat` INTEGER, `acceptHeight` INTEGER, `acceptTime` INTEGER, `resolveTime` INTEGER, `expiryHeight` INTEGER, `state` INTEGER, `message` TEXT, `senderPubkey` TEXT, `senderTime` INTEGER, `customRecords` BLOB)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceId",
+            "columnName": "invoiceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanId",
+            "columnName": "chanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.htlcIndex",
+            "columnName": "htlcIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amountMsat",
+            "columnName": "amountMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.acceptHeight",
+            "columnName": "acceptHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.acceptTime",
+            "columnName": "acceptTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.resolveTime",
+            "columnName": "resolveTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.expiryHeight",
+            "columnName": "expiryHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderPubkey",
+            "columnName": "senderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderTime",
+            "columnName": "senderTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.customRecords",
+            "columnName": "customRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_InvoiceHTLC_chanId_htlcIndex",
+            "unique": true,
+            "columnNames": [
+              "chanId",
+              "htlcIndex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_InvoiceHTLC_chanId_htlcIndex` ON `${TABLE_NAME}` (`chanId`, `htlcIndex`)"
+          },
+          {
+            "name": "index_InvoiceHTLC_invoiceId",
+            "unique": false,
+            "columnNames": [
+              "invoiceId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_InvoiceHTLC_invoiceId` ON `${TABLE_NAME}` (`invoiceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "HopHint",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `routeHintId` INTEGER, `index` INTEGER, `nodeId` TEXT, `chanId` INTEGER, `feeBaseMsat` INTEGER, `feeProportionalMillionths` INTEGER, `cltvExpiryDelta` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.routeHintId",
+            "columnName": "routeHintId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.nodeId",
+            "columnName": "nodeId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanId",
+            "columnName": "chanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeBaseMsat",
+            "columnName": "feeBaseMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeProportionalMillionths",
+            "columnName": "feeProportionalMillionths",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.cltvExpiryDelta",
+            "columnName": "cltvExpiryDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_HopHint_routeHintId",
+            "unique": false,
+            "columnNames": [
+              "routeHintId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_HopHint_routeHintId` ON `${TABLE_NAME}` (`routeHintId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "HTLCAttempt",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `sendPaymentId` INTEGER, `state` INTEGER, `attemptTime` INTEGER, `resolveTime` INTEGER, `totalAmountMsat` INTEGER, `totalFeeMsat` INTEGER, `totalTimeLock` INTEGER, `destCustomRecords` BLOB)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendPaymentId",
+            "columnName": "sendPaymentId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.attemptTime",
+            "columnName": "attemptTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.resolveTime",
+            "columnName": "resolveTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalAmountMsat",
+            "columnName": "totalAmountMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalFeeMsat",
+            "columnName": "totalFeeMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalTimeLock",
+            "columnName": "totalTimeLock",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destCustomRecords",
+            "columnName": "destCustomRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_HTLCAttempt_sendPaymentId",
+            "unique": false,
+            "columnNames": [
+              "sendPaymentId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_HTLCAttempt_sendPaymentId` ON `${TABLE_NAME}` (`sendPaymentId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LightningNode",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `lastUpdate` INTEGER, `pubkey` TEXT, `alias` TEXT, `color` TEXT, `features` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastUpdate",
+            "columnName": "lastUpdate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.alias",
+            "columnName": "alias",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_LightningNode_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LightningNode_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ListContactsPrivilege",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_ListContactsPrivilege_userId",
+            "unique": true,
+            "columnNames": [
+              "userId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ListContactsPrivilege_userId` ON `${TABLE_NAME}` (`userId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SendPayment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `invoiceDescription` TEXT, `invoiceDescriptionHashHex` TEXT, `invoiceFallbackAddr` TEXT, `paymentAddrHex` TEXT, `invoiceTimestamp` INTEGER, `invoiceExpiry` INTEGER, `destPubkey` TEXT, `valueMsat` INTEGER, `totalValueMsat` INTEGER, `paymentHashHex` TEXT, `paymentRequest` TEXT, `finalCltvDelta` INTEGER, `feeLimitFixedMsat` INTEGER, `feeLimitPercent` INTEGER, `outgoingChanId` INTEGER, `cltvLimit` INTEGER, `destCustomRecords` BLOB, `paymentError` TEXT, `paymentPreimageHex` TEXT, `routeHints` TEXT, `features` TEXT, `createTime` INTEGER, `sendTime` INTEGER, `feeMsat` INTEGER, `contactPubkey` TEXT, `message` TEXT, `senderPubkey` TEXT, `isKeysend` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorMessage",
+            "columnName": "errorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceDescription",
+            "columnName": "invoiceDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceDescriptionHashHex",
+            "columnName": "invoiceDescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceFallbackAddr",
+            "columnName": "invoiceFallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentAddrHex",
+            "columnName": "paymentAddrHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceTimestamp",
+            "columnName": "invoiceTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceExpiry",
+            "columnName": "invoiceExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destPubkey",
+            "columnName": "destPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.valueMsat",
+            "columnName": "valueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalValueMsat",
+            "columnName": "totalValueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentHashHex",
+            "columnName": "paymentHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentRequest",
+            "columnName": "paymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.finalCltvDelta",
+            "columnName": "finalCltvDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeLimitFixedMsat",
+            "columnName": "feeLimitFixedMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeLimitPercent",
+            "columnName": "feeLimitPercent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.outgoingChanId",
+            "columnName": "outgoingChanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.cltvLimit",
+            "columnName": "cltvLimit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destCustomRecords",
+            "columnName": "destCustomRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentError",
+            "columnName": "paymentError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentPreimageHex",
+            "columnName": "paymentPreimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.routeHints",
+            "columnName": "routeHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendTime",
+            "columnName": "sendTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeMsat",
+            "columnName": "feeMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.contactPubkey",
+            "columnName": "contactPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderPubkey",
+            "columnName": "senderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isKeysend",
+            "columnName": "isKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_SendPayment_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SendPayment_state` ON `${TABLE_NAME}` (`state`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Payment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `type` INTEGER, `sourceId` INTEGER, `sourceHTLCId` INTEGER, `sendPayments` TEXT, `HTLCAttempts` TEXT, `invoices` TEXT, `invoiceHTLCs` TEXT, `userId` INTEGER, `time` INTEGER, `peerPubkey` TEXT, `message` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sourceId",
+            "columnName": "sourceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sourceHTLCId",
+            "columnName": "sourceHTLCId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendPayments",
+            "columnName": "sendPayments",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.HTLCAttempts",
+            "columnName": "HTLCAttempts",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoices",
+            "columnName": "invoices",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceHTLCs",
+            "columnName": "invoiceHTLCs",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.peerPubkey",
+            "columnName": "peerPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Payment_type_sourceId",
+            "unique": true,
+            "columnNames": [
+              "type",
+              "sourceId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Payment_type_sourceId` ON `${TABLE_NAME}` (`type`, `sourceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoutingPolicy",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `channelId` INTEGER, `reverse` INTEGER, `timeLockDelta` INTEGER, `minHtlc` INTEGER, `feeBaseMsat` INTEGER, `feeRateMilliMsat` INTEGER, `disabled` INTEGER, `maxHtlcMsat` INTEGER, `lastUpdate` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.channelId",
+            "columnName": "channelId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.reverse",
+            "columnName": "reverse",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.timeLockDelta",
+            "columnName": "timeLockDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.minHtlc",
+            "columnName": "minHtlc",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeBaseMsat",
+            "columnName": "feeBaseMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeRateMilliMsat",
+            "columnName": "feeRateMilliMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.disabled",
+            "columnName": "disabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maxHtlcMsat",
+            "columnName": "maxHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastUpdate",
+            "columnName": "lastUpdate",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_RoutingPolicy_channelId_reverse",
+            "unique": true,
+            "columnNames": [
+              "channelId",
+              "reverse"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_RoutingPolicy_channelId_reverse` ON `${TABLE_NAME}` (`channelId`, `reverse`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RouteHint",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `parentId` TEXT, `hopHints` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.parentId",
+            "columnName": "parentId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.hopHints",
+            "columnName": "hopHints",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_RouteHint_parentId",
+            "unique": false,
+            "columnNames": [
+              "parentId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_RouteHint_parentId` ON `${TABLE_NAME}` (`parentId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "WalletBalance",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `totalBalance` INTEGER, `confirmedBalance` INTEGER, `unconfirmedBalance` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.totalBalance",
+            "columnName": "totalBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.confirmedBalance",
+            "columnName": "confirmedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.unconfirmedBalance",
+            "columnName": "unconfirmedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "WalletInfo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `identityPubkey` TEXT, `alias` TEXT, `numPendingChannels` INTEGER, `numActiveChannels` INTEGER, `numPeers` INTEGER, `blockHeight` INTEGER, `blockHash` TEXT, `syncedToChain` INTEGER, `uris` TEXT, `bestHeaderTimestamp` INTEGER, `lndVersion` TEXT, `numInactiveChannels` INTEGER, `color` TEXT, `syncedToGraph` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.identityPubkey",
+            "columnName": "identityPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.alias",
+            "columnName": "alias",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numPendingChannels",
+            "columnName": "numPendingChannels",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numActiveChannels",
+            "columnName": "numActiveChannels",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numPeers",
+            "columnName": "numPeers",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.blockHeight",
+            "columnName": "blockHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.blockHash",
+            "columnName": "blockHash",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.syncedToChain",
+            "columnName": "syncedToChain",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.uris",
+            "columnName": "uris",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.bestHeaderTimestamp",
+            "columnName": "bestHeaderTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.lndVersion",
+            "columnName": "lndVersion",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numInactiveChannels",
+            "columnName": "numInactiveChannels",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.syncedToGraph",
+            "columnName": "syncedToGraph",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `role` TEXT, `pubkey` TEXT, `appPackageName` TEXT, `appPubkey` TEXT, `appLabel` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.appPackageName",
+            "columnName": "appPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.appPubkey",
+            "columnName": "appPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.appLabel",
+            "columnName": "appLabel",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_User_appPubkey",
+            "unique": false,
+            "columnNames": [
+              "appPubkey"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_User_appPubkey` ON `${TABLE_NAME}` (`appPubkey`)"
+          },
+          {
+            "name": "index_User_appPackageName",
+            "unique": false,
+            "columnNames": [
+              "appPackageName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_User_appPackageName` ON `${TABLE_NAME}` (`appPackageName`)"
+          },
+          {
+            "name": "index_User_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_User_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AddContactInvoiceTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reppaymentRequest` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentRequest",
+            "columnName": "reppaymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AddContactTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `reqpubkey` TEXT, `reqname` TEXT, `reqdescription` TEXT, `requrl` TEXT, `reqrouteHints` TEXT, `reqfeatures` TEXT, `repid` INTEGER, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `reppubkey` TEXT, `repname` TEXT, `repdescription` TEXT, `repurl` TEXT, `reprouteHints` TEXT, `repfeatures` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.id",
+            "columnName": "reqid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.userId",
+            "columnName": "requserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.authUserId",
+            "columnName": "reqauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.createTime",
+            "columnName": "reqcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.pubkey",
+            "columnName": "reqpubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.name",
+            "columnName": "reqname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.description",
+            "columnName": "reqdescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.url",
+            "columnName": "requrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.routeHints",
+            "columnName": "reqrouteHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.features",
+            "columnName": "reqfeatures",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.pubkey",
+            "columnName": "reppubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.name",
+            "columnName": "repname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.description",
+            "columnName": "repdescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.url",
+            "columnName": "repurl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.routeHints",
+            "columnName": "reprouteHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.features",
+            "columnName": "repfeatures",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AddContactPaymentsPrivilegeTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `reqcontactId` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `repcontactId` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.id",
+            "columnName": "reqid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.userId",
+            "columnName": "requserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.authUserId",
+            "columnName": "reqauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.createTime",
+            "columnName": "reqcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.contactId",
+            "columnName": "reqcontactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.contactId",
+            "columnName": "repcontactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AddInvoiceTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpreimageHex` TEXT, `reqvalueSat` INTEGER, `reqdescription` TEXT, `reqdescriptionHashHex` TEXT, `reqfallbackAddr` TEXT, `reqexpiry` INTEGER, `reqpurpose` TEXT, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `reppurpose` TEXT, `repdescription` TEXT, `reppreimageHex` TEXT, `reppreimageHashHex` TEXT, `repvalueSat` INTEGER, `repcreateTime` INTEGER, `repsettleTime` INTEGER, `reppaymentRequest` TEXT, `repdescriptionHashHex` TEXT, `repexpiry` INTEGER, `repfallbackAddr` TEXT, `repcltvExpiry` INTEGER, `repisPrivate` INTEGER, `repaddIndex` INTEGER, `repsettleIndex` INTEGER, `repamountPaidMsat` INTEGER, `repstate` INTEGER, `rephtlcsCount` INTEGER, `repisKeysend` INTEGER, `repfeatures` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.preimageHex",
+            "columnName": "reqpreimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.valueSat",
+            "columnName": "reqvalueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.description",
+            "columnName": "reqdescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.descriptionHashHex",
+            "columnName": "reqdescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.fallbackAddr",
+            "columnName": "reqfallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.expiry",
+            "columnName": "reqexpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.purpose",
+            "columnName": "reqpurpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.txId",
+            "columnName": "reptxId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.purpose",
+            "columnName": "reppurpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.description",
+            "columnName": "repdescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.preimageHex",
+            "columnName": "reppreimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.preimageHashHex",
+            "columnName": "reppreimageHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.valueSat",
+            "columnName": "repvalueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.settleTime",
+            "columnName": "repsettleTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentRequest",
+            "columnName": "reppaymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.descriptionHashHex",
+            "columnName": "repdescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.expiry",
+            "columnName": "repexpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.fallbackAddr",
+            "columnName": "repfallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.cltvExpiry",
+            "columnName": "repcltvExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.isPrivate",
+            "columnName": "repisPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.addIndex",
+            "columnName": "repaddIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.settleIndex",
+            "columnName": "repsettleIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.amountPaidMsat",
+            "columnName": "repamountPaidMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.state",
+            "columnName": "repstate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.htlcsCount",
+            "columnName": "rephtlcsCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.isKeysend",
+            "columnName": "repisKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.features",
+            "columnName": "repfeatures",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AddListContactsPrivilegeTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.id",
+            "columnName": "reqid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.userId",
+            "columnName": "requserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.authUserId",
+            "columnName": "reqauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.createTime",
+            "columnName": "reqcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AddUserTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqrole` TEXT, `reqappPubkey` TEXT, `reqappPackageName` TEXT, `reqappLabel` TEXT, `repid` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `reprole` TEXT, `reppubkey` TEXT, `repappPackageName` TEXT, `repappPubkey` TEXT, `repappLabel` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.role",
+            "columnName": "reqrole",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.appPubkey",
+            "columnName": "reqappPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.appPackageName",
+            "columnName": "reqappPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.appLabel",
+            "columnName": "reqappLabel",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.role",
+            "columnName": "reprole",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.pubkey",
+            "columnName": "reppubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.appPackageName",
+            "columnName": "repappPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.appPubkey",
+            "columnName": "repappPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.appLabel",
+            "columnName": "repappLabel",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ConnectPeerTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpubkey` TEXT, `reqhost` TEXT, `reqperm` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.pubkey",
+            "columnName": "reqpubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.host",
+            "columnName": "reqhost",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.perm",
+            "columnName": "reqperm",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DecodePayReqTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `reppurpose` TEXT, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repinvoiceDescription` TEXT, `repinvoiceDescriptionHashHex` TEXT, `repinvoiceFallbackAddr` TEXT, `reppaymentAddrHex` TEXT, `repinvoiceTimestamp` INTEGER, `repinvoiceExpiry` INTEGER, `repdestPubkey` TEXT, `repvalueMsat` INTEGER, `reptotalValueMsat` INTEGER, `reppaymentHashHex` TEXT, `reppaymentRequest` TEXT, `repfinalCltvDelta` INTEGER, `repfeeLimitFixedMsat` INTEGER, `repfeeLimitPercent` INTEGER, `repoutgoingChanId` INTEGER, `repcltvLimit` INTEGER, `repdestCustomRecords` BLOB, `reppaymentError` TEXT, `reppaymentPreimageHex` TEXT, `reprouteHints` TEXT, `repfeatures` TEXT, `repcreateTime` INTEGER, `repsendTime` INTEGER, `repfeeMsat` INTEGER, `repcontactPubkey` TEXT, `repmessage` TEXT, `repsenderPubkey` TEXT, `repisKeysend` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.txId",
+            "columnName": "reptxId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.purpose",
+            "columnName": "reppurpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.tries",
+            "columnName": "reptries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.maxTries",
+            "columnName": "repmaxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.maxTryTime",
+            "columnName": "repmaxTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.lastTryTime",
+            "columnName": "replastTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.nextTryTime",
+            "columnName": "repnextTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.state",
+            "columnName": "repstate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.errorCode",
+            "columnName": "reperrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.errorMessage",
+            "columnName": "reperrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceDescription",
+            "columnName": "repinvoiceDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceDescriptionHashHex",
+            "columnName": "repinvoiceDescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceFallbackAddr",
+            "columnName": "repinvoiceFallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentAddrHex",
+            "columnName": "reppaymentAddrHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceTimestamp",
+            "columnName": "repinvoiceTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceExpiry",
+            "columnName": "repinvoiceExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.destPubkey",
+            "columnName": "repdestPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.valueMsat",
+            "columnName": "repvalueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.totalValueMsat",
+            "columnName": "reptotalValueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentHashHex",
+            "columnName": "reppaymentHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentRequest",
+            "columnName": "reppaymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.finalCltvDelta",
+            "columnName": "repfinalCltvDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feeLimitFixedMsat",
+            "columnName": "repfeeLimitFixedMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feeLimitPercent",
+            "columnName": "repfeeLimitPercent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.outgoingChanId",
+            "columnName": "repoutgoingChanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.cltvLimit",
+            "columnName": "repcltvLimit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.destCustomRecords",
+            "columnName": "repdestCustomRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentError",
+            "columnName": "reppaymentError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentPreimageHex",
+            "columnName": "reppaymentPreimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.routeHints",
+            "columnName": "reprouteHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.features",
+            "columnName": "repfeatures",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.sendTime",
+            "columnName": "repsendTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feeMsat",
+            "columnName": "repfeeMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.contactPubkey",
+            "columnName": "repcontactPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.message",
+            "columnName": "repmessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.senderPubkey",
+            "columnName": "repsenderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.isKeysend",
+            "columnName": "repisKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "NewAddressTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqtype` INTEGER, `repaddress` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.type",
+            "columnName": "reqtype",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.address",
+            "columnName": "repaddress",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "OpenChannelTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqdescription` TEXT, `reqnodePubkey` TEXT, `reqlocalFundingAmount` INTEGER, `reqpushSat` INTEGER, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqisPrivate` INTEGER, `reqminHtlcMsat` INTEGER, `reqremoteCsvDelay` INTEGER, `reqminConfs` INTEGER, `reqspendUnconfirmed` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `reptxId` TEXT, `repauthUserId` INTEGER, `repdescription` TEXT, `reptargetConf` INTEGER, `repsatPerByte` INTEGER, `repminHtlcMsat` INTEGER, `repminConfs` INTEGER, `repspendUnconfirmed` INTEGER, `repchainHashHex` TEXT, `repclosingTxHashHex` TEXT, `repcloseHeight` INTEGER, `repsettledBalance` INTEGER, `reptimeLockedBalance` INTEGER, `repcloseType` INTEGER, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repcreateTime` INTEGER, `repopenTime` INTEGER, `repcloseTime` INTEGER, `repactive` INTEGER, `repremotePubkey` TEXT, `repchannelPoint` TEXT, `repchanId` INTEGER, `repcapacity` INTEGER, `replocalBalance` INTEGER, `repremoteBalance` INTEGER, `repcommitFee` INTEGER, `repcommitWeight` INTEGER, `repfeePerKw` INTEGER, `repunsettledBalance` INTEGER, `reptotalSatoshisSent` INTEGER, `reptotalSatoshisReceived` INTEGER, `repnumUpdates` INTEGER, `repcsvDelay` INTEGER, `repisPrivate` INTEGER, `repinitiator` INTEGER, `repchanStatusFlags` TEXT, `replocalChanReserveSat` INTEGER, `repremoteChanReserveSat` INTEGER, `repstaticRemoteKey` INTEGER, `replifetime` INTEGER, `repuptime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.description",
+            "columnName": "reqdescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.nodePubkey",
+            "columnName": "reqnodePubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.localFundingAmount",
+            "columnName": "reqlocalFundingAmount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.pushSat",
+            "columnName": "reqpushSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.targetConf",
+            "columnName": "reqtargetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.satPerByte",
+            "columnName": "reqsatPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.isPrivate",
+            "columnName": "reqisPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.minHtlcMsat",
+            "columnName": "reqminHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.remoteCsvDelay",
+            "columnName": "reqremoteCsvDelay",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.minConfs",
+            "columnName": "reqminConfs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.spendUnconfirmed",
+            "columnName": "reqspendUnconfirmed",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.txId",
+            "columnName": "reptxId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.description",
+            "columnName": "repdescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.targetConf",
+            "columnName": "reptargetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.satPerByte",
+            "columnName": "repsatPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.minHtlcMsat",
+            "columnName": "repminHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.minConfs",
+            "columnName": "repminConfs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.spendUnconfirmed",
+            "columnName": "repspendUnconfirmed",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.chainHashHex",
+            "columnName": "repchainHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.closingTxHashHex",
+            "columnName": "repclosingTxHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.closeHeight",
+            "columnName": "repcloseHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.settledBalance",
+            "columnName": "repsettledBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.timeLockedBalance",
+            "columnName": "reptimeLockedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.closeType",
+            "columnName": "repcloseType",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.tries",
+            "columnName": "reptries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.maxTries",
+            "columnName": "repmaxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.maxTryTime",
+            "columnName": "repmaxTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.lastTryTime",
+            "columnName": "replastTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.nextTryTime",
+            "columnName": "repnextTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.state",
+            "columnName": "repstate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.errorCode",
+            "columnName": "reperrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.errorMessage",
+            "columnName": "reperrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.openTime",
+            "columnName": "repopenTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.closeTime",
+            "columnName": "repcloseTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.active",
+            "columnName": "repactive",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.remotePubkey",
+            "columnName": "repremotePubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.channelPoint",
+            "columnName": "repchannelPoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.chanId",
+            "columnName": "repchanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.capacity",
+            "columnName": "repcapacity",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.localBalance",
+            "columnName": "replocalBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.remoteBalance",
+            "columnName": "repremoteBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.commitFee",
+            "columnName": "repcommitFee",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.commitWeight",
+            "columnName": "repcommitWeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feePerKw",
+            "columnName": "repfeePerKw",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.unsettledBalance",
+            "columnName": "repunsettledBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.totalSatoshisSent",
+            "columnName": "reptotalSatoshisSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.totalSatoshisReceived",
+            "columnName": "reptotalSatoshisReceived",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.numUpdates",
+            "columnName": "repnumUpdates",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.csvDelay",
+            "columnName": "repcsvDelay",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.isPrivate",
+            "columnName": "repisPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.initiator",
+            "columnName": "repinitiator",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.chanStatusFlags",
+            "columnName": "repchanStatusFlags",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.localChanReserveSat",
+            "columnName": "replocalChanReserveSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.remoteChanReserveSat",
+            "columnName": "repremoteChanReserveSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.staticRemoteKey",
+            "columnName": "repstaticRemoteKey",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.lifetime",
+            "columnName": "replifetime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.uptime",
+            "columnName": "repuptime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SendPaymentTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpurpose` TEXT, `reqinvoiceDescription` TEXT, `reqinvoiceDescriptionHashHex` TEXT, `reqinvoiceFallbackAddr` TEXT, `reqinvoiceTimestamp` INTEGER, `reqexpiry` INTEGER, `reqmaxTries` INTEGER, `reqdestPubkey` TEXT, `reqvalueSat` INTEGER, `reqpaymentHashHex` TEXT, `reqpaymentRequest` TEXT, `reqfinalCltvDelta` INTEGER, `reqfeeLimitFixedMsat` INTEGER, `reqfeeLimitPercent` INTEGER, `reqoutgoingChanId` INTEGER, `reqcltvLimit` INTEGER, `reqrouteHints` TEXT, `reqfeatures` TEXT, `reqcontactId` INTEGER, `reqmessage` TEXT, `reqincludeSenderPubkey` INTEGER, `reqisKeysend` INTEGER, `reqnoAuth` INTEGER, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `reppurpose` TEXT, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repinvoiceDescription` TEXT, `repinvoiceDescriptionHashHex` TEXT, `repinvoiceFallbackAddr` TEXT, `reppaymentAddrHex` TEXT, `repinvoiceTimestamp` INTEGER, `repinvoiceExpiry` INTEGER, `repdestPubkey` TEXT, `repvalueMsat` INTEGER, `reptotalValueMsat` INTEGER, `reppaymentHashHex` TEXT, `reppaymentRequest` TEXT, `repfinalCltvDelta` INTEGER, `repfeeLimitFixedMsat` INTEGER, `repfeeLimitPercent` INTEGER, `repoutgoingChanId` INTEGER, `repcltvLimit` INTEGER, `repdestCustomRecords` BLOB, `reppaymentError` TEXT, `reppaymentPreimageHex` TEXT, `reprouteHints` TEXT, `repfeatures` TEXT, `repcreateTime` INTEGER, `repsendTime` INTEGER, `repfeeMsat` INTEGER, `repcontactPubkey` TEXT, `repmessage` TEXT, `repsenderPubkey` TEXT, `repisKeysend` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.purpose",
+            "columnName": "reqpurpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.invoiceDescription",
+            "columnName": "reqinvoiceDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.invoiceDescriptionHashHex",
+            "columnName": "reqinvoiceDescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.invoiceFallbackAddr",
+            "columnName": "reqinvoiceFallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.invoiceTimestamp",
+            "columnName": "reqinvoiceTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.expiry",
+            "columnName": "reqexpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.maxTries",
+            "columnName": "reqmaxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.destPubkey",
+            "columnName": "reqdestPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.valueSat",
+            "columnName": "reqvalueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.paymentHashHex",
+            "columnName": "reqpaymentHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.paymentRequest",
+            "columnName": "reqpaymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.finalCltvDelta",
+            "columnName": "reqfinalCltvDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.feeLimitFixedMsat",
+            "columnName": "reqfeeLimitFixedMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.feeLimitPercent",
+            "columnName": "reqfeeLimitPercent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.outgoingChanId",
+            "columnName": "reqoutgoingChanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.cltvLimit",
+            "columnName": "reqcltvLimit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.routeHints",
+            "columnName": "reqrouteHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.features",
+            "columnName": "reqfeatures",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.contactId",
+            "columnName": "reqcontactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.message",
+            "columnName": "reqmessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.includeSenderPubkey",
+            "columnName": "reqincludeSenderPubkey",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.isKeysend",
+            "columnName": "reqisKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.noAuth",
+            "columnName": "reqnoAuth",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.id",
+            "columnName": "repid",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.txId",
+            "columnName": "reptxId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.userId",
+            "columnName": "repuserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.authUserId",
+            "columnName": "repauthUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.purpose",
+            "columnName": "reppurpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.tries",
+            "columnName": "reptries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.maxTries",
+            "columnName": "repmaxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.maxTryTime",
+            "columnName": "repmaxTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.lastTryTime",
+            "columnName": "replastTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.nextTryTime",
+            "columnName": "repnextTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.state",
+            "columnName": "repstate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.errorCode",
+            "columnName": "reperrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.errorMessage",
+            "columnName": "reperrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceDescription",
+            "columnName": "repinvoiceDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceDescriptionHashHex",
+            "columnName": "repinvoiceDescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceFallbackAddr",
+            "columnName": "repinvoiceFallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentAddrHex",
+            "columnName": "reppaymentAddrHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceTimestamp",
+            "columnName": "repinvoiceTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.invoiceExpiry",
+            "columnName": "repinvoiceExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.destPubkey",
+            "columnName": "repdestPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.valueMsat",
+            "columnName": "repvalueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.totalValueMsat",
+            "columnName": "reptotalValueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentHashHex",
+            "columnName": "reppaymentHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentRequest",
+            "columnName": "reppaymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.finalCltvDelta",
+            "columnName": "repfinalCltvDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feeLimitFixedMsat",
+            "columnName": "repfeeLimitFixedMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feeLimitPercent",
+            "columnName": "repfeeLimitPercent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.outgoingChanId",
+            "columnName": "repoutgoingChanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.cltvLimit",
+            "columnName": "repcltvLimit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.destCustomRecords",
+            "columnName": "repdestCustomRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentError",
+            "columnName": "reppaymentError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.paymentPreimageHex",
+            "columnName": "reppaymentPreimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.routeHints",
+            "columnName": "reprouteHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.features",
+            "columnName": "repfeatures",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.createTime",
+            "columnName": "repcreateTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.sendTime",
+            "columnName": "repsendTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.feeMsat",
+            "columnName": "repfeeMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.contactPubkey",
+            "columnName": "repcontactPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.message",
+            "columnName": "repmessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.senderPubkey",
+            "columnName": "repsenderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "response.isKeysend",
+            "columnName": "repisKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ShareContactTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txError",
+            "columnName": "txError",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '42891c13da22a6c730b313a6d3adc621')"
+    ]
+  }
+}
