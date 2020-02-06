@@ -7,9 +7,9 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.IGetInvoiceDao;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetInvoice extends GetBase<Long> {
@@ -23,9 +23,9 @@ public class GetInvoice extends GetBase<Long> {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback engine) {
+    public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IGetInvoiceDao)dp.getPluginDao(id());
+        dao_ = (IGetInvoiceDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

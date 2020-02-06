@@ -8,7 +8,7 @@ public interface IPluginBackground {
     String id();
 
     // set the engine
-    void init(IDaoProvider dp, IPluginBackgroundCallback engine);
+    void init(IPluginServer server, IPluginBackgroundCallback callback);
 
     // do the background work
     void work();

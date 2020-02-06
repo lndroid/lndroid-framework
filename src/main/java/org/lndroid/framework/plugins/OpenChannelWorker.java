@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -11,7 +12,6 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.IOpenChannelWorkerDao;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.lnd.ILightningDao;
@@ -37,10 +37,10 @@ public class OpenChannelWorker implements IPluginBackground {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginBackgroundCallback engine) {
-        engine_ = engine;
-        dao_ = (IOpenChannelWorkerDao) dp.getPluginDao(id());
-        lnd_ = dp.getLightningDao();
+    public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        engine_ = callback;
+        dao_ = (IOpenChannelWorkerDao) server.getDaoProvider().getPluginDao(id());
+        lnd_ = server.getDaoProvider().getLightningDao();
     }
 
     private void onUpdate(WalletData.Channel c) {

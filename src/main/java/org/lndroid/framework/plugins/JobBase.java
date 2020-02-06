@@ -6,10 +6,10 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public abstract class JobBase<Request, Response> implements IPluginForeground {
@@ -34,9 +34,9 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request, Response> tx);
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        dao_ = (IJobDao<Request, Response>)dp.getPluginDao(id());
-        engine_ = cb;
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        dao_ = (IJobDao<Request, Response>) server.getDaoProvider().getPluginDao(id());
+        engine_ = callback;
 
         // restore active transactions
         List<Transaction<Request, Response>> txs = dao_.getTransactions();

@@ -7,13 +7,14 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.IActionDao;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public abstract class ActionBase<Request, Response> implements IPluginForeground {
 
+    private IPluginServer server_;
     private IActionDao<Request, Response> dao_;
     private IPluginForegroundCallback engine_;
 
@@ -27,14 +28,15 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
     protected abstract Request getData(IPluginData in);
 
     protected IPluginForegroundCallback engine() { return engine_; };
+    protected IPluginServer server() { return server_; }
 
     public ActionBase() {
     }
 
-
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback engine) {
-        dao_ = (IActionDao<Request, Response>)dp.getPluginDao(id());
+    public void init(IPluginServer server, IPluginForegroundCallback engine) {
+        server_ = server;
+        dao_ = (IActionDao<Request, Response>) server.getDaoProvider().getPluginDao(id());
         engine_ = engine;
 
         // restore active transactions

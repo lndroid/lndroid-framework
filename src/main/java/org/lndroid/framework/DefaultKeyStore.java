@@ -7,6 +7,10 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 
+import org.lndroid.framework.common.HEX;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 
 import javax.crypto.Cipher;
@@ -17,6 +21,7 @@ import javax.crypto.spec.GCMParameterSpec;
 public class DefaultKeyStore implements IKeyStore {
     private static final String TAG = "DefaultKeyStore";
     private static final String WP_KEY_ALIAS = "WALLET_PASSWORD_KEY";
+    private static final String USER_KEY_ALIAS_PREFIX = "USER_KEY_";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static int DEFAULT_AUTH_VALIDITY_DURATION = 4 * 60 * 60; // 4h
 
@@ -114,6 +119,40 @@ public class DefaultKeyStore implements IKeyStore {
         return isAvailable_;
     }
 
+    @Override
+    public String generateUserKeyPair(int userId, String role) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            return null;
+
+        try {
+
+            final String alias = USER_KEY_ALIAS_PREFIX + userId;
+
+            KeyGenParameterSpec params = new KeyGenParameterSpec.Builder(
+                    alias,
+                    KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
+                    .setDigests(KeyProperties.DIGEST_SHA256,
+                            KeyProperties.DIGEST_SHA512)
+                    // FIXME add other options depending on user role?
+                    .build();
+
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
+            kpg.initialize(params);
+
+            KeyPair kp = kpg.generateKeyPair();
+
+            // see https://stackoverflow.com/questions/50275351/converting-ec-publickey-hex-string-to-publickey for
+            // samples on how to convert bytes to keys and reverse
+            return HEX.fromBytes(kp.getPublic().getEncoded());
+
+        } catch (Exception e) {
+            Log.e(TAG, "generate key pair error "+e);
+        }
+
+        return null;
+    }
+
     // tries to encrypt the password, if returns null
     // then we don't store password and thus will
     // ask user for his password explicitly on every lnd start
@@ -128,12 +167,10 @@ public class DefaultKeyStore implements IKeyStore {
 
         try {
             KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
-            // FIXME what are params?
             ks.load(null);
 
             SecretKey key = null;
-            if (!ks.containsAlias(WP_KEY_ALIAS)) {
-                // FIXME params?
+            if (ks.containsAlias(WP_KEY_ALIAS)) {
                 key = ((KeyStore.SecretKeyEntry) ks.getEntry(WP_KEY_ALIAS, null)).getSecretKey();
             } else {
                 // key could have been invalidated after we've used it since the last time
@@ -170,10 +207,8 @@ public class DefaultKeyStore implements IKeyStore {
 
         try {
             KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
-            // FIXME what are params?
             ks.load(null);
 
-            // FIXME params?
             SecretKey key = ((KeyStore.SecretKeyEntry) ks.getEntry(WP_KEY_ALIAS, null)).getSecretKey();
             if (key != null) {
                 final Cipher cipher = Cipher.getInstance(TRANSFORMATION);

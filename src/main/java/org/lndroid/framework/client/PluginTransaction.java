@@ -137,7 +137,7 @@ class PluginTransaction implements IPluginTransaction {
             case PluginData.MESSAGE_TYPE_DONE:
                 // tx not usable any more
                 started_ = false;
-                // FIXME onError?
+                cb_.onError(Errors.TX_DONE, Errors.errorMessage(Errors.TX_DONE));
                 break;
 
             case PluginData.MESSAGE_TYPE_AUTH: {

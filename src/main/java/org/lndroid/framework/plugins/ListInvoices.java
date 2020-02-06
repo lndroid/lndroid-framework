@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.room.ListInvoicesDao;
 
 public class ListInvoices extends ListBase<WalletData.ListInvoicesRequest, WalletData.Invoice> {
@@ -47,9 +47,9 @@ public class ListInvoices extends ListBase<WalletData.ListInvoicesRequest, Walle
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        super.init(cb);
-        dao_ = (ListInvoicesDao)dp.getPluginDao(id());
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        super.init(callback);
+        dao_ = (ListInvoicesDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

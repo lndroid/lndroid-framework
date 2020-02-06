@@ -37,7 +37,6 @@ public class PluginData {
     public static final String MESSAGE_TYPE_AUTHED = "authed";
     public static final String MESSAGE_TYPE_DONE = "done";
 
-    // FIXME split into separate auth and plugin messages
     @AutoValue @AutoValueClass(className = AutoValue_PluginData_PluginMessage.class)
     public static abstract class PluginMessage implements IPluginData {
 

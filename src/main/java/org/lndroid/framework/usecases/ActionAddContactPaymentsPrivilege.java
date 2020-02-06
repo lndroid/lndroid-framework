@@ -19,7 +19,6 @@ public class ActionAddContactPaymentsPrivilege extends
     protected WalletData.ContactPaymentsPrivilege getData(IPluginData in) {
         in.assignDataType(WalletData.ContactPaymentsPrivilege.class);
         try {
-            // FIXME check validity
             return in.getData();
         } catch (IOException e) {
             return null;

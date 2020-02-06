@@ -341,11 +341,6 @@ public class WalletDataDecl {
     }
 
     public interface ListContactsPrivilege {
-        // signature of this struct generated with
-        // authUser's private key
-        // FIXME add later
-        // String signatureHex();
-
         // who is being granted
         int userId();
 
@@ -437,7 +432,6 @@ public class WalletDataDecl {
         int numInactiveChannels();
 
         /// A list of active chains the node is connected to,
-        // FIXME Chains will be a separate entity w/ separate getter
         //public List<String> chains;
 
         /// The color of the current node in hex code format
@@ -1114,7 +1108,6 @@ public class WalletDataDecl {
         long lastTryTime();
 
         // next time we'll retry, in ms
-        // FIXME what if user changes the device time?
         long nextTryTime();
 
         // 0 - pending, 1 - sent, 2 - failed, 3 - sending, 4 - rejected by user
@@ -1225,7 +1218,6 @@ public class WalletDataDecl {
         @Nullable
         ImmutableList<Integer> features();
 
-        // FIXME think about this
         // public Route paymentRoute;
 
         // Payment fields
@@ -1236,8 +1228,8 @@ public class WalletDataDecl {
         long sendTime();
 
         /// The path this payment took
-        // FIXME instead, store payment routes w/ hops etc
-//        public List<String> path;
+        // instead, store payment routes w/ hops etc
+        // public List<String> path;
 
         ///  The fee paid for this payment in milli-satoshis
         long feeMsat();
@@ -1374,7 +1366,7 @@ public class WalletDataDecl {
         @Nullable
         String alias();
 
-        // FIXME add
+        // add later
         // repeated NodeAddress addresses =4[json_name ="addresses"];
 
         @Nullable

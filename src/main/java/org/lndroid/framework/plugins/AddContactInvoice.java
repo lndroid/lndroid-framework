@@ -42,9 +42,6 @@ public class AddContactInvoice extends
         i.isPrivate = true; // ask to include private channels as route hints
         i.memo = dao.getWalletContactName();
 
-        // GetChanInfo(chan_id) for every our channel, or
-        // GetNodeInfo(our_pubkey+include_channel)
-
 /*        final String pubkey = dao.getWalletPubkey();
         if (pubkey != null) {
             List<WalletData.ChannelEdge> cs = dao.getChannels(pubkey);

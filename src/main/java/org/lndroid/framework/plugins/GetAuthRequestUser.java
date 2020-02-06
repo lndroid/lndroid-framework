@@ -8,8 +8,8 @@ import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.IAuthRequestDao;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetAuthRequestUser extends GetBase<Long> {
@@ -24,9 +24,9 @@ public class GetAuthRequestUser extends GetBase<Long> {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback engine) {
+    public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IAuthRequestDao)dp.getPluginDao(id());
+        dao_ = (IAuthRequestDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

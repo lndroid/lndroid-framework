@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -10,7 +11,6 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.IChannelStateWorkerDao;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.lnd.ILightningDao;
@@ -31,10 +31,10 @@ public class ChannelStateWorker implements IPluginBackground {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginBackgroundCallback engine) {
-        dao_ = (IChannelStateWorkerDao)dp.getPluginDao(id());
-        lnd_ = dp.getLightningDao();
-        engine_ = engine;
+    public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        dao_ = (IChannelStateWorkerDao) server.getDaoProvider().getPluginDao(id());
+        lnd_ = server.getDaoProvider().getLightningDao();
+        engine_ = callback;
     }
 
     private void onChannelOpen(Data.Channel co) {

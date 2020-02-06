@@ -189,7 +189,6 @@ public class DefaultDaoProvider implements IDaoProvider {
     }
 
     private void unlockLndAsync(byte[] password) {
-        // FIXME only call when isUnlocKReady
         WalletData.UnlockWalletRequest r = new WalletData.UnlockWalletRequest();
         r.walletPassword = password;
         lightningDao_.unlockWallet(r, new IResponseCallback<WalletData.UnlockWalletResponse>() {

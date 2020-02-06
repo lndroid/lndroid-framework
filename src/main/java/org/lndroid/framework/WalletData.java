@@ -37,8 +37,6 @@ public final class WalletData {
         }
     }
 
-    // FIXME shouldn't we convert all int codes to Strings to
-    // allow better extensibility in the future?
     public static final int WALLET_STATE_OK = 1;
     public static final int WALLET_STATE_INIT = 2;
     public static final int WALLET_STATE_AUTH = 3;
@@ -788,7 +786,6 @@ public final class WalletData {
         }
     }
 
-    // FIXME turn these into strings
     public static final int INVOICE_STATE_OPEN = 0;
     public static final int INVOICE_STATE_SETTLED = 1;
     public static final int INVOICE_STATE_CANCELED = 2;

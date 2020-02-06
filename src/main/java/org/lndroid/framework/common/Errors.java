@@ -26,6 +26,9 @@ public class Errors {
     // dataset is invalidated, caller needs to retry his read request
     public static final String TX_INVALIDATE = "org.lndroid.errors.TX_INVALIDATE";
 
+    // server terminated the transaction
+    public static final String TX_DONE = "org.lndroid.errors.TX_DONE";
+
     // wrong message pattern for the called plugin
     public static final String PLUGIN_PROTOCOL = "org.lndroid.errors.PLUGIN_PROTOCOL";
 
@@ -44,7 +47,7 @@ public class Errors {
     // IPC server failed, reconnect and retry
     public static final String IPC_ERROR = "org.lndroid.errors.IPC_ERROR";
 
-    // FIXME wtf?
+    // FIXME why separate errors for these?
     public static final String PAYMENT_NO_HASH = "org.lndroid.errors.PAYMENT_NO_HASH";
     public static final String PAYMENT_BAD_INPUT = "org.lndroid.errors.PAYMENT_BAD_INPUT";
 
@@ -61,6 +64,7 @@ public class Errors {
             case PAYMENT_NO_HASH: return "Payment hash not provided";
             case PAYMENT_BAD_INPUT: return "Payment has wrong parameters";
             case TX_INVALIDATE: return "Data set invalidated";
+            case TX_DONE: return "Transaction finished";
             case PLUGIN_PROTOCOL: return "Plugin protocol error";
             case PLUGIN_MESSAGE: return "Plugin message error";
             case LND_ERROR: return "Lnd error";

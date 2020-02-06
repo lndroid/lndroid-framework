@@ -3,6 +3,7 @@ package org.lndroid.framework.lnd;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import org.lndroid.framework.common.HEX;
 import org.lndroid.lnd.data.Data;
 
 import java.io.UnsupportedEncodingException;
@@ -24,30 +25,11 @@ public class LightningCodec {
     public static final long TLV_PREIMAGE = 5482373484L;
 
     public static byte[] hexToBytes(String s) {
-        int len = s.length();
-        if ((len % 2) != 0)
-            return null;
-
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
+        return HEX.toBytes(s);
     }
 
-    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
     public static String bytesToHex(byte[] bytes) {
-        if (bytes == null)
-            return null;
-
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
+        return HEX.fromBytes(bytes);
     }
 
     public static byte[] reverseBytes(byte[] b) {
@@ -199,20 +181,7 @@ public class LightningCodec {
                     ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
                     buffer.order(ByteOrder.BIG_ENDIAN);
                     buffer.putLong(ns);
-/*
 
-                    byte[] timeBuf = new byte[8];
-
-                    // uint64 to bigendian
-                    timeBuf[0] = (byte) ((ns >> 56) & 0xFF);
-                    timeBuf[1] = (byte) ((ns >> 48) & 0xFF);
-                    timeBuf[2] = (byte) ((ns >> 40) & 0xFF);
-                    timeBuf[3] = (byte) ((ns >> 32) & 0xFF);
-                    timeBuf[4] = (byte) ((ns >> 24) & 0xFF);
-                    timeBuf[5] = (byte) ((ns >> 16) & 0xFF);
-                    timeBuf[6] = (byte) ((ns >> 8) & 0xFF);
-                    timeBuf[7] = (byte) ((ns) & 0xFF);
-*/
                     r.destCustomRecords.put(TLV_SENDER_TIME, buffer.array());
 
                 }
@@ -336,7 +305,6 @@ public class LightningCodec {
             b.setAddIndex(rep.addIndex);
             b.setSettleIndex(rep.settleIndex);
             b.setAmountPaidMsat(rep.amtPaidMsat);
-            // FIXME sats not needed? public long amtPaidSat;
 
             // assume state mapping is the same
             b.setState(rep.state);
@@ -379,18 +347,7 @@ public class LightningCodec {
                     ByteBuffer buffer = ByteBuffer.wrap(time);
                     buffer.order(ByteOrder.BIG_ENDIAN);
                     long tm = buffer.getLong();
-/*
-                    long tm = 0;
-                    tm += (time[0] << 56) & 0xFF00000000000000L;
-                    tm += (time[1] << 48) & 0x00FF000000000000L;
-                    tm += (time[2] << 40) & 0x0000FF0000000000L;
-                    tm += (time[3] << 32) & 0x000000FF00000000L;
-                    tm += (time[4] << 24) & 0x00000000FF000000L;
-                    tm += (time[5] << 16) & 0x0000000000FF0000L;
-                    tm += (time[6] << 8 ) & 0x000000000000FF00L;
-                    tm += (time[7]      ) & 0x00000000000000FFL;
 
- */
                     b.setSenderTime(tm / 1000);
                 }
             }

@@ -7,6 +7,7 @@ import android.util.Log;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
+import org.lndroid.framework.IKeyStore;
 import org.lndroid.framework.common.ICodecProvider;
 
 public class PluginServerStarter {
@@ -19,6 +20,7 @@ public class PluginServerStarter {
     private IDaoProvider daoProvider_;
     private ICodecProvider ipcCodecProvider_;
     private IAuthComponentProvider authComponentProvider_;
+    private IKeyStore keyStore_;
 
     static class Future extends FutureTask<Messenger> {
 
@@ -53,7 +55,8 @@ public class PluginServerStarter {
                     pluginProvider_,
                     daoProvider_,
                     ipcCodecProvider_,
-                    authComponentProvider_);
+                    authComponentProvider_,
+                    keyStore_);
 
             server.init();
             future_.setMessenger(new Messenger(server));
@@ -81,6 +84,11 @@ public class PluginServerStarter {
         return this;
     }
 
+    public PluginServerStarter setKeyStore(IKeyStore ks) {
+        keyStore_ = ks;
+        return this;
+    }
+
     public Messenger start(boolean mayExist) {
 
         if (pluginProvider_ == null)
@@ -91,6 +99,8 @@ public class PluginServerStarter {
             throw new RuntimeException("Codec provider not specified");
         if (authComponentProvider_ == null)
             throw new RuntimeException("Auth component provider not specified");
+        if (keyStore_ == null)
+            throw new RuntimeException("Key store not specified");
 
         // to avoid several starters from racing
         synchronized (lock_) {

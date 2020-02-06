@@ -8,7 +8,7 @@ import org.lndroid.framework.common.IPluginData;
 public interface IPluginForeground {
     String id();
     // set the engine
-    void init(IDaoProvider dp, IPluginForegroundCallback cb);
+    void init(IPluginServer server, IPluginForegroundCallback callback);
 
     // let plugin do internal work, like GC etc
     void work();

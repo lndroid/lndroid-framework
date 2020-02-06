@@ -18,6 +18,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.lndroid.framework.IKeyStore;
 import org.lndroid.framework.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
@@ -29,7 +30,7 @@ import org.lndroid.framework.dao.IAuthDao;
 import org.lndroid.framework.dao.IAuthRequestDao;
 import org.lndroid.framework.plugins.Transaction;
 
-class PluginServer extends Handler implements IPluginForegroundCallback, IPluginBackgroundCallback {
+class PluginServer extends Handler implements IPluginServer, IPluginForegroundCallback, IPluginBackgroundCallback {
 
     private static final String TAG = "PluginServer";
     private static final int WORK_INTERVAL = 100; // ms
@@ -48,6 +49,7 @@ class PluginServer extends Handler implements IPluginForegroundCallback, IPlugin
     private ICodecProvider ipcCodecProvider_;
     private ICodec<PluginData.PluginMessage> ipcPluginMessageCodec_;
     private IAuthComponentProvider authComponentProvider_;
+    private IKeyStore keyStore_;
     private IAuthDao authDao_;
     private IAuthRequestDao authRequestDao_;
     private Map<Integer,Integer> authRequestHistory_ = new HashMap<>();
@@ -95,12 +97,25 @@ class PluginServer extends Handler implements IPluginForegroundCallback, IPlugin
     PluginServer(IPluginProvider pluginProvider,
                  IDaoProvider daoProvider,
                  ICodecProvider ipcCodecProvider,
-                 IAuthComponentProvider authComponentProvider) {
+                 IAuthComponentProvider authComponentProvider,
+                 IKeyStore keyStore
+    ){
         pluginProvider_ = pluginProvider;
         daoProvider_ = daoProvider;
         ipcCodecProvider_ = ipcCodecProvider;
         ipcPluginMessageCodec_ = ipcCodecProvider_.get(PluginData.PluginMessage.class);
         authComponentProvider_ = authComponentProvider;
+        keyStore_ = keyStore;
+    }
+
+    @Override
+    public IDaoProvider getDaoProvider() {
+        return daoProvider_;
+    }
+
+    @Override
+    public IKeyStore getKeyStore() {
+        return keyStore_;
     }
 
     private void workTransactionDeadlines() {
@@ -267,7 +282,7 @@ class PluginServer extends Handler implements IPluginForegroundCallback, IPlugin
         pluginProvider_.init();
         for(String pluginId: pluginProvider_.getPluginIds()) {
             IPlugin p = pluginProvider_.getPlugin(pluginId);
-            p.init(daoProvider_,this, this);
+            p.init(this,this, this);
         }
 
         // subscribe plugins to topics

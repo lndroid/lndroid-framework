@@ -7,8 +7,8 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.room.ListContactsDao;
 
 public class ListContacts extends ListBase<WalletData.ListContactsRequest, WalletData.Contact> {
@@ -46,9 +46,9 @@ public class ListContacts extends ListBase<WalletData.ListContactsRequest, Walle
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        super.init(cb);
-        dao_ = (ListContactsDao)dp.getPluginDao(id());
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        super.init(callback);
+        dao_ = (ListContactsDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

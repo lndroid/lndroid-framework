@@ -7,10 +7,10 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.ISubscribeSendPaymentsDao;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.common.PluginData;
 
@@ -27,9 +27,9 @@ public class SubscribeSendPayments implements IPluginForeground {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        engine_ = cb;
-        dao_ = (ISubscribeSendPaymentsDao)dp.getPluginDao(id());
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        engine_ = callback;
+        dao_ = (ISubscribeSendPaymentsDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

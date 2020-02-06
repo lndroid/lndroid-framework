@@ -1,5 +1,6 @@
 package org.lndroid.framework.plugins;
 
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 
 import java.lang.reflect.Type;
@@ -9,7 +10,6 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;
@@ -45,10 +45,10 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     protected IPluginForegroundCallback engine() { return engine_; }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        dao_ = (ILndActionDao<Request, Response>)dp.getPluginDao(id());
-        lnd_ = dp.getLightningDao();
-        engine_ = cb;
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        dao_ = (ILndActionDao<Request, Response>) server.getDaoProvider().getPluginDao(id());
+        lnd_ = server.getDaoProvider().getLightningDao();
+        engine_ = callback;
 
         // restore active transactions
         List<Transaction<Request, Response>> txs = dao_.getTransactions();

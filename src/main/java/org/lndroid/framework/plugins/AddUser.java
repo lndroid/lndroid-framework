@@ -7,6 +7,7 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.PluginContext;
+import org.lndroid.framework.room.AddUserDao;
 
 public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.User> {
 
@@ -30,10 +31,19 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
 
     @Override
     protected WalletData.User createResponse(PluginContext ctx, WalletData.AddUserRequest req, int authUserId) {
+        // FIXME bad bcs:
+        // - accessing concrete dao implementation is a bad dependency
+        // - hacky next-id generation logic
+        // REMOVE when we drop auto-increment keys and use external id generator
+        final AddUserDao dao = (AddUserDao)server().getDaoProvider().getPluginDao(id());
+        final int userId = dao.getNextUserId();
+        final String pubkey = server().getKeyStore().generateUserKeyPair(userId, req.role());
+
         return WalletData.User.builder()
+                .setId(userId)
                 .setAuthUserId(authUserId)
                 .setCreateTime(System.currentTimeMillis())
-                .setPubkey("FIXME_user_pubkey") // FIXME generate!
+                .setPubkey(pubkey)
                 .setRole(req.role())
                 .setAppPackageName(req.appPackageName())
                 .setAppLabel(req.appLabel())

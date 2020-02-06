@@ -9,10 +9,10 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.ISendPaymentDao;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.common.PluginData;
 import org.lndroid.framework.lnd.LightningCodec;
@@ -39,9 +39,9 @@ public class SendPayment implements IPluginForeground {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        dao_ = (ISendPaymentDao)dp.getPluginDao(id());
-        engine_ = cb;
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        dao_ = (ISendPaymentDao) server.getDaoProvider().getPluginDao(id());
+        engine_ = callback;
 
         // restore active transactions
         List<Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment>> txs = dao_.getTransactions();

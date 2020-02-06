@@ -148,32 +148,6 @@ public class LightningDao implements ILightningDao {
         });
     }
 
-    // FIXME remove, this is for debug
-    private void connect() {
-        final Data.ConnectPeerRequest r = new Data.ConnectPeerRequest();
-        r.addr = new Data.LightningAddress();
-        r.addr.host = "176.9.28.137";
-        r.addr.pubkey = "02bcd28003802ee4e2cf3b214ae5c02d1e700c6c03e2940bc5b2ca2cb76567026f";
-        r.perm = true;
-        client().connectPeer(r, new ILightningCallback<Data.ConnectPeerResponse>() {
-            @Override
-            public void onResponse(Data.ConnectPeerResponse connectPeerResponse) {
-                Log.i(TAG, "connected to lnd peer "+r.addr.host);
-            }
-
-            @Override
-            public void onError(int i, String s) {
-                Log.e(TAG, "connect failed to lnd peer "+r.addr.host+" code "+i+" err "+s);
-                if (s.contains("in the process")) {
-                    try {
-                        Thread.sleep(200);
-                    } catch (Exception e) {}
-                    connect();
-                }
-            }
-        });
-    }
-
     private void onUnlock(IResponseCallback<WalletData.UnlockWalletResponse> cb) {
         Log.i(TAG, "unlocked");
         cb.onResponse(new WalletData.UnlockWalletResponse());

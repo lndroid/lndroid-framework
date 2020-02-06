@@ -17,6 +17,7 @@ public interface IKeyStore {
     // init might be called twice, as with DaoProvider
     void init();
     boolean isAvailable();
+    String generateUserKeyPair(int userId, String role);
     byte[] decryptWalletPassword(EncryptedData data);
     EncryptedData encryptWalletPassword(byte[] data);
 }

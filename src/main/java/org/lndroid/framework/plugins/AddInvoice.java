@@ -70,7 +70,6 @@ public class AddInvoice extends
 
     @Override
     protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.AddInvoiceRequest, WalletData.Invoice> tx) {
-        // FIXME check limits
         return user.isRoot();
     }
 

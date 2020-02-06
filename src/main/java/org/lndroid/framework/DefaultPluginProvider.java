@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPlugin;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginProvider;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.plugins.AddAppContact;
 import org.lndroid.framework.plugins.AddContactInvoice;
 import org.lndroid.framework.plugins.AddContactPaymentsPrivilege;
@@ -63,8 +63,8 @@ public class DefaultPluginProvider implements IPluginProvider {
         }
 
         @Override
-        public void init(IDaoProvider dp, IPluginForegroundCallback fcb, IPluginBackgroundCallback bcb) {
-            plugin_.init(dp, fcb);
+        public void init(IPluginServer server, IPluginForegroundCallback fcb, IPluginBackgroundCallback bcb) {
+            plugin_.init(server, fcb);
         }
 
         @Override
@@ -92,8 +92,8 @@ public class DefaultPluginProvider implements IPluginProvider {
         }
 
         @Override
-        public void init(IDaoProvider dp, IPluginForegroundCallback fcb, IPluginBackgroundCallback bcb) {
-            plugin_.init(dp, bcb);
+        public void init(IPluginServer server, IPluginForegroundCallback fcb, IPluginBackgroundCallback bcb) {
+            plugin_.init(server, bcb);
         }
 
         @Override

@@ -7,9 +7,9 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.IGetChannelDao;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetChannel extends GetBase<Long> {
@@ -55,8 +55,8 @@ public class GetChannel extends GetBase<Long> {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginForegroundCallback cb) {
-        super.init(cb);
-        dao_ = (IGetChannelDao)dp.getPluginDao(id());
+    public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        super.init(callback);
+        dao_ = (IGetChannelDao) server.getDaoProvider().getPluginDao(id());
     }
 }

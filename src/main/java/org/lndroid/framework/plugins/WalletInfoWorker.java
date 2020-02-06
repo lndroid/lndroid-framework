@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -10,7 +11,6 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.dao.IWalletInfoDao;
-import org.lndroid.framework.engine.IDaoProvider;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.lnd.ILightningDao;
@@ -34,10 +34,10 @@ public class WalletInfoWorker implements IPluginBackground {
     }
 
     @Override
-    public void init(IDaoProvider dp, IPluginBackgroundCallback engine) {
-        engine_ = engine;
-        dao_ = (IWalletInfoDao)dp.getPluginDao(id());
-        lnd_ = dp.getLightningDao();
+    public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        engine_ = callback;
+        dao_ = (IWalletInfoDao) server.getDaoProvider().getPluginDao(id());
+        lnd_ = server.getDaoProvider().getLightningDao();
     }
 
     private void reschedule() {

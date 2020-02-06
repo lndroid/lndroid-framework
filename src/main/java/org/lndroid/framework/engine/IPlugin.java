@@ -2,11 +2,11 @@ package org.lndroid.framework.engine;
 
 public interface IPlugin {
     String id();
-    void init(IDaoProvider dp,
+    void init(IPluginServer server,
               IPluginForegroundCallback fcb,
               IPluginBackgroundCallback bcb);
 
-    // both might not be null
+    // either one must be not null
     IPluginForeground getForeground();
     IPluginBackground getBackground();
 }
