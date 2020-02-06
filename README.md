@@ -11,7 +11,7 @@ But then not every app needs a whole Lightning wallet (which is quite heavy). So
 
 Plus, Lndroid.Framework makes use of cool mobile technologies, like Keystore and Notifications, and handles various mobile restrictions like intermittent network connectivity. For instance, whenever a payment fails, it might spawn a Service to retry the payment. It might also schedule a background service to start the wallet every now and then to accept payments. This finally makes it practical to send payments between mobile wallets.
 
-To see a wallet based on Lndroid.Framework, check [Lndroid.Wallet](https://github.com/lndroid/lndroid-wallet/). To see an app integrated with a Lightning wallet, check [Lndroid.Messenger](https://github.com/lndroid/lndroid-messenger/).
+To see a wallet based on Lndroid.Framework, check [Lndroid.Wallet](https://github.com/lndroid/lndroid-wallet/). To see an app integrated with the framework-based wallet, check [Lndroid.Messenger](https://github.com/lndroid/lndroid-messenger/).
 
 To see sample app+wallet in action, check this video.
 
@@ -23,7 +23,7 @@ To see sample app+wallet in action, check this video.
 
 1. Android Room
 2. Protobuf
-3. Google Auto-Value
+3. AutoValue
 4. Guava
 5. Gson
 6. Lndroid.Daemon
