@@ -13,7 +13,7 @@ Plus, Lndroid.Framework makes use of cool mobile technologies, like Keystore and
 
 To see a wallet based on Lndroid.Framework, check [Lndroid.Wallet](https://github.com/lndroid/lndroid-wallet/). To see an app integrated with the framework-based wallet, check [Lndroid.Messenger](https://github.com/lndroid/lndroid-messenger/). The client-side library for the apps is [Lndroid.Client](https://github.com/lndroid/lndroid-client/) (though it's sources are just an excerpt from the framework).
 
-To see sample app+wallet in action, check [this video](https://www.youtube.com/watch?v=bF-1QxFTvHU), with description available [here](https://github.com/lndroid/lndroid-wallet/).
+To see sample app+wallet in action, check [this video](https://www.youtube.com/watch?v=bF-1QxFTvHU), with description available [here](https://github.com/lndroid/lndroid-wallet/#here-is-what-you-see-on-the-lndroid-demo-video).
 
 # TODO
 
