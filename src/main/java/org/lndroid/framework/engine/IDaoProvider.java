@@ -1,9 +1,10 @@
 package org.lndroid.framework.engine;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IAuthDao;
 import org.lndroid.framework.dao.IAuthRequestDao;
+import org.lndroid.framework.dao.IRawQueryDao;
 import org.lndroid.framework.lnd.ILightningDao;
 
 public interface IDaoProvider {
@@ -32,5 +33,6 @@ public interface IDaoProvider {
     IAuthDao getAuthDao();
     IAuthRequestDao getAuthRequestDao();
     ILightningDao getLightningDao();
+    IRawQueryDao getRawQueryDao();
     IPluginDao getPluginDao(String pluginId);
 }

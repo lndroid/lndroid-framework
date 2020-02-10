@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.client.IPluginClient;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 
 public class ActionAddInvoice extends ActionUseCaseBase<WalletData.AddInvoiceRequest, WalletData.Invoice> {
     public ActionAddInvoice(IPluginClient client) {

@@ -1,4 +1,4 @@
-package org.lndroid.framework;
+package org.lndroid.framework.engine;
 
 import android.content.Context;
 
@@ -10,5 +10,4 @@ public interface IDaoConfig {
     String getDatabasePath();
     String getPasswordFileName();
     String getLndDirName();
-    IKeyStore getKeyStore();
 }

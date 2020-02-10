@@ -36,7 +36,8 @@ public class ListPaymentsDao implements IPluginDao {
         return where;
     }
 
-    public WalletData.ListPaymentsResult list(WalletData.ListPaymentsRequest req, WalletData.ListPage page, int callerUserId) {
+    public WalletData.ListPaymentsResult list(WalletData.ListPaymentsRequest req,
+                                              WalletData.ListPage page, long callerUserId) {
         String where = "";
 
         if (req.contactId() != 0) {
@@ -80,7 +81,7 @@ public class ListPaymentsDao implements IPluginDao {
         return dao_.listPayments(new SimpleSQLiteQuery(query), page);
     }
 
-    public boolean hasPrivilege(WalletData.ListPaymentsRequest req, int userId) {
+    public boolean hasPrivilege(WalletData.ListPaymentsRequest req, long userId) {
         if (req.contactId() != 0)
             return dao_.hasContactPaymentsPrivilege(userId, req.contactId());
         return false;
@@ -102,7 +103,7 @@ abstract class ListPaymentsDaoRoom {
     abstract List<RoomData.Payment> listPayments(List<Long> ids);
 
     @Query("SELECT id FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
-    abstract boolean hasContactPaymentsPrivilege(int userId, long contactId);
+    abstract boolean hasContactPaymentsPrivilege(long userId, long contactId);
 
     @Query("SELECT pubkey FROM Contact WHERE id = :contactId")
     abstract String getContactPubkey(long contactId);

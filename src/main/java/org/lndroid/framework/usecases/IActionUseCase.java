@@ -2,7 +2,7 @@ package org.lndroid.framework.usecases;
 
 import androidx.lifecycle.LifecycleOwner;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 
 public interface IActionUseCase<Request, Response> {

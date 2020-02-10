@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
@@ -25,8 +26,9 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
     }
 
     @Override
-    protected WalletData.Channel createResponse(PluginContext ctx, WalletData.OpenChannelRequest req, int authUserId) {
+    protected WalletData.Channel createResponse(PluginContext ctx, WalletData.OpenChannelRequest req, long authUserId) {
         return WalletData.Channel.builder()
+                .setId(server().getIdGenerator().generateId(WalletData.Channel.class))
                 .setUserId(ctx.user.id())
                 .setTxId(ctx.txId)
                 .setAuthUserId(authUserId)

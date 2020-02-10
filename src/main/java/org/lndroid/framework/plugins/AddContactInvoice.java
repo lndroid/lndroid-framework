@@ -5,11 +5,9 @@ import org.lndroid.lnd.data.Data;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
@@ -73,7 +71,7 @@ public class AddContactInvoice extends
 
     @Override
     protected WalletData.AddContactInvoiceResponse createResponse(
-            PluginContext ctx, WalletData.AddContactInvoiceRequest request, int authUserId, Data.AddInvoiceResponse r) {
+            PluginContext ctx, WalletData.AddContactInvoiceRequest request, long authUserId, Data.AddInvoiceResponse r) {
         return WalletData.AddContactInvoiceResponse.builder()
                 .setPaymentRequest(r.paymentRequest)
                 .build();

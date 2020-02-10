@@ -1,5 +1,6 @@
 package org.lndroid.framework.plugins;
 
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
@@ -38,7 +39,7 @@ public class NewAddress extends
 
     @Override
     protected WalletData.NewAddress createResponse(
-            PluginContext ctx, WalletData.NewAddressRequest req, int authUserId, Data.NewAddressResponse r) {
+            PluginContext ctx, WalletData.NewAddressRequest req, long authUserId, Data.NewAddressResponse r) {
         WalletData.NewAddress.Builder b = WalletData.NewAddress.builder();
         LightningCodec.NewAddressCodec.decode(r, b);
         return b.build();

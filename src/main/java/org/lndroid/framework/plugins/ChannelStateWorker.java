@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
@@ -9,7 +10,7 @@ import org.lndroid.lnd.data.Data;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.dao.IChannelStateWorkerDao;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
@@ -20,6 +21,7 @@ public class ChannelStateWorker implements IPluginBackground {
 
     private static final String TAG = "ChannelStateWorker";
 
+    private IPluginServer server_;
     private IChannelStateWorkerDao dao_;
     private ILightningDao lnd_;
     private IPluginBackgroundCallback engine_;
@@ -32,6 +34,7 @@ public class ChannelStateWorker implements IPluginBackground {
 
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        server_ = server;
         dao_ = (IChannelStateWorkerDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
@@ -46,6 +49,7 @@ public class ChannelStateWorker implements IPluginBackground {
             // if we're not initiator then we won't have this channel
             // in our db
             b = WalletData.Channel.builder();
+            b.setId(server_.getIdGenerator().generateId(WalletData.Channel.class));
         }
 
         LightningCodec.ChannelConverter.decode(co, b);

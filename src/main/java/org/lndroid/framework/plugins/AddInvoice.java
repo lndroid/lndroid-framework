@@ -1,5 +1,6 @@
 package org.lndroid.framework.plugins;
 
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
@@ -38,9 +39,10 @@ public class AddInvoice extends
 
     @Override
     protected WalletData.Invoice createResponse(
-            PluginContext ctx, WalletData.AddInvoiceRequest request, int authUserId, Data.AddInvoiceResponse r) {
+            PluginContext ctx, WalletData.AddInvoiceRequest request, long authUserId, Data.AddInvoiceResponse r) {
         // convert lndRequest to invoice
         WalletData.Invoice.Builder b = WalletData.Invoice.builder()
+                .setId(server().getIdGenerator().generateId(WalletData.Invoice.class))
                 .setTxId(ctx.txId)
                 .setUserId(ctx.user.id())
                 .setPurpose(request.purpose())

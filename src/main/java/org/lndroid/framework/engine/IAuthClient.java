@@ -1,6 +1,6 @@
 package org.lndroid.framework.engine;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 
 public interface IAuthClient {
@@ -21,15 +21,15 @@ public interface IAuthClient {
     void subscribeBackgroundAuthRequests(IResponseCallback<WalletData.AuthRequest> cb);
 
     // check if user has privileges to auth the tx
-    void isUserPrivileged(String pluginId, int authUserId, int authId, IResponseCallback<Boolean> cb);
+    void isUserPrivileged(String pluginId, long authUserId, long authId, IResponseCallback<Boolean> cb);
 
     // tell server about user's tx authorization results
     void authorize(WalletData.AuthResponse res, IResponseCallback<Boolean> cb);
 
     // get auth request, used by auth activities
-    void getAuthRequest(int id, IResponseCallback<WalletData.AuthRequest> cb);
+    void getAuthRequest(long id, IResponseCallback<WalletData.AuthRequest> cb);
 
     // get auth tx request, used by auth activities
-    <T> void getTransactionRequest(int userId, String txId, Class<T> cls, IResponseCallback<T> cb);
+    <T> void getTransactionRequest(long userId, String txId, Class<T> cls, IResponseCallback<T> cb);
 
 }

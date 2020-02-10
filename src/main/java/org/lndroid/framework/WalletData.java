@@ -105,7 +105,7 @@ public final class WalletData {
         }
 
         public static UserIdentity create(
-                int userId,
+                long userId,
                 String appPackageName,
                 String appPubkey
         ) {
@@ -146,8 +146,8 @@ public final class WalletData {
     public static abstract class AuthResponse implements WalletDataDecl.AuthResponse {
 
         public static AuthResponse create(
-                int authId,
-                int authUserId,
+                long authId,
+                long authUserId,
                 boolean authorized,
                 Object data
         ) {
@@ -178,11 +178,11 @@ public final class WalletData {
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_AuthRequest.class)
-    public static abstract class AuthRequest implements WalletDataDecl.AuthRequest {
+    public static abstract class AuthRequest implements WalletDataDecl.EntityBase, WalletDataDecl.AuthRequest {
 
         public static AuthRequest create(
-                int id,
-                int userId,
+                long id,
+                long userId,
                 long createTime,
                 boolean background,
                 String pluginId,
@@ -216,6 +216,7 @@ public final class WalletData {
 
         @AutoValue.Builder
         public abstract static class Builder implements
+                WalletDataDecl.EntityBase,
                 WalletDataDecl.AuthRequest,
                 WalletDataBuilders.IBuilder<AuthRequest>,
                 WalletDataBuilders.AuthRequestBuilder<Builder> {
@@ -231,7 +232,7 @@ public final class WalletData {
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_User.class)
-    public static abstract class User implements WalletDataDecl.User {
+    public static abstract class User implements WalletDataDecl.EntityBase, WalletDataDecl.User {
 
         public boolean isValid() {
             return role() != null && !role().equals("")
@@ -254,7 +255,15 @@ public final class WalletData {
         }
 
         public static User create(
-                int id, int authUserId, long createTime, String role, String pubkey, String appPubkey, String appPackageName, String appLabel) {
+                long id,
+                long authUserId,
+                long createTime,
+                String role,
+                String pubkey,
+                String appPubkey,
+                String appPackageName,
+                String appLabel)
+        {
             return builder()
                     .setId(id)
                     .setAuthUserId(authUserId)
@@ -277,8 +286,12 @@ public final class WalletData {
         public abstract Builder toBuilder();
 
         @AutoValue.Builder
-        public abstract static class Builder
-                implements WalletDataBuilders.IBuilder<User>, WalletDataBuilders.UserBuilder<Builder> {
+        public abstract static class Builder implements
+                WalletDataDecl.EntityBase,
+                WalletDataDecl.User,
+                WalletDataBuilders.IBuilder<User>,
+                WalletDataBuilders.UserBuilder<Builder>
+        {
             public abstract User autoBuild();
 
             @Override
@@ -305,10 +318,12 @@ public final class WalletData {
             );
         }
 
-        // Room uses this factory method to create objects, as it looks like
-        // it doesn't support auto value builders.
         public static AddUserRequest create(
-                String role, String appPubkey, String appPackageName, String appLabel) {
+                String role,
+                String appPubkey,
+                String appPackageName,
+                String appLabel)
+        {
             return builder()
                     .setRole(role)
                     .setAppPubkey(appPubkey)
@@ -324,8 +339,10 @@ public final class WalletData {
         public abstract Builder toBuilder();
 
         @AutoValue.Builder
-        public abstract static class Builder
-                implements WalletDataBuilders.IBuilder<AddUserRequest>, WalletDataBuilders.AddUserRequestBuilder<Builder> {
+        public abstract static class Builder implements
+                WalletDataDecl.AddUserRequest,
+                WalletDataBuilders.IBuilder<AddUserRequest>,
+                WalletDataBuilders.AddUserRequestBuilder<Builder> {
             public abstract AddUserRequest autoBuild();
 
             @Override
@@ -798,8 +815,8 @@ public final class WalletData {
         public static Invoice create(
                 long id,
                 String txId,
-                int userId,
-                int authUserId,
+                long userId,
+                long authUserId,
                 String purpose,
                 String description,
                 String preimageHex,
@@ -1025,9 +1042,9 @@ public final class WalletData {
 
         public static Channel create(
                 long id,
-                int userId,
+                long userId,
                 String txId,
-                int authUserId,
+                long authUserId,
                 String description,
                 int targetConf,
                 long satPerByte,
@@ -1534,7 +1551,7 @@ public final class WalletData {
                 ImmutableMap<Long, HTLCAttempt> HTLCAttempts,
                 ImmutableMap<Long, Invoice> invoices,
                 ImmutableMap<Long, InvoiceHTLC> invoiceHTLCs,
-                int userId,
+                long userId,
                 long time,
                 String peerPubkey,
                 String message
@@ -1589,8 +1606,8 @@ public final class WalletData {
         public static SendPayment create(
                 long id,
                 String txId,
-                int userId,
-                int authUserId,
+                long userId,
+                long authUserId,
                 String purpose,
                 int tries,
                 int maxTries,
@@ -1731,8 +1748,8 @@ public final class WalletData {
 
         public static Contact create(
                 long id,
-                int userId,
-                int authUserId,
+                long userId,
+                long authUserId,
                 long createTime,
                 String pubkey,
                 String name,
@@ -1899,8 +1916,8 @@ public final class WalletData {
 
         public static ListContactsPrivilege create(
                 long id,
-                int userId,
-                int authUserId,
+                long userId,
+                long authUserId,
                 long createTime
         ) {
             return builder()
@@ -1937,8 +1954,8 @@ public final class WalletData {
 
         public static ContactPaymentsPrivilege create(
                 long id,
-                int userId,
-                int authUserId,
+                long userId,
+                long authUserId,
                 long createTime,
                 long contactId
         ) {

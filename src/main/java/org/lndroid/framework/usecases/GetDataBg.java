@@ -2,7 +2,7 @@ package org.lndroid.framework.usecases;
 
 import java.lang.reflect.Type;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.client.IPluginClient;

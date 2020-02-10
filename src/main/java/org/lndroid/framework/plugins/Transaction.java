@@ -6,14 +6,14 @@ public class Transaction<Request, Response> {
     public static final int TX_STATE_TIMEDOUT = 3;
     public static final int TX_STATE_ERROR = 4;
 
-    public int userId;
+    public long userId;
     public String txId;
     public long createTime;
     public long deadlineTime;
     public long doneTime;
 
     // user and time of last auth on this tx
-    public int authUserId;
+    public long authUserId;
     public long authTime;
 
     // embedded request and response

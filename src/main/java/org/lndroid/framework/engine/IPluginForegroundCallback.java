@@ -9,7 +9,7 @@ public interface IPluginForegroundCallback {
     // active transactions from db,
     // if 'false' is returned, transaction must be
     // discarded (user disabled, etc)
-    boolean onInit(String pluginId, int userId, PluginContext ctx);
+    boolean onInit(String pluginId, long userId, PluginContext ctx);
 
     // called when plugin wants to send response,
     // engine finds the client's messenger

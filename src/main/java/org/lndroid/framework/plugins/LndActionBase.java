@@ -18,6 +18,7 @@ import org.lndroid.framework.lnd.ILightningDao;
 
 public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> implements IPluginForeground {
 
+    private IPluginServer server_;
     private ILndActionDao<Request, Response> dao_;
     private ILightningDao lnd_;
     private IPluginForegroundCallback engine_;
@@ -25,7 +26,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     private class TxData {
         PluginContext ctx;
         Request request;
-        int authUserId;
+        long authUserId;
     }
     private List<TxData> queue_ = new ArrayList<>();
 
@@ -33,7 +34,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     protected abstract int defaultTimeout();
     protected abstract int maxTimeout();
     protected abstract LndRequest createLndRequest(ILndActionDao<Request, Response> dao, PluginContext ctx, Request req);
-    protected abstract Response createResponse(PluginContext ctx, Request req, int authUserId, LndResponse r);
+    protected abstract Response createResponse(PluginContext ctx, Request req, long authUserId, LndResponse r);
     protected abstract void execute(LndRequest r, ILightningCallback<LndResponse> cb);
     protected abstract void signal(PluginContext ctx, Request req, Response rep);
     protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request, Response> tx);
@@ -41,6 +42,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     protected abstract Type getResponseType();
     protected Object convertResponse(Response r) { return r; };
 
+    protected IPluginServer server() { return server_; }
     protected ILightningDao lnd() { return lnd_; }
     protected IPluginForegroundCallback engine() { return engine_; }
 
@@ -49,6 +51,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
         dao_ = (ILndActionDao<Request, Response>) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
+        server_ = server;
 
         // restore active transactions
         List<Transaction<Request, Response>> txs = dao_.getTransactions();

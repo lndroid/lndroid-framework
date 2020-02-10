@@ -24,7 +24,7 @@ abstract class NewAddressDaoRoom
     public abstract List<RoomTransactions.NewAddressTransaction> getTransactions();
 
     @Query("SELECT * FROM NewAddressTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.NewAddressTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.NewAddressTransaction getTransaction(long txUserId, String txId);
 
     @Insert
     public abstract void createTransaction(RoomTransactions.NewAddressTransaction tx);
@@ -34,26 +34,26 @@ abstract class NewAddressDaoRoom
     @Query("UPDATE NewAddressTransaction " +
             "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time);
+    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
 
     @Query("UPDATE NewAddressTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Override
     @Query("UPDATE NewAddressTransaction " +
             "SET txState = :txState, txDoneTime = :time, txError = :code " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
 
     @Query("UPDATE NewAddressTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(int txUserId, String txId, int txState, long time);
+    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
 
     @Override @Transaction
-    public void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time, WalletData.NewAddressRequest authedRequest) {
+    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, WalletData.NewAddressRequest authedRequest) {
         if (authedRequest != null) {
             RoomTransactions.NewAddressTransaction tx = getTransaction(txUserId, txId);
             tx.txData.txAuthTime = time;
@@ -66,7 +66,7 @@ abstract class NewAddressDaoRoom
     }
 
     @Transaction
-    public WalletData.NewAddress commitTransaction(int txUserId, String txId, WalletData.NewAddress r, long time) {
+    public WalletData.NewAddress commitTransaction(long txUserId, String txId, WalletData.NewAddress r, long time) {
         RoomTransactions.NewAddressTransaction tx = getTransaction(txUserId, txId);
 
         // NOTE: r is not written to it's own table bcs we don't store addresses

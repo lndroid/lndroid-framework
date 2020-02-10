@@ -5,18 +5,21 @@ import androidx.room.Room;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lndroid.framework.IDaoConfig;
+import org.lndroid.framework.dao.IRawQueryDao;
+import org.lndroid.framework.engine.IDaoConfig;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IAuthDao;
 import org.lndroid.framework.dao.IAuthRequestDao;
 import org.lndroid.framework.dao.IDBDaoProvider;
 import org.lndroid.framework.engine.IPluginDao;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 
 public class RoomDaoProvider implements IDBDaoProvider {
 
     private IDaoConfig config_;
     private RoomDB db_;
+
+    private RawQueryDao rawQueryDao_;
 
     private AuthDao authDao_;
 
@@ -37,6 +40,8 @@ public class RoomDaoProvider implements IDBDaoProvider {
                 // FIXME implement migrations after the first release
                 .fallbackToDestructiveMigration()
                 .build();
+
+        rawQueryDao_ = new RawQueryDao(db_.rawQueryDao(), db_.getOpenHelper());
 
         authDao_ = new AuthDao(db_.authDao());
         authRequestDao_ = new AuthRequestDao(db_.authRequestDao());
@@ -103,12 +108,12 @@ public class RoomDaoProvider implements IDBDaoProvider {
         // ensure root user
         if (authDao_.get(WalletData.ROOT_USER_ID) == null) {
             RoomData.User u = new RoomData.User();
-            u.id_ = WalletData.ROOT_USER_ID;
-            u.data = WalletData.User.builder()
+            u.setData(WalletData.User.builder()
                     .setId(WalletData.ROOT_USER_ID)
                     .setPubkey("FIXME_root_pubkey") // FIXME generate
                     .setRole(WalletData.USER_ROLE_ROOT)
-                    .build();
+                    .build()
+            );
             db_.userAddDao().insertUser(u);
         }
     }
@@ -127,6 +132,11 @@ public class RoomDaoProvider implements IDBDaoProvider {
     @Override
     public IAuthRequestDao getAuthRequestDao() {
         return authRequestDao_;
+    }
+
+    @Override
+    public IRawQueryDao getRawQueryDao() {
+        return rawQueryDao_;
     }
 
     @Override

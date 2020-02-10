@@ -45,7 +45,7 @@ class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<
     }
 
     @Override
-    public Transaction<Request, Response> getTransaction(int txUserId, String txId) {
+    public Transaction<Request, Response> getTransaction(long txUserId, String txId) {
         RoomTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -66,18 +66,18 @@ class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<
     }
 
     @Override
-    public Response commitTransaction(int txUserId, String txId, int txAuthUserId, Response r) {
+    public Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r) {
         RoomTransaction tx = dao_.getTransaction(txUserId, txId);
         return dao_.commitTransaction(tx, txAuthUserId, r, System.currentTimeMillis());
     }
 
     @Override
-    public void rejectTransaction(int txUserId, String txId, int txAuthUserId) {
+    public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
         dao_.failTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
     }
 
     @Override
-    public void timeoutTransaction(int txUserId, String txId) {
+    public void timeoutTransaction(long txUserId, String txId) {
         dao_.failTransaction(txUserId, txId, 0, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
     }
 }

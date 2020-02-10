@@ -24,7 +24,7 @@ public class WalletDataBuilders {
     }
 
     interface UserIdentityBuilder<Builder> {
-        Builder setUserId(int id);
+        Builder setUserId(long id);
 
         Builder setAppPackageName(String packageName);
 
@@ -32,9 +32,9 @@ public class WalletDataBuilders {
     }
 
     interface UserBuilder<Builder> {
-        Builder setId(int id);
+        Builder setId(long id);
 
-        Builder setAuthUserId(int authUserId);
+        Builder setAuthUserId(long authUserId);
 
         Builder setCreateTime(long createTime);
 
@@ -50,15 +50,15 @@ public class WalletDataBuilders {
     }
 
     interface AuthResponseBuilder<Builder> {
-        Builder setAuthId(int authId);
-        Builder setAuthUserId(int authUserId);
+        Builder setAuthId(long authId);
+        Builder setAuthUserId(long authUserId);
         Builder setAuthorized(boolean authorized);
         Builder setData(Object data);
     }
 
     interface AuthRequestBuilder<Builder> {
-        Builder setId(int id);
-        Builder setUserId(int userId);
+        Builder setId(long id);
+        Builder setUserId(long userId);
         Builder setCreateTime(long createTime);
         Builder setBackground(boolean background);
         Builder setPluginId(String pluginId);
@@ -100,8 +100,8 @@ public class WalletDataBuilders {
 
     interface ContactBuilder<RouteHint, Builder> {
         Builder setId(long id);
-        Builder setUserId(int userId);
-        Builder setAuthUserId(int authUserId);
+        Builder setUserId(long userId);
+        Builder setAuthUserId(long authUserId);
         Builder setCreateTime(long createTime);
 
         Builder setPubkey(String pubkey);
@@ -137,12 +137,12 @@ public class WalletDataBuilders {
         Builder setNoAuth(boolean noAuth);
         Builder setEnablePaging(boolean enablePaging);
 
-        Builder setUserId(int userId);
+        Builder setUserId(long userId);
         Builder setInvoiceId(long invoiceId);
         Builder setTxId(String txId);
         Builder setPreimageHex(String preimageHex);
         Builder setPreimageHashHex(String preimageHashHex);
-        Builder setAuthUserId(int authUserId);
+        Builder setAuthUserId(long authUserId);
         Builder setCreateFrom(long createFrom);
         Builder setCreateTill(long createTill);
         Builder setSettleFrom(long settleFrom);
@@ -159,7 +159,7 @@ public class WalletDataBuilders {
         Builder setNoAuth(boolean noAuth);
         Builder setEnablePaging(boolean enablePaging);
 
-        Builder setUserId(int userId);
+        Builder setUserId(long userId);
         Builder setType(int type);
         Builder setContactId(long contactId);
         Builder setSourceId(long sourceId);
@@ -176,7 +176,7 @@ public class WalletDataBuilders {
         Builder setNoAuth(boolean noAuth);
         Builder setEnablePaging(boolean enablePaging);
 
-        Builder setUserId(int userId);
+        Builder setUserId(long userId);
         Builder setSort(String sort);
         Builder setSortDesc(boolean sortDesc);
     }
@@ -189,15 +189,15 @@ public class WalletDataBuilders {
 
     interface ListContactsPrivilegeBuilder<Builder> {
         Builder setId(long id);
-        Builder setUserId(int userId);
-        Builder setAuthUserId(int authUserId);
+        Builder setUserId(long userId);
+        Builder setAuthUserId(long authUserId);
         Builder setCreateTime(long createTime);
     }
 
     interface ContactPaymentsPrivilegeBuilder<Builder> {
         Builder setId(long id);
-        Builder setUserId(int userId);
-        Builder setAuthUserId(int authUserId);
+        Builder setUserId(long userId);
+        Builder setAuthUserId(long authUserId);
         Builder setCreateTime(long createTime);
         Builder setContactId(long contactId);
     }
@@ -248,8 +248,8 @@ public class WalletDataBuilders {
     interface InvoiceBuilder<Builder> {
         Builder setId(long id);
         Builder setTxId(String txId);
-        Builder setUserId(int userId);
-        Builder setAuthUserId(int authUserId);
+        Builder setUserId(long userId);
+        Builder setAuthUserId(long authUserId);
         Builder setPurpose(String purpose);
         Builder setDescription(String description);
         Builder setPreimageHex(String preimageHex);
@@ -291,9 +291,9 @@ public class WalletDataBuilders {
 
     interface ChannelBuilder<Builder> {
         Builder setId(long id);
-        Builder setUserId(int userId);
+        Builder setUserId(long userId);
         Builder setTxId(String txId);
-        Builder setAuthUserId(int authUserId);
+        Builder setAuthUserId(long authUserId);
         Builder setDescription(String description);
         Builder setTargetConf(int targetConf);
         Builder setSatPerByte(long satPerByte);
@@ -406,7 +406,7 @@ public class WalletDataBuilders {
         Builder setInvoices(ImmutableMap<Long,Invoice> invoices);
         Builder setInvoiceHTLCs(ImmutableMap<Long,InvoiceHTLC> htlcs);
 
-        Builder setUserId(int userId);
+        Builder setUserId(long userId);
         Builder setTime(long time);
         Builder setPeerPubkey(String peerPubkey);
         Builder setMessage(String message);
@@ -415,8 +415,8 @@ public class WalletDataBuilders {
     interface SendPaymentBuilder<RouteHint, Builder> {
         Builder setId(long id);
         Builder setTxId(String txId);
-        Builder setUserId(int userId);
-        Builder setAuthUserId(int authUserId);
+        Builder setUserId(long userId);
+        Builder setAuthUserId(long authUserId);
         Builder setPurpose(String purpose);
         Builder setTries(int tries);
         Builder setMaxTries(int maxTries);

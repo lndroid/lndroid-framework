@@ -5,9 +5,10 @@ import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.IAuthRequestDao;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
@@ -41,7 +42,7 @@ public class GetAuthRequestUser extends GetBase<Long> {
 
     @Override
     protected Object get(Long id) {
-        return dao_.getAuthRequestUser(id.intValue());
+        return dao_.getAuthRequestUser(id);
     }
 
     @Override

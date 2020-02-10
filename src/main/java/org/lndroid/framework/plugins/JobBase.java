@@ -17,6 +17,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     private String pluginId_;
     private String newTopic_;
     private String stateTopic_;
+    private IPluginServer server_;
     private IJobDao<Request, Response> dao_;
     private IPluginForegroundCallback engine_;
 
@@ -31,10 +32,12 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
         return pluginId_;
     }
 
+    protected IPluginServer server() { return server_; }
     protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request, Response> tx);
 
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        server_ = server;
         dao_ = (IJobDao<Request, Response>) server.getDaoProvider().getPluginDao(id());
         engine_ = callback;
 
@@ -70,14 +73,14 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
         // noop
     }
 
-    protected abstract Response createResponse(PluginContext ctx, Request req, int authUserId);
+    protected abstract Response createResponse(PluginContext ctx, Request req, long authUserId);
     protected abstract boolean isValid(Request req);
     protected abstract int defaultTimeout();
     protected abstract int maxTimeout();
     protected abstract Request getData(IPluginData in);
     protected abstract Type getResponseType();
 
-    private void commit(PluginContext ctx, int authUserId) {
+    private void commit(PluginContext ctx, long authUserId) {
         // convert request to response
         Response rep = createResponse(ctx, (Request) ctx.request, authUserId);
 

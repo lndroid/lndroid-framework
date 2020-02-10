@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.dao.ISubscribeSendPaymentsDao;
 import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;

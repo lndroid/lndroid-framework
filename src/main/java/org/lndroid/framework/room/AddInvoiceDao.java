@@ -25,7 +25,7 @@ abstract class AddInvoiceDaoRoom
     public abstract List<RoomTransactions.AddInvoiceTransaction> getTransactions();
 
     @Override @Query("SELECT * FROM AddInvoiceTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddInvoiceTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.AddInvoiceTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.AddInvoiceTransaction tx);
@@ -36,36 +36,31 @@ abstract class AddInvoiceDaoRoom
     @Query("UPDATE AddInvoiceTransaction " +
             "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time);
+    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
 
     @Override
     @Query("UPDATE AddInvoiceTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Override
     @Query("UPDATE AddInvoiceTransaction " +
             "SET txState = :txState, txDoneTime = :time, txError = :code " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
 
     @Override
     @Query("UPDATE AddInvoiceTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(int txUserId, String txId, int txState, long time);
+    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
 
     @Insert
-    public abstract long insertInvoice(RoomData.Invoice i);
-
-    // helper to persist the embedded user id
-    // after auto-incremented user id was assigned during the insert
-    @Query("UPDATE Invoice SET id = id_ WHERE id_ = :id")
-    abstract void setInvoiceId(long id);
+    public abstract void insertInvoice(RoomData.Invoice i);
 
     @Override @Transaction
-    public void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time, WalletData.AddInvoiceRequest authedRequest) {
+    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, WalletData.AddInvoiceRequest authedRequest) {
         if (authedRequest != null) {
             RoomTransactions.AddInvoiceTransaction tx = getTransaction(txUserId, txId);
             tx.txData.txAuthTime = time;
@@ -79,17 +74,14 @@ abstract class AddInvoiceDaoRoom
     }
 
     @Override @Transaction
-    public WalletData.Invoice commitTransaction(int txUserId, String txId, WalletData.Invoice invoice, long time) {
+    public WalletData.Invoice commitTransaction(long txUserId, String txId, WalletData.Invoice invoice, long time) {
+
         // insert invoice into it's own table
         RoomData.Invoice ri = new RoomData.Invoice();
         ri.setData(invoice);
 
         // insert
-        final long id = insertInvoice(ri);
-        setInvoiceId(id);
-
-        // set id
-        invoice = invoice.toBuilder().setId(id).build();
+        insertInvoice(ri);
 
         // get tx
         RoomTransactions.AddInvoiceTransaction tx = getTransaction(txUserId, txId);

@@ -29,6 +29,9 @@ public class Errors {
     // server terminated the transaction
     public static final String TX_DONE = "org.lndroid.errors.TX_DONE";
 
+    // wrong message format, version, timestamp, signature, etc
+    public static final String MESSAGE_FORMAT = "org.lndroid.errors.MESSAGE_FORMAT";
+
     // wrong message pattern for the called plugin
     public static final String PLUGIN_PROTOCOL = "org.lndroid.errors.PLUGIN_PROTOCOL";
 
@@ -44,7 +47,7 @@ public class Errors {
     // invalid auth request id, etc
     public static final String AUTH_INPUT = "org.lndroid.errors.AUTH_INPUT";
 
-    // IPC server failed, reconnect and retry
+    // IPC server failed, reconnect and retry (returned by client-side to calling code)
     public static final String IPC_ERROR = "org.lndroid.errors.IPC_ERROR";
 
     // FIXME why separate errors for these?
@@ -67,6 +70,7 @@ public class Errors {
             case TX_DONE: return "Transaction finished";
             case PLUGIN_PROTOCOL: return "Plugin protocol error";
             case PLUGIN_MESSAGE: return "Plugin message error";
+            case MESSAGE_FORMAT: return "Bad message format";
             case LND_ERROR: return "Lnd error";
             case IPC_ERROR: return "IPC error";
             case AUTH_INPUT: return "Unknown auth request";

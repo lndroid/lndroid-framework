@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.PluginContext;
-import org.lndroid.framework.room.AddUserDao;
 
 public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.User> {
 
@@ -30,13 +30,8 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
     }
 
     @Override
-    protected WalletData.User createResponse(PluginContext ctx, WalletData.AddUserRequest req, int authUserId) {
-        // FIXME bad bcs:
-        // - accessing concrete dao implementation is a bad dependency
-        // - hacky next-id generation logic
-        // REMOVE when we drop auto-increment keys and use external id generator
-        final AddUserDao dao = (AddUserDao)server().getDaoProvider().getPluginDao(id());
-        final int userId = dao.getNextUserId();
+    protected WalletData.User createResponse(PluginContext ctx, WalletData.AddUserRequest req, long authUserId) {
+        final long userId = server().getIdGenerator().generateId(WalletData.User.class);
         final String pubkey = server().getKeyStore().generateUserKeyPair(userId, req.role());
 
         return WalletData.User.builder()

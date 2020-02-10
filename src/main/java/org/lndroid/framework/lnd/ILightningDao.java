@@ -4,7 +4,7 @@ import org.lndroid.lnd.daemon.ILightningClient;
 import org.lndroid.lnd.daemon.LightningException;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 
 public interface ILightningDao {
     void init();

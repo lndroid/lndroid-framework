@@ -37,7 +37,7 @@ public class ChannelBalanceDao implements IChannelBalanceDao, IPluginDao {
 
 @Dao
 interface ChannelBalanceDaoRoom {
-    @Query("SELECT * FROM ChannelBalance WHERE id_ = 0")
+    @Query("SELECT * FROM ChannelBalance LIMIT 1")
     RoomData.ChannelBalance get();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -6,6 +6,6 @@ import org.lndroid.framework.WalletData;
 
 public interface IAuthDao {
     void init();
-    @Nullable WalletData.User get(int id);
+    @Nullable WalletData.User get(long id);
     @Nullable WalletData.User getByAppPubkey(String pubkey);
 }

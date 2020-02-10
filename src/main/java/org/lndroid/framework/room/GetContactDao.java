@@ -35,7 +35,7 @@ abstract class GetContactDaoRoom {
         routeDao_ = routeDao;
     }
 
-    @Query("SELECT * FROM Contact WHERE id_ = :id")
+    @Query("SELECT * FROM Contact WHERE id = :id")
     abstract RoomData.Contact getContact(long id);
 
     @Transaction

@@ -7,8 +7,12 @@ import android.util.Log;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import org.lndroid.framework.IKeyStore;
 import org.lndroid.framework.common.ICodecProvider;
+import org.lndroid.framework.defaults.DefaultDaoProvider;
+import org.lndroid.framework.defaults.DefaultIdGenerator;
+import org.lndroid.framework.defaults.DefaultIpcCodecProvider;
+import org.lndroid.framework.defaults.DefaultKeyStore;
+import org.lndroid.framework.defaults.DefaultPluginProvider;
 
 public class PluginServerStarter {
 
@@ -21,6 +25,7 @@ public class PluginServerStarter {
     private ICodecProvider ipcCodecProvider_;
     private IAuthComponentProvider authComponentProvider_;
     private IKeyStore keyStore_;
+    private IIdGenerator idGenerator_;
 
     static class Future extends FutureTask<Messenger> {
 
@@ -56,7 +61,8 @@ public class PluginServerStarter {
                     daoProvider_,
                     ipcCodecProvider_,
                     authComponentProvider_,
-                    keyStore_);
+                    keyStore_,
+                    idGenerator_);
 
             server.init();
             future_.setMessenger(new Messenger(server));
@@ -89,18 +95,25 @@ public class PluginServerStarter {
         return this;
     }
 
+    public PluginServerStarter setIdGenerator(IIdGenerator idg) {
+        idGenerator_ = idg;
+        return this;
+    }
+
     public Messenger start(boolean mayExist) {
 
         if (pluginProvider_ == null)
-            throw new RuntimeException("Plugin provider not specified");
-        if (daoProvider_ == null)
-            throw new RuntimeException("DAO provider not specified");
+            pluginProvider_ = new DefaultPluginProvider();
         if (ipcCodecProvider_ == null)
-            throw new RuntimeException("Codec provider not specified");
-        if (authComponentProvider_ == null)
-            throw new RuntimeException("Auth component provider not specified");
+            ipcCodecProvider_ = new DefaultIpcCodecProvider();
         if (keyStore_ == null)
             throw new RuntimeException("Key store not specified");
+        if (daoProvider_ == null)
+            throw new RuntimeException("DAO provider not specified");
+        if (authComponentProvider_ == null)
+            throw new RuntimeException("Auth component provider not specified");
+        if (idGenerator_ == null)
+            idGenerator_ = new DefaultIdGenerator(daoProvider_);
 
         // to avoid several starters from racing
         synchronized (lock_) {

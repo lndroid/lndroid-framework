@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.client.IPluginClient;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 
 public class ActionConnectPeer extends ActionUseCaseBase<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse> {

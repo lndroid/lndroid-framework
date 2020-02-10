@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.PluginContext;
 
 // Action
@@ -30,11 +31,13 @@ public class AddAppContact extends ActionBase<WalletData.Contact, WalletData.Con
     }
 
     @Override
-    protected WalletData.Contact createResponse(PluginContext ctx, WalletData.Contact req, int authUserId) {
+    protected WalletData.Contact createResponse(PluginContext ctx, WalletData.Contact req, long authUserId) {
         return req.toBuilder()
+                .setId(server().getIdGenerator().generateId(WalletData.Contact.class))
                 .setUserId(ctx.user.id())
                 .setCreateTime(System.currentTimeMillis())
                 .setAuthUserId(authUserId)
+                .setRouteHints(Utils.assignRouteHintsIds(req.routeHints(), server().getIdGenerator()))
                 .build();
     }
 

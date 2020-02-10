@@ -12,11 +12,11 @@ public class RoomTransactions {
 
     // to be embedded to all transactions
     static class TransactionData {
-        public int txUserId;
+        public long txUserId;
         @NonNull
         public String txId;
 
-        public int txAuthUserId;
+        public long txAuthUserId;
         public int txState; // plugins.Transaction.STATES
         public long txCreateTime;
         public long txDeadlineTime;

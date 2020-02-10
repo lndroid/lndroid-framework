@@ -18,7 +18,7 @@ import org.lndroid.framework.WalletData;
 @Dao
 abstract class RouteHintsDaoRoom {
 
-    @Query("SELECT * FROM RouteHint WHERE parentId = :parentId ORDER BY id_")
+    @Query("SELECT * FROM RouteHint WHERE parentId = :parentId ORDER BY id")
     abstract List<RoomData.RouteHint> getRouteHintsRoom(String parentId);
 
     @Query("SELECT * FROM HopHint WHERE routeHintId IN (:routeIds) ORDER BY routeHintId")
@@ -30,15 +30,11 @@ abstract class RouteHintsDaoRoom {
     @Query("DELETE FROM RouteHint WHERE parentId = :parentId")
     abstract void deleteRouteHints(String parentId);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long insertRouteHint(RoomData.RouteHint rh);
-    @Query("UPDATE RouteHint SET id = id_ WHERE id_ = :id")
-    abstract void setRouteHintId(long id);
+    @Insert
+    abstract void insertRouteHint(RoomData.RouteHint rh);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long[] insertHopHints(List<RoomData.HopHint> hh);
-    @Query("UPDATE HopHint SET id = id_ WHERE id_ IN (:ids)")
-    abstract void setHopHintIds(long[] ids);
+    @Insert
+    abstract void insertHopHints(List<RoomData.HopHint> hh);
 
     @Transaction
     public ImmutableList<WalletData.RouteHint> getRouteHints(String parentId) {
@@ -89,22 +85,19 @@ abstract class RouteHintsDaoRoom {
         for(WalletData.RouteHint rh: routeHints) {
 
             // insert RouteHint, make sure we insert a new one, not replace a copied one
-            rh = rh.toBuilder().setParentId(parentId).setId(0).build();
+            rh = rh.toBuilder().setParentId(parentId).build();
             RoomData.RouteHint rrh = new RoomData.RouteHint();
             rrh.setData(rh);
-            final long rhid = insertRouteHint(rrh);
-            setRouteHintId(rhid);
+            insertRouteHint(rrh);
 
             // insert RouteHint Hops
             List<RoomData.HopHint> hhs = new ArrayList<>();
             for(WalletData.HopHint hh: rh.hopHints()) {
-                hh = hh.toBuilder().setRouteHintId(rhid).setId(0).build();
                 RoomData.HopHint rhh = new RoomData.HopHint();
                 rhh.setData(hh);
                 hhs.add(rhh);
             }
-            long[] hhids = insertHopHints(hhs);
-            setHopHintIds(hhids);
+            insertHopHints(hhs);
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.lndroid.framework;
+package org.lndroid.framework.defaults;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,6 @@ import org.lndroid.framework.plugins.AddListContactsPrivilege;
 import org.lndroid.framework.plugins.AddUser;
 import org.lndroid.framework.plugins.ChannelBalanceWorker;
 import org.lndroid.framework.plugins.ChannelStateWorker;
-import org.lndroid.framework.common.DefaultPlugins;
 import org.lndroid.framework.plugins.ConnectPeer;
 import org.lndroid.framework.plugins.DecodePayReq;
 import org.lndroid.framework.plugins.GetAppUser;

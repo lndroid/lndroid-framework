@@ -18,12 +18,12 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.lndroid.framework.IKeyStore;
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.common.ICodec;
 import org.lndroid.framework.common.ICodecProvider;
+import org.lndroid.framework.common.ISigner;
 import org.lndroid.framework.common.PluginData;
 import org.lndroid.framework.common.PluginUtils;
 import org.lndroid.framework.dao.IAuthDao;
@@ -50,9 +50,10 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     private ICodec<PluginData.PluginMessage> ipcPluginMessageCodec_;
     private IAuthComponentProvider authComponentProvider_;
     private IKeyStore keyStore_;
+    private IIdGenerator idGenerator_;
     private IAuthDao authDao_;
     private IAuthRequestDao authRequestDao_;
-    private Map<Integer,Integer> authRequestHistory_ = new HashMap<>();
+    private Map<Long,Integer> authRequestHistory_ = new HashMap<>();
     private List<AuthSub> authRequestSubscribers_ = new ArrayList<>();
     private List<AuthSub> walletStateSubscribers_ = new ArrayList<>();
     private List<WalletData.AuthRequest> pendingAuthRequests_ = new ArrayList<>();
@@ -91,14 +92,15 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         }
     }
 
-    private Map<Integer, Caller> callers_ = new HashMap<>();
+    private Map<Long, Caller> callers_ = new HashMap<>();
     private Map<String, Set<String>> subscribers_ = new HashMap<>();
 
     PluginServer(IPluginProvider pluginProvider,
                  IDaoProvider daoProvider,
                  ICodecProvider ipcCodecProvider,
                  IAuthComponentProvider authComponentProvider,
-                 IKeyStore keyStore
+                 IKeyStore keyStore,
+                 IIdGenerator idGenerator
     ){
         pluginProvider_ = pluginProvider;
         daoProvider_ = daoProvider;
@@ -106,6 +108,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         ipcPluginMessageCodec_ = ipcCodecProvider_.get(PluginData.PluginMessage.class);
         authComponentProvider_ = authComponentProvider;
         keyStore_ = keyStore;
+        idGenerator_ = idGenerator;
     }
 
     @Override
@@ -118,10 +121,15 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         return keyStore_;
     }
 
+    @Override
+    public IIdGenerator getIdGenerator() {
+        return idGenerator_;
+    }
+
     private void workTransactionDeadlines() {
         //FIXME use some time-based queue to avoid scanning the whole tree
         List<Pair<IPluginForeground, PluginContext>> expired = new ArrayList<>();
-        for(Map.Entry<Integer, Caller> e: callers_.entrySet()) {
+        for(Map.Entry<Long, Caller> e: callers_.entrySet()) {
             for (Map.Entry<String, Contexts> pe: e.getValue().pluginContexts.entrySet()) {
                 IPluginForeground p = getPluginForeground(pe.getKey());
                 for (Map.Entry<String, Context> ce: pe.getValue().contexts.entrySet()) {
@@ -271,9 +279,13 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
 
         authDao_.init();
         authRequestDao_.init();
+        daoProvider_.getRawQueryDao();
         for(String pluginId: pluginProvider_.getPluginIds()) {
             daoProvider_.getPluginDao(pluginId).init();
         }
+
+        // init id generator after all daos are initialized
+        idGenerator_.init();
 
         // clean up bg requests, bg plugins should re-generate them
         authRequestDao_.deleteBackgroundRequests();
@@ -327,6 +339,8 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     public void init() {
+        keyStore_.init();
+
         daoProvider_.subscribeWalletState(new IDaoProvider.IWalletStateCallback() {
             @Override
             public void onWalletState(WalletData.WalletState state) {
@@ -366,7 +380,8 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         return p;
     }
 
-    private void sendTxError(PluginData.PluginMessage src, boolean ipc, String error, Messenger client) {
+    private void sendTxError(PluginData.PluginMessage src, boolean ipc, String error,
+                             Messenger client) {
         PluginData.PluginMessage r = PluginData.PluginMessage.builder()
                 .setType(PluginData.MESSAGE_TYPE_ERROR)
                 .setPluginId(src.pluginId())
@@ -375,7 +390,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 .setError(Errors.errorMessage(error))
                 .build();
 
-        sendTxMessage(r, ipc, client);
+        sendTxMessage(r, ipc, client, null);
     }
 
     private boolean isAuthenticPluginMessage(
@@ -398,7 +413,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         return true;
     }
 
-    private void onTransactionMessage(Message msg) {
+    private void onPluginMessage(Message msg) {
 
         PluginData.PluginMessage pm = null;
 
@@ -408,7 +423,13 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             pm = (PluginData.PluginMessage)msg.obj;
 
         final boolean ipc = pm == null;
-        if (pm == null) {
+        if (ipc) {
+            String code = PluginUtils.checkPluginMessageIpc(msg.getData(), keyStore_.getVerifier());
+            if (code != null) {
+                Log.e(TAG, "bad message "+msg+" code "+code);
+                return;
+            }
+
             pm = PluginUtils.decodePluginMessageIpc(msg.getData(), ipcPluginMessageCodec_);
         }
 
@@ -424,17 +445,37 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             return;
         }
 
+        if (pm.userIdentity() == null) {
+            if (!ipc)
+                throw new RuntimeException("User identity not provided");
+            sendTxError(pm, ipc, Errors.MESSAGE_FORMAT, msg.replyTo);
+            return;
+        }
+
         if (ipc) {
-            pm.assignCodecProvider(ipcCodecProvider_);
-            if (pm.userIdentity() == null || pm.userIdentity().appPubkey() == null) {
-                sendTxError(pm, ipc, Errors.PLUGIN_MESSAGE, msg.replyTo);
+            if (pm.userIdentity().appPubkey() == null) {
+                sendTxError(pm, ipc, Errors.MESSAGE_FORMAT, msg.replyTo);
                 return;
             }
-
             // FIXME get caller package name (packageManager().getNameForUID(msg.ui)) and compare to the one specified
             //  in the message to drop invalid messages (like when someone stole the app keys but couldn't
             //  fake his UID identity on OS level)
+        } else {
+            if (pm.userIdentity().userId() == 0)
+                throw new RuntimeException("User id not provided");
         }
+
+        // protect from replays
+        final long MAX_TTL = 10000; // ms
+        final long now = System.currentTimeMillis();
+        if (pm.timestamp() > now || pm.timestamp() < (now - MAX_TTL)) {
+            sendTxError(pm, ipc, Errors.MESSAGE_FORMAT, msg.replyTo);
+            return;
+        }
+
+        // assign codecs
+        if (ipc)
+            pm.assignCodecProvider(ipcCodecProvider_);
 
         Log.i(TAG, "Plugin server message plugin "+pm.pluginId()+" type "+pm.type());
 
@@ -456,9 +497,9 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
 
         IPluginForeground p = getPluginForeground(pm.pluginId());
 
-        WalletData.User user = pm.userIdentity().userId() != 0
-                ? authDao_.get(pm.userIdentity().userId())
-                : authDao_.getByAppPubkey(pm.userIdentity().appPubkey());
+        WalletData.User user = ipc
+                ? authDao_.getByAppPubkey(pm.userIdentity().appPubkey())
+                : authDao_.get(pm.userIdentity().userId());
         if (user == null) {
             sendTxError(pm, ipc, Errors.UNKNOWN_CALLER, msg.replyTo);
             return;
@@ -862,7 +903,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         switch (msg.what) {
             case PluginData.MESSAGE_WHAT_LOCAL_TX:
             case PluginData.MESSAGE_WHAT_IPC_TX:
-                onTransactionMessage(msg);
+                onPluginMessage(msg);
                 break;
 
             case PluginData.MESSAGE_WHAT_AUTH:
@@ -927,13 +968,23 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         p.auth(ar, r);
     }
 
-    private boolean sendTxMessage(PluginData.PluginMessage pm, boolean ipc, Messenger client) {
+    private boolean sendTxMessage(PluginData.PluginMessage pm, boolean ipc, Messenger client,
+                                  WalletData.User user) {
         try {
             if (ipc) {
-                // FIXME add signer,
-                //  if signer is async, A) it should be safe to call it from server thread,
-                //  B) we should check client reference in the callback to avoid holding it for too long?
-                Bundle b = PluginUtils.encodePluginMessageIpc(pm, ipcCodecProvider_, ipcPluginMessageCodec_);
+
+                ISigner signer = keyStore_.getUserKeySigner(user.id());
+                // FIXME if signer == null
+                // - key not available in the keystore
+                // - wtf?
+                // - send error and ask to retry?
+
+                Bundle b = PluginUtils.encodePluginMessageIpc(
+                        pm,
+                        ipcCodecProvider_,
+                        ipcPluginMessageCodec_,
+                        signer);
+
                 Message m = this.obtainMessage(PluginData.MESSAGE_WHAT_IPC_TX);
                 m.setData(b);
                 client.send(m);
@@ -958,7 +1009,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             Messenger client = ctx.client.get();
             // client might be GCed if caller was closed by OS
             if (client != null) {
-                sendTxMessage(pm, ctx.ctx.ipc, client);
+                sendTxMessage(pm, ctx.ctx.ipc, client, ctx.ctx.user);
             } else {
                 Log.i(TAG, "client lost due to GC");
             }
@@ -968,7 +1019,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     @Override
-    public boolean onInit(String pluginId, int userId, PluginContext pc) {
+    public boolean onInit(String pluginId, long userId, PluginContext pc) {
         Log.i(TAG, "onInit plugin "+pluginId+" user "+userId+" tx "+pc.txId);
         Caller c = callers_.get(userId);
         if (c == null) {
@@ -1042,7 +1093,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     @Override
-    public int onAuthBackground(String pluginId, String type) {
+    public long onAuthBackground(String pluginId, String type) {
         Log.i(TAG, "onAuthBackground plugin "+pluginId+" type "+type);
         WalletData.AuthRequest ar = WalletData.AuthRequest.builder()
                 .setId(0) // set empty value

@@ -3,7 +3,7 @@ package org.lndroid.framework.room;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-@Database(version = 59, exportSchema = true, entities = {
+@Database(version = 60, exportSchema = true, entities = {
         RoomData.AuthRequest.class,
         RoomData.Channel.class,
         RoomData.ChannelBalance.class,
@@ -16,6 +16,7 @@ import androidx.room.RoomDatabase;
         RoomData.HTLCAttempt.class,
         RoomData.LightningNode.class,
         RoomData.ListContactsPrivilege.class,
+        RoomData.NextId.class,
         RoomData.SendPayment.class,
         RoomData.Payment.class,
         RoomData.RoutingPolicy.class,
@@ -37,6 +38,9 @@ import androidx.room.RoomDatabase;
         RoomTransactions.ShareContactTransaction.class,
 })
 abstract class RoomDB extends RoomDatabase {
+
+    abstract RawQueryDaoRoom rawQueryDao();
+
     abstract AuthDaoRoom authDao();
 
     abstract AuthRequestDaoRoom authRequestDao();

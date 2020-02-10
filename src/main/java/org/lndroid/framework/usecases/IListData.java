@@ -3,7 +3,7 @@ package org.lndroid.framework.usecases;
 import androidx.lifecycle.LiveData;
 import androidx.paging.PagedList;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
 

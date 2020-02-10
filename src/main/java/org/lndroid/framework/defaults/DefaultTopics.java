@@ -1,4 +1,4 @@
-package org.lndroid.framework.plugins;
+package org.lndroid.framework.defaults;
 
 public final class DefaultTopics {
     public static final String NEW_USER = "org.lndroid.topics.NEW_USER";

@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.dao.ISendPaymentWorkerDao;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.engine.IPluginBackground;
@@ -30,6 +31,7 @@ public class SendPaymentWorker implements IPluginBackground {
     private static final long TRY_INTERVAL = 60000; // 1m
     private static final long WORK_INTERVAL = 10000; // 10sec
 
+    private IPluginServer server_;
     private IPluginBackgroundCallback engine_;
     private ISendPaymentWorkerDao dao_;
     private ILightningDao lnd_;
@@ -45,6 +47,7 @@ public class SendPaymentWorker implements IPluginBackground {
 
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        server_ = server;
         engine_ = callback;
         dao_ = (ISendPaymentWorkerDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
@@ -59,13 +62,14 @@ public class SendPaymentWorker implements IPluginBackground {
             // we generate one for the whole payment.
 
             WalletData.HTLCAttempt htlc = WalletData.HTLCAttempt.builder()
+                    .setId(server_.getIdGenerator().generateId(WalletData.HTLCAttempt.class))
                     .setSendPaymentId(sp.id())
                     .setAttemptTime(System.currentTimeMillis())
                     .setResolveTime(System.currentTimeMillis())
                     .setState(WalletData.HTLC_ATTEMPT_STATE_SUCCEEDED)
                     .setTotalAmountMsat(sp.totalValueMsat())
                     .setTotalFeeMsat(sp.feeMsat())
-                    .setTotalTimeLock(sp.finalCltvDelta()) // FIXME is it?
+//                    .setTotalTimeLock(sp.finalCltvDelta()) // FIXME
                     .setDestCustomRecords(sp.destCustomRecords())
                     .build();
 

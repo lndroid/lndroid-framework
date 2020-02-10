@@ -35,7 +35,7 @@ public class ListContactsDao implements IPluginDao {
     public WalletData.ListContactsResult list(
             WalletData.ListContactsRequest req,
             WalletData.ListPage page,
-            int callerUserId,
+            long callerUserId,
             boolean clearPubkey) {
 
         String where = "";
@@ -54,7 +54,7 @@ public class ListContactsDao implements IPluginDao {
         return dao_.listContacts(new SimpleSQLiteQuery(query), page, clearPubkey);
     }
 
-    public boolean hasPrivilege(int userId) {
+    public boolean hasPrivilege(long userId) {
         return dao_.hasListContactsPrivilege(userId);
     }
 
@@ -74,7 +74,7 @@ abstract class ListContactsDaoRoom {
     abstract List<RoomData.Contact> listContacts(List<Long> ids);
 
     @Query("SELECT id FROM ListContactsPrivilege WHERE userId = :userId")
-    abstract boolean hasListContactsPrivilege(int userId);
+    abstract boolean hasListContactsPrivilege(long userId);
 
     @Transaction
     WalletData.ListContactsResult listContacts(SupportSQLiteQuery query, WalletData.ListPage page, boolean clearPubkey) {

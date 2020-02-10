@@ -24,7 +24,7 @@ abstract class DecodePayReqDaoRoom
     public abstract List<RoomTransactions.DecodePayReqTransaction> getTransactions();
 
     @Query("SELECT * FROM DecodePayReqTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.DecodePayReqTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.DecodePayReqTransaction getTransaction(long txUserId, String txId);
 
     @Insert
     public abstract void createTransaction(RoomTransactions.DecodePayReqTransaction tx);
@@ -34,26 +34,26 @@ abstract class DecodePayReqDaoRoom
     @Query("UPDATE DecodePayReqTransaction " +
             "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time);
+    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
 
     @Query("UPDATE DecodePayReqTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Override
     @Query("UPDATE DecodePayReqTransaction " +
             "SET txState = :txState, txDoneTime = :time, txError = :code " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
 
     @Query("UPDATE DecodePayReqTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(int txUserId, String txId, int txState, long time);
+    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
 
     @Override @Transaction
-    public void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time, String authedRequest) {
+    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, String authedRequest) {
         if (authedRequest != null) {
             RoomTransactions.DecodePayReqTransaction tx = getTransaction(txUserId, txId);
             tx.txData.txAuthTime = time;
@@ -66,7 +66,7 @@ abstract class DecodePayReqDaoRoom
     }
 
     @Transaction
-    public WalletData.SendPayment commitTransaction(int txUserId, String txId, WalletData.SendPayment r, long time) {
+    public WalletData.SendPayment commitTransaction(long txUserId, String txId, WalletData.SendPayment r, long time) {
         RoomTransactions.DecodePayReqTransaction tx = getTransaction(txUserId, txId);
 
         // NOTE: r is not written to it's own table bcs we don't store them

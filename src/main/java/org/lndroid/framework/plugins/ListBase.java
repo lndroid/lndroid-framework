@@ -70,7 +70,7 @@ public abstract class ListBase<Request extends WalletData.ListRequestBase, Respo
         else if (page.count() > MAX_COUNT)
             page = page.toBuilder().setCount(MAX_COUNT).build();
 
-        int callerUserId = 0;
+        long callerUserId = 0;
         if (req.onlyOwn())
             callerUserId = ctx.user.id();
 

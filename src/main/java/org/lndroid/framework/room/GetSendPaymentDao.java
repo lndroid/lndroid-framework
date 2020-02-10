@@ -29,6 +29,6 @@ public class GetSendPaymentDao implements IGetSendPaymentDao, IPluginDao {
 
 @Dao
 interface GetSendPaymentDaoRoom {
-    @Query("SELECT * FROM SendPayment WHERE id_ = :id")
+    @Query("SELECT * FROM SendPayment WHERE id = :id")
     RoomData.SendPayment get(long id);
 }

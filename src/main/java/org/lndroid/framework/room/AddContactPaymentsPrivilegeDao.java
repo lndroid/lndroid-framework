@@ -28,7 +28,7 @@ abstract class AddContactPaymentsPrivilegeDaoRoom
 
     @Override
     @Query("SELECT * FROM AddContactPaymentsPrivilegeTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddContactPaymentsPrivilegeTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.AddContactPaymentsPrivilegeTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.AddContactPaymentsPrivilegeTransaction tx);
@@ -40,38 +40,33 @@ abstract class AddContactPaymentsPrivilegeDaoRoom
     @Query("UPDATE AddContactPaymentsPrivilegeTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Query("SELECT * FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
-    abstract RoomData.ContactPaymentsPrivilege getExisting(int userId, long contactId);
+    abstract RoomData.ContactPaymentsPrivilege getExisting(long userId, long contactId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long insert(RoomData.ContactPaymentsPrivilege r);
-
-    @Query("UPDATE ContactPaymentsPrivilege SET id = id_ WHERE id_ = :id")
-    abstract void updateId(int id);
+    abstract void upsert(RoomData.ContactPaymentsPrivilege r);
 
     // create value and add it to tx response and commit
     @Override @androidx.room.Transaction
     public WalletData.ContactPaymentsPrivilege commitTransaction(
-            RoomTransactions.AddContactPaymentsPrivilegeTransaction tx, int txAuthUserId, WalletData.ContactPaymentsPrivilege v, long time) {
-
+            RoomTransactions.AddContactPaymentsPrivilegeTransaction tx, long txAuthUserId,
+            WalletData.ContactPaymentsPrivilege v, long time)
+    {
         RoomData.ContactPaymentsPrivilege rv = getExisting(v.userId(), v.contactId());
-        if (rv == null)
+        if (rv == null) {
             rv = new RoomData.ContactPaymentsPrivilege();
+            v = v.toBuilder().setId(rv.getData().id()).build();
+        }
+
         rv.setData(v);
 
-        // insert new user
-        final int id = (int) insert(rv);
-
-        // persist the value id
-        updateId(id);
-
-        // create new value object w/ proper id
-        v = v.toBuilder().setId(id).build();
+        // write
+        upsert(rv);
 
         // set response to tx
-        tx.setRequest(v);
+        tx.setResponse(v);
 
         // update state
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
@@ -82,7 +77,6 @@ abstract class AddContactPaymentsPrivilegeDaoRoom
         // update tx
         updateTransaction(tx);
 
-        // value with id
         return v;
     }
 }

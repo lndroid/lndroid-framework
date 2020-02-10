@@ -21,22 +21,22 @@ class AuthDao implements IAuthDao, IPluginDao {
     }
 
     @Override
-    public WalletData.User get(int id) {
+    public WalletData.User get(long id) {
         RoomData.User r = dao_.get(id);
-        return r != null ? r.data : null;
+        return r != null ? r.getData() : null;
     }
 
     @Override
     public WalletData.User getByAppPubkey(String pk) {
         RoomData.User r = dao_.getByAppPubkey(pk);
-        return r != null ? r.data : null;
+        return r != null ? r.getData() : null;
     }
 }
 
 @Dao
 interface AuthDaoRoom {
-    @Query("SELECT * FROM User WHERE id_ = :id")
-    RoomData.User get(int id);
+    @Query("SELECT * FROM User WHERE id = :id")
+    RoomData.User get(long id);
     @Query("SELECT * FROM User WHERE appPubkey = :pk")
     RoomData.User getByAppPubkey(String pk);
 }

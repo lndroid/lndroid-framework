@@ -5,9 +5,10 @@ import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.dao.IWalletBalanceDao;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;

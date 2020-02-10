@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
@@ -39,7 +39,7 @@ public class ConnectPeer extends
 
     @Override
     protected WalletData.ConnectPeerResponse createResponse(
-            PluginContext ctx, WalletData.ConnectPeerRequest req, int authUserId, Data.ConnectPeerResponse r) {
+            PluginContext ctx, WalletData.ConnectPeerRequest req, long authUserId, Data.ConnectPeerResponse r) {
         WalletData.ConnectPeerResponse.Builder b = WalletData.ConnectPeerResponse.builder();
         LightningCodec.ConnectPeerCodec.decode(r, b);
         return b.build();

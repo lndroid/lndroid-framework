@@ -21,6 +21,8 @@ import java.util.Queue;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.ICodec;
+import org.lndroid.framework.common.ISigner;
+import org.lndroid.framework.common.IVerifier;
 import org.lndroid.framework.common.PluginData;
 import org.lndroid.framework.common.ICodecProvider;
 import org.lndroid.framework.common.PluginUtils;
@@ -35,6 +37,9 @@ class PluginClient extends Handler implements IPluginClient {
     private boolean ipc_;
     private ICodecProvider ipcCodecProvider_;
     private ICodec<PluginData.PluginMessage> ipcPluginMessageCodec_;
+    private ISigner signer_;
+    private IVerifier verifier_;
+
     private String servicePackageName_;
     private String serviceClassName_;
     private String servicePubkey_;
@@ -77,7 +82,10 @@ class PluginClient extends Handler implements IPluginClient {
         }
     }
 
-    public PluginClient(WalletData.UserIdentity userId, Messenger server, boolean ipc, ICodecProvider ipcCodecProvider,
+    public PluginClient(WalletData.UserIdentity userId, Messenger server, boolean ipc,
+                        ICodecProvider ipcCodecProvider,
+                        ISigner signer,
+                        IVerifier verifier,
                         String servicePackageName, String serviceClassName, String servicePubkey) {
         userId_ = userId;
         self_ = new Messenger(this);
@@ -85,6 +93,8 @@ class PluginClient extends Handler implements IPluginClient {
         ipc_ = ipc;
         ipcCodecProvider_ = ipcCodecProvider;
         ipcPluginMessageCodec_ = ipcCodecProvider_.get(PluginData.PluginMessage.class);
+        signer_ = signer;
+        verifier_ = verifier;
         servicePackageName_ = servicePackageName;
         serviceClassName_ = serviceClassName;
         servicePubkey_ = servicePubkey;
@@ -169,6 +179,16 @@ class PluginClient extends Handler implements IPluginClient {
     public void handleMessage(Message msg) {
         PluginData.PluginMessage pm = (PluginData.PluginMessage) msg.obj;
         if (ipc_) {
+
+            String code = PluginUtils.checkPluginMessageIpc(
+                    msg.getData(), verifier_);
+            if (code != null) {
+                Log.e(TAG, "bad server message "+code);
+                // FIXME inform caller, somehow, that server might have changed it's identity
+                //  and app needs to reconnect
+                return;
+            }
+
             pm = PluginUtils.decodePluginMessageIpc(msg.getData(), ipcPluginMessageCodec_);
             if (pm != null)
                 pm.assignCodecProvider(ipcCodecProvider_);
@@ -198,7 +218,7 @@ class PluginClient extends Handler implements IPluginClient {
     }
 
     private void sendIpc(PluginTransaction tx, PluginData.PluginMessage msg) {
-        Bundle b = PluginUtils.encodePluginMessageIpc(msg, ipcCodecProvider_, ipcPluginMessageCodec_);
+        Bundle b = PluginUtils.encodePluginMessageIpc(msg, ipcCodecProvider_, ipcPluginMessageCodec_, signer_);
 
         // prepare message with the bundle
         Message m = this.obtainMessage(PluginData.MESSAGE_WHAT_IPC_TX);

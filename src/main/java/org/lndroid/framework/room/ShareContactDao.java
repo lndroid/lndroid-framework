@@ -25,7 +25,7 @@ abstract class ShareContactDaoRoom
     public abstract List<RoomTransactions.ShareContactTransaction> getTransactions();
 
     @Override @Query("SELECT * FROM ShareContactTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.ShareContactTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.ShareContactTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.ShareContactTransaction tx);
@@ -37,11 +37,11 @@ abstract class ShareContactDaoRoom
     @Query("UPDATE ShareContactTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Override @Transaction
     public WalletData.ShareContactResponse commitTransaction(
-            RoomTransactions.ShareContactTransaction tx, int txAuthUserId, WalletData.ShareContactResponse rep, long time) {
+            RoomTransactions.ShareContactTransaction tx, long txAuthUserId, WalletData.ShareContactResponse rep, long time) {
 
         // we don't store this response, only attach it to the tx
 

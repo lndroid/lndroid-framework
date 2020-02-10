@@ -1,4 +1,4 @@
-package org.lndroid.framework;
+package org.lndroid.framework.common;
 
 public interface IResponseCallback<Response> {
     void onResponse(Response r);

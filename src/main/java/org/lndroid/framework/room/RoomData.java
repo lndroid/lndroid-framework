@@ -12,25 +12,11 @@ import org.lndroid.framework.WalletDataDecl;
 
 final class RoomData {
 
-    @Entity(indices = {
-            @Index(value = {"appPubkey"}),
-            @Index(value = {"appPackageName"}),
-            @Index(unique = true, value = {"pubkey"}),
-    })
-    static class User {
-        @PrimaryKey(autoGenerate = true)
-        public long id_;
-
-        @Embedded
-        public WalletData.User data;
-    }
-
-    @Entity(indices = {@Index(unique = true, value = {"userId", "txId"})})
-    static class AuthRequest {
-        @PrimaryKey(autoGenerate = true)
-        public long id_;
-        @Embedded
-        public WalletData.AuthRequest data;
+    @Entity
+    static class NextId{
+        @PrimaryKey
+        public long pk_;
+        public long id;
     }
 
     @Entity
@@ -59,7 +45,7 @@ final class RoomData {
     }
 
     static class RoomEntityBase<Type extends WalletDataDecl.EntityBase> {
-        @PrimaryKey(autoGenerate = true)
+        @PrimaryKey
         public long id_;
         @Embedded
         public Type data_;
@@ -68,15 +54,30 @@ final class RoomData {
         Type getData() {
             return data_;
         }
-
         void setData(@NonNull Type data) {
-            if (data.id() != 0)
-                id_ = data.id();
+            id_ = data.id();
             data_ = data;
         }
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
+            @Index(value = {"appPubkey"}),
+            @Index(value = {"appPackageName"}),
+            @Index(unique = true, value = {"pubkey"}),
+    })
+    static class User extends RoomEntityBase<WalletData.User> {
+    }
+
+    @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
+            @Index(unique = true, value = {"userId", "txId"})
+    })
+    static class AuthRequest extends RoomEntityBase<WalletData.AuthRequest> {
+    }
+
+    @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"preimageHashHex"}),
             @Index(unique = true, value = {"preimageHex"}),
             // FIXME unique?
@@ -88,6 +89,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"chanId", "htlcIndex"}),
             @Index(value = {"invoiceId"}),
     })
@@ -96,6 +98,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(value = {"state"}),
     })
     @TypeConverters({
@@ -111,6 +114,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(value = {"sendPaymentId"}),
     })
     @TypeConverters({RoomConverters.DestTLVConverter.class})
@@ -118,6 +122,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(value = {"state"}),
             @Index(value = {"chanId"}),
             @Index(unique = true, value = {"channelPoint"}),
@@ -126,6 +131,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"type", "sourceId"}),
     })
     @TypeConverters({RoomConverters.PaymentConverter.class})
@@ -133,6 +139,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"pubkey"}),
     })
     @TypeConverters({
@@ -147,6 +154,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"userId"}),
     })
     @TypeConverters({RoomConverters.TransientRouteHintsConverter.class})
@@ -154,12 +162,14 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"userId", "contactId"}),
     })
     static class ContactPaymentsPrivilege extends RoomEntityBase<WalletData.ContactPaymentsPrivilege> {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(value = {"parentId"}),
     })
     @TypeConverters({RoomConverters.TransientHopHintsConverter.class})
@@ -167,12 +177,14 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(value = {"routeHintId"}),
     })
     static class HopHint extends RoomEntityBase<WalletData.HopHint> {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"pubkey"}),
     })
     @TypeConverters({RoomConverters.ImmutableIntListConverter.class})
@@ -180,6 +192,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"channelId"}),
     })
     @TypeConverters({RoomConverters.TransientRoutingPolicyConverter.class})
@@ -187,6 +200,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"channelId", "reverse"}),
     })
     static class RoutingPolicy extends RoomEntityBase<WalletData.RoutingPolicy> {

@@ -1,7 +1,12 @@
-package org.lndroid.framework;
+package org.lndroid.framework.defaults;
 
 import android.util.Log;
 
+import org.lndroid.framework.dao.IRawQueryDao;
+import org.lndroid.framework.engine.IDaoConfig;
+import org.lndroid.framework.engine.IKeyStore;
+import org.lndroid.framework.WalletData;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.lnd.daemon.LightningException;
 
 import java.io.File;
@@ -26,6 +31,7 @@ public class DefaultDaoProvider implements IDaoProvider {
     private static final int MAX_PASSWORD_SIZE = 4096;
 
     private IDaoConfig config_;
+    private IKeyStore keyStore_;
     private LightningDao lightningDao_;
     private List<IWalletStateCallback> walletStateCallbacks_ = new ArrayList<>();
     private boolean unlocked_;
@@ -33,8 +39,9 @@ public class DefaultDaoProvider implements IDaoProvider {
     private RoomDaoProvider roomDaos_;
     private byte[] updatedPassword_;
 
-    public DefaultDaoProvider(IDaoConfig cfg) {
+    public DefaultDaoProvider(IDaoConfig cfg, IKeyStore keyStore) {
         config_ = cfg;
+        keyStore_ = keyStore;
         roomDaos_ = new RoomDaoProvider(cfg);
     }
 
@@ -69,12 +76,12 @@ public class DefaultDaoProvider implements IDaoProvider {
         ed.data = Arrays.copyOfRange(p, 1 + ivSize, p.length);
 
         // decrypt using wallet password key
-        return config_.getKeyStore().decryptWalletPassword(ed);
+        return keyStore_.decryptWalletPassword(ed);
     }
 
     private byte[] encryptPassword(byte[] p) {
         // encrypt using keystore
-        IKeyStore.EncryptedData ed = config_.getKeyStore().encryptWalletPassword(p);
+        IKeyStore.EncryptedData ed = keyStore_.encryptWalletPassword(p);
         if (ed.iv.length > 127)
             throw new RuntimeException("IV too big");
 
@@ -273,9 +280,6 @@ public class DefaultDaoProvider implements IDaoProvider {
     @Override
     public void init() {
 
-        // ensure keystore is initialized
-        config_.getKeyStore().init();
-
         // try to use user-provided password first
         byte[] password = updatedPassword_;
         updatedPassword_ = null; // don't store it any longer
@@ -342,6 +346,11 @@ public class DefaultDaoProvider implements IDaoProvider {
     @Override
     public ILightningDao getLightningDao() {
         return lightningDao_;
+    }
+
+    @Override
+    public IRawQueryDao getRawQueryDao() {
+        return roomDaos_.getRawQueryDao();
     }
 
     @Override

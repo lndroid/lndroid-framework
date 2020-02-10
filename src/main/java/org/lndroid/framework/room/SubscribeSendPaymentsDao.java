@@ -25,7 +25,7 @@ public class SubscribeSendPaymentsDao implements ISubscribeSendPaymentsDao, IPlu
     }
 
     @Override
-    public List<WalletData.SendPayment> getActivePayments(int userId) {
+    public List<WalletData.SendPayment> getActivePayments(long userId) {
         final int[] ACTIVE_STATES = {
                 WalletData.SEND_PAYMENT_STATE_PENDING,
                 WalletData.SEND_PAYMENT_STATE_SENDING
@@ -49,12 +49,12 @@ public class SubscribeSendPaymentsDao implements ISubscribeSendPaymentsDao, IPlu
 
 @Dao
 interface SubscribeSendPaymentsDaoRoom {
-    @Query("SELECT * FROM SendPayment WHERE id_ = :id")
+    @Query("SELECT * FROM SendPayment WHERE id = :id")
     RoomData.SendPayment getPayment(long id);
 
     @Query("SELECT * FROM SendPayment WHERE state IN(:states)")
     List<RoomData.SendPayment> getPayments(int[] states);
 
     @Query("SELECT * FROM SendPayment WHERE userId = :userId AND state IN(:states)")
-    List<RoomData.SendPayment> getPayments(int[] states, int userId);
+    List<RoomData.SendPayment> getPayments(int[] states, long userId);
 }

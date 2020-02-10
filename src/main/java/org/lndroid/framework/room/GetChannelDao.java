@@ -35,6 +35,6 @@ public class GetChannelDao implements IGetChannelDao, IPluginDao {
 
 @Dao
 interface GetChannelDaoRoom {
-    @Query("SELECT * FROM Channel WHERE id_ = :id")
+    @Query("SELECT * FROM Channel WHERE id = :id")
     RoomData.Channel get(long id);
 }

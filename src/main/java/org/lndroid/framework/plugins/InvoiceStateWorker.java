@@ -3,6 +3,7 @@ package org.lndroid.framework.plugins;
 import android.util.Log;
 import android.util.Pair;
 
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.dao.IInvoiceStateWorkerDao;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
@@ -22,6 +23,7 @@ import org.lndroid.framework.lnd.LightningCodec;
 public class InvoiceStateWorker implements IPluginBackground {
     private static final String TAG = "InvoiceStateWorker";
 
+    private IPluginServer server_;
     private IInvoiceStateWorkerDao dao_;
     private ILightningDao lnd_;
     private IPluginBackgroundCallback engine_;
@@ -34,6 +36,7 @@ public class InvoiceStateWorker implements IPluginBackground {
 
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        server_ = server;
         dao_ = (IInvoiceStateWorkerDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
@@ -46,57 +49,80 @@ public class InvoiceStateWorker implements IPluginBackground {
         // no invoice? it probably was keysend, generate an invoice now
         if (invoice == null) {
             WalletData.Invoice.Builder b = WalletData.Invoice.builder();
-            LightningCodec.InvoiceConverter.decode(r, b);
-            invoice = b.build();
-            final long invoiceId = dao_.insertInvoice(invoice);
-            invoice = invoice.toBuilder().setId(invoiceId).build();
-        } else {
-            WalletData.Invoice.Builder b = invoice.toBuilder();
-            LightningCodec.InvoiceConverter.decode(r, b);
+            b.setId(server_.getIdGenerator().generateId(WalletData.Invoice.class));
             invoice = b.build();
         }
 
+        // merge updates
+        WalletData.Invoice.Builder b = invoice.toBuilder();
+        LightningCodec.InvoiceConverter.decode(r, b);
+        invoice = b.build();
+
         // collect existing htlcs
         List<WalletData.InvoiceHTLC> htlcs = dao_.getInvoiceHTLCs(invoice.id());
-        Map<Pair<Long, Long>, WalletData.InvoiceHTLC> map = new HashMap<>();
+        Map<Pair<Long, Long>, WalletData.InvoiceHTLC> htlcsMap = new HashMap<>();
         for (WalletData.InvoiceHTLC htlc: htlcs) {
-            map.put(new Pair<>(htlc.chanId(), htlc.htlcIndex()), htlc);
+            htlcsMap.put(new Pair<>(htlc.chanId(), htlc.htlcIndex()), htlc);
         }
         htlcs.clear();
+
+        // collect existing payments
+        List<WalletData.Payment> payments = dao_.getInvoicePayments(invoice.id());
+        Map<Long, WalletData.Payment> paymentsMap = new HashMap<>();
+        for (WalletData.Payment p: payments) {
+            paymentsMap.put(p.sourceHTLCId(), p);
+        }
+        payments.clear();
 
         // parse new htlcs
         for(Data.InvoiceHTLC rh: r.htlcs) {
             Pair<Long, Long> id = new Pair<>(rh.chanId, rh.htlcIndex);
 
             // htlc exists?
-            WalletData.InvoiceHTLC htlc = map.get(id);
+            WalletData.InvoiceHTLC htlc = htlcsMap.get(id);
+            WalletData.Payment payment = null;
+
+            // ensure htlc
             if (htlc == null) {
                 // create new one
                 htlc = WalletData.InvoiceHTLC.builder()
-                        .setInvoiceId(invoice.id()).build();
-                map.put(id, htlc);
+                        .setId(server_.getIdGenerator().generateId(WalletData.InvoiceHTLC.class))
+                        .setInvoiceId(invoice.id())
+                        .build();
+                htlcsMap.put(id, htlc);
+            } else {
+                payment = paymentsMap.get(htlc.id());
             }
 
             // merge htlc update
             WalletData.InvoiceHTLC.Builder hb = htlc.toBuilder();
             LightningCodec.InvoiceHTLCConverter.decode(rh, hb);
 
+            // ensure htlc payment
+            if (payment == null) {
+                payment = WalletData.Payment.builder()
+                        .setId(server_.getIdGenerator().generateId(WalletData.Payment.class))
+                        .setType(WalletData.PAYMENT_TYPE_INVOICE)
+                        .setSourceId(invoice.id())
+                        .setSourceHTLCId(htlc.id())
+                        .setUserId(invoice.userId())
+                        .build();
+                paymentsMap.put(payment.id(), payment);
+            }
+
+            // update payment
+            payment = payment.toBuilder()
+                    .setMessage(htlc.message())
+                    .setPeerPubkey(htlc.senderPubkey())
+                    .setTime(htlc.senderTime() != 0 ? htlc.senderTime() : htlc.acceptTime())
+                    .build();
+
             // move back to list
             htlcs.add(hb.build());
+            payments.add(payment);
         }
 
-        if (invoice.state() == WalletData.INVOICE_STATE_SETTLED) {
-            // create a payment template to be used for
-            // populating a Payment per HTLC
-            WalletData.Payment p = WalletData.Payment.builder()
-                    .setType(WalletData.PAYMENT_TYPE_INVOICE)
-                    .setSourceId(invoice.id())
-                    .setUserId(invoice.userId())
-                    .build();
-            dao_.settleInvoice(invoice, htlcs, p);
-        } else {
-            dao_.updateInvoiceState(invoice, htlcs);
-        }
+        dao_.updateInvoiceState(invoice, htlcs, payments);
 
         engine_.onSignal(id(), DefaultTopics.INVOICE_STATE, null);
     }

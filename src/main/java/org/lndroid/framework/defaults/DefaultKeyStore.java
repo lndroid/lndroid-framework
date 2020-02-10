@@ -1,4 +1,4 @@
-package org.lndroid.framework;
+package org.lndroid.framework.defaults;
 
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -7,11 +7,26 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 
+import org.lndroid.framework.common.ISigner;
+import org.lndroid.framework.common.IVerifier;
+import org.lndroid.framework.engine.IKeyStore;
 import org.lndroid.framework.common.HEX;
 
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.Certificate;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -23,7 +38,7 @@ public class DefaultKeyStore implements IKeyStore {
     private static final String WP_KEY_ALIAS = "WALLET_PASSWORD_KEY";
     private static final String USER_KEY_ALIAS_PREFIX = "USER_KEY_";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-    private static int DEFAULT_AUTH_VALIDITY_DURATION = 4 * 60 * 60; // 4h
+    private static int DEFAULT_AUTH_VALIDITY_DURATION = 6 * 60 * 60; // 6h
 
     private Context ctx_;
     private boolean isAvailable_;
@@ -120,7 +135,7 @@ public class DefaultKeyStore implements IKeyStore {
     }
 
     @Override
-    public String generateUserKeyPair(int userId, String role) {
+    public String generateUserKeyPair(long userId, String role) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
 
@@ -131,8 +146,7 @@ public class DefaultKeyStore implements IKeyStore {
             KeyGenParameterSpec params = new KeyGenParameterSpec.Builder(
                     alias,
                     KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
-                    .setDigests(KeyProperties.DIGEST_SHA256,
-                            KeyProperties.DIGEST_SHA512)
+                    .setDigests(KeyProperties.DIGEST_SHA256)
                     // FIXME add other options depending on user role?
                     .build();
 
@@ -192,6 +206,39 @@ public class DefaultKeyStore implements IKeyStore {
         }
 
         return null;
+    }
+
+    @Override
+    public IVerifier getVerifier() {
+        return new DefaultVerifier();
+    }
+
+    @Override
+    public ISigner getUserKeySigner(long userId) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            return null;
+
+        KeyStore.PrivateKeyEntry key = null;
+        try {
+            KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
+            ks.load(null);
+
+            final String alias = USER_KEY_ALIAS_PREFIX + userId;
+            if (!ks.containsAlias(alias))
+                return null;
+
+            key = ((KeyStore.PrivateKeyEntry) ks.getEntry(alias, null));
+
+        } catch (Exception e) {
+            Log.e(TAG, "getUserKeySigner error "+e);
+            return null;
+        }
+
+        if (key == null)
+            return null;
+
+        return new DefaultSigner(key.getPrivateKey(), key.getCertificate().getPublicKey());
     }
 
     // if null is returned then we just drop the current encrypted password

@@ -33,7 +33,7 @@ abstract class AddContactDaoRoom
     public abstract List<RoomTransactions.AddContactTransaction> getTransactions();
 
     @Override @Query("SELECT * FROM AddContactTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddContactTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.AddContactTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.AddContactTransaction tx);
@@ -45,36 +45,29 @@ abstract class AddContactDaoRoom
     @Query("UPDATE AddContactTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract long upsertContact(RoomData.Contact i);
-
-    // helper to persist the embedded user id
-    // after auto-incremented user id was assigned during the insert
-    @Query("UPDATE Contact SET id = id_ WHERE id_ = :id")
-    abstract void setContactId(long id);
+    public abstract void upsertContact(RoomData.Contact i);
 
     @Query("SELECT * FROM Contact WHERE pubkey = :pubkey")
     abstract RoomData.Contact getContactByPubkey(String pubkey);
 
     @Override @Transaction
     public WalletData.Contact commitTransaction(
-            RoomTransactions.AddContactTransaction tx, int txAuthUserId, WalletData.Contact contact, long time) {
+            RoomTransactions.AddContactTransaction tx, long txAuthUserId, WalletData.Contact contact, long time) {
 
         // make sure we replace existing contact w/ same pubkey
         RoomData.Contact ri = getContactByPubkey(contact.pubkey());
         if (ri == null) {
             ri = new RoomData.Contact();
+            // drop newly generated id, reuse old one
+            contact = contact.toBuilder().setId(ri.getData().id()).build();
         }
         ri.setData(contact);
 
-        // insert
-        final long id = upsertContact(ri);
-        setContactId(id);
-
-        // set id
-        contact = contact.toBuilder().setId(id).build();
+        // update
+        upsertContact(ri);
 
         // write route hints
         routeDao_.upsertRouteHints(RoomData.routeHintsParentId(contact), contact.routeHints());

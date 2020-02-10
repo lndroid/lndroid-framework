@@ -8,7 +8,7 @@ import android.os.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.PluginData;
 
@@ -54,50 +54,6 @@ public class AuthClient extends Handler implements IAuthClient {
             cb.cb.onResponse(pm.data());
     }
 
-/*    private void onAuthedMessage(AuthData.AuthMessage pm) {
-        IResponseCallback<Boolean> cb = authorizedCallbacks_.remove(pm.authId());
-        if (pm.code() != null)
-            cb.onError(pm.code(), pm.error());
-        else
-            cb.onResponse(true);
-    }
-
-    private void onAuthMessage(AuthData.AuthMessage pm) {
-        for(IAuthRequestCallback cb: authRequestCallbacks_) {
-            cb.onAuthRequest((WalletData.AuthRequest)pm.data());
-        }
-    }
-
-    private void onWalletStateMessage(AuthData.AuthMessage pm) {
-        for(IWalletStateCallback cb: walletStateCallbacks_) {
-            cb.onWalletState((WalletData.WalletState)pm.data());
-        }
-    }
-
-    private void onGenSeedMessage(AuthData.AuthMessage pm) {
-        if (pm.code() != null) {
-            genSeedCallback_.onError(pm.code(), pm.error());
-        } else {
-            genSeedCallback_.onResponse((WalletData.GenSeedResponse)pm.data());
-        }
-    }
-
-    private void onInitWalletMessage(AuthData.AuthMessage pm) {
-        if (pm.code() != null) {
-            initWalletCallback_.onError(pm.code(), pm.error());
-        } else {
-            initWalletCallback_.onResponse((WalletData.InitWalletResponse)pm.data());
-        }
-    }
-
-    private void onUnlockWalletMessage(AuthData.AuthMessage pm) {
-        if (pm.code() != null) {
-            unlockWalletCallback_.onError(pm.code(), pm.error());
-        } else {
-            unlockWalletCallback_.onResponse((WalletData.UnlockWalletResponse)pm.data());
-        }
-    }
-*/
     @Override
     public void handleMessage(Message msg) {
         AuthData.AuthMessage pm = (AuthData.AuthMessage)msg.obj;
@@ -115,30 +71,6 @@ public class AuthClient extends Handler implements IAuthClient {
                 onCallback(pm);
                 break;
 
-/*            case AuthData.MESSAGE_TYPE_AUTHED:
-                onAuthedMessage(pm);
-                break;
-
-            case AuthData.MESSAGE_TYPE_AUTH_SUB:
-                onAuthMessage(pm);
-                break;
-
-            case AuthData.MESSAGE_TYPE_WALLET_STATE_SUB:
-                onWalletStateMessage(pm);
-                break;
-
-            case AuthData.MESSAGE_TYPE_GEN_SEED:
-                onGenSeedMessage(pm);
-                break;
-
-            case AuthData.MESSAGE_TYPE_INIT_WALLET:
-                onInitWalletMessage(pm);
-                break;
-
-            case AuthData.MESSAGE_TYPE_UNLOCK_WALLET:
-                onUnlockWalletMessage(pm);
-                break;
-*/
             default:
                 throw new RuntimeException("Unexpected auth client response");
         }
@@ -170,7 +102,7 @@ public class AuthClient extends Handler implements IAuthClient {
     }
 
     @Override
-    public void isUserPrivileged(String pluginId, int authUserId, int authId, IResponseCallback<Boolean> cb) {
+    public void isUserPrivileged(String pluginId, long authUserId, long authId, IResponseCallback<Boolean> cb) {
         AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
                 .setType(AuthData.MESSAGE_TYPE_PRIV)
                 .setAuthId(authId)
@@ -227,7 +159,7 @@ public class AuthClient extends Handler implements IAuthClient {
     }
 
     @Override
-    public void getAuthRequest(int id, IResponseCallback<WalletData.AuthRequest> cb) {
+    public void getAuthRequest(long id, IResponseCallback<WalletData.AuthRequest> cb) {
         AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
                 .setType(AuthData.MESSAGE_TYPE_GET)
                 .setAuthId(id);
@@ -236,7 +168,7 @@ public class AuthClient extends Handler implements IAuthClient {
     }
 
     @Override
-    public <T> void getTransactionRequest(int userId, String txId, Class<T> cls, IResponseCallback<T> cb) {
+    public <T> void getTransactionRequest(long userId, String txId, Class<T> cls, IResponseCallback<T> cb) {
         AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
                 .setType(AuthData.MESSAGE_TYPE_GET_TX)
                 .setUserId(userId)

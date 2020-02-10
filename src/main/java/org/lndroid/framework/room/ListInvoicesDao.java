@@ -37,7 +37,7 @@ public class ListInvoicesDao implements IPluginDao {
     public WalletData.ListInvoicesResult list(
             WalletData.ListInvoicesRequest req,
             WalletData.ListPage page,
-            int callerUserId) {
+            long callerUserId) {
 
         String where = "";
         if (req.invoiceId() != 0)

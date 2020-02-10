@@ -21,7 +21,7 @@ import org.lndroid.framework.client.IPluginClient;
 import org.lndroid.framework.client.IPluginTransaction;
 import org.lndroid.framework.client.IPluginTransactionCallback;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 
 public class SendPaymentService {
 

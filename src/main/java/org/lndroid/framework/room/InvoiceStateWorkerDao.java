@@ -36,6 +36,15 @@ class InvoiceStateWorkerDao implements IInvoiceStateWorkerDao, IPluginDao {
     }
 
     @Override
+    public List<WalletData.Payment> getInvoicePayments(long invoiceId) {
+        List<WalletData.Payment> payments = new ArrayList<>();
+        List<RoomData.Payment> r = dao_.getInvoicePayments(WalletData.PAYMENT_TYPE_INVOICE, invoiceId);
+        for(RoomData.Payment i: r)
+            payments.add(i.getData());
+        return payments;
+    }
+
+    @Override
     public long getMaxAddIndex() {
         return dao_.getMaxAddIndex();
     }
@@ -45,41 +54,28 @@ class InvoiceStateWorkerDao implements IInvoiceStateWorkerDao, IPluginDao {
         return dao_.getMaxSettleIndex();
     }
 
-    private List<RoomData.InvoiceHTLC> prepareHTLCs(List<WalletData.InvoiceHTLC> htlcs) {
+    @Override
+    public void updateInvoiceState(WalletData.Invoice invoice,
+                                   List<WalletData.InvoiceHTLC> htlcs,
+                                   List<WalletData.Payment> payments) {
+        RoomData.Invoice r = new RoomData.Invoice();
+        r.setData(invoice);
+
         List<RoomData.InvoiceHTLC> rhtlcs = new ArrayList<>();
         for (WalletData.InvoiceHTLC h: htlcs) {
             RoomData.InvoiceHTLC rh = new RoomData.InvoiceHTLC();
             rh.setData(h);
             rhtlcs.add(rh);
         }
-        return rhtlcs;
-    }
 
-    @Override
-    public long insertInvoice(WalletData.Invoice i) {
-        RoomData.Invoice r = new RoomData.Invoice();
-        r.setData(i);
-        return dao_.insertInvoice(r);
-    }
+        List<RoomData.Payment> rpayments = new ArrayList<>();
+        for (WalletData.Payment p: payments) {
+            RoomData.Payment rp = new RoomData.Payment();
+            rp.setData(p);
+            rpayments.add(rp);
+        }
 
-    @Override
-    public void updateInvoiceState(WalletData.Invoice invoice, List<WalletData.InvoiceHTLC> htlcs) {
-        RoomData.Invoice r = new RoomData.Invoice();
-        r.setData(invoice);
-
-        List<RoomData.InvoiceHTLC> rhtlcs = prepareHTLCs(htlcs);
-
-        dao_.updateInvoiceState(r, rhtlcs);
-    }
-
-    @Override
-    public void settleInvoice(WalletData.Invoice invoice, List<WalletData.InvoiceHTLC> htlcs, WalletData.Payment p) {
-        RoomData.Invoice r = new RoomData.Invoice();
-        r.setData(invoice);
-
-        List<RoomData.InvoiceHTLC> rhtlcs = prepareHTLCs(htlcs);
-
-        dao_.settleInvoice(r, rhtlcs, p);
+        dao_.updateInvoiceState(r, rhtlcs, rpayments);
     }
 
     @Override
@@ -96,6 +92,9 @@ abstract class InvoiceStateWorkerDaoRoom {
     @Query("SELECT * FROM InvoiceHTLC WHERE invoiceId = :invoiceId")
     abstract List<RoomData.InvoiceHTLC> getInvoiceHTLCs(long invoiceId);
 
+    @Query("SELECT * FROM Payment WHERE type = :type AND sourceId = :invoiceId")
+    abstract List<RoomData.Payment> getInvoicePayments(int type, long invoiceId);
+
     // FIXME these two won't work if we recover our wallet from backup
     //  and thus would have an empty lnd instance?
     @Query("SELECT MAX(addIndex) FROM Invoice")
@@ -105,69 +104,20 @@ abstract class InvoiceStateWorkerDaoRoom {
     abstract long getMaxSettleIndex();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long updateInvoice(RoomData.Invoice i);
-    @Query("UPDATE Invoice SET id = id_ WHERE id_ = :id")
-    abstract void setInvoiceId(long id);
+    abstract void upsertInvoice(RoomData.Invoice i);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long[] updateInvoiceHTLCs(List<RoomData.InvoiceHTLC> htlcs);
-    @Query("UPDATE InvoiceHTLC SET id = id_ WHERE id_ IN (:ids)")
-    abstract void setInvoiceHTLCIds(long[] ids);
+    abstract void upsertInvoiceHTLCs(List<RoomData.InvoiceHTLC> htlcs);
 
-    @Query("DELETE FROM Payment WHERE type = :type AND sourceId = :sourceId")
-    abstract void deleteInvoicePayments(int type, long sourceId);
-    @Insert
-    abstract long[] insertPayments(List<RoomData.Payment> ps);
-    @Query("UPDATE Payment SET id = id_ WHERE id_ IN (:ids)")
-    abstract void setPaymentIds(long[] ids);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract void upsertPayments(List<RoomData.Payment> ps);
 
     @Transaction
-    long insertInvoice(RoomData.Invoice i) {
-        final long invoiceId = updateInvoice(i);
-        setInvoiceId(invoiceId);
-        return invoiceId;
-    }
-
-    @Transaction
-    void updateInvoiceState(RoomData.Invoice i, List<RoomData.InvoiceHTLC> htlcs) {
-        final long invoiceId = updateInvoice(i);
-        setInvoiceId(invoiceId);
-        final long[] htlcIds = updateInvoiceHTLCs(htlcs);
-        setInvoiceHTLCIds(htlcIds);
-    }
-
-    @Transaction
-    void settleInvoice(RoomData.Invoice invoice, List<RoomData.InvoiceHTLC> htlcs, WalletData.Payment p) {
-        final long invoiceId = updateInvoice(invoice);
-        setInvoiceId(invoiceId);
-        final long[] htlcIds = updateInvoiceHTLCs(htlcs);
-        setInvoiceHTLCIds(htlcIds);
-
-        // FIXME this is ugly bullshit! auto-incremented ids generated at db level
-        // are a huge pain source. This code was placed here until we move to
-        // using custom id generator:
-        // - id generator available to each plugin
-        // - all ids are generated at plugin level
-        // - db layer just writes provided ids and does not use auto-increments
-        // - this code is moved to the plugin level where we can link htlcs to payments
-        // as all ids are known
-        List<RoomData.Payment> rps = new ArrayList<>();
-        for(RoomData.InvoiceHTLC htlc: htlcs) {
-            RoomData.Payment rp = new RoomData.Payment();
-            rp.setData(p.toBuilder()
-                    .setMessage(htlc.getData().message())
-                    .setPeerPubkey(htlc.getData().senderPubkey())
-                    .setTime(htlc.getData().senderTime() != 0 ? htlc.getData().senderTime() : invoice.getData().settleTime())
-                    .build()
-            );
-            rps.add(rp);
-        }
-
-        deleteInvoicePayments(WalletData.PAYMENT_TYPE_INVOICE, invoiceId);
-        final long[] paymentIds = insertPayments(rps);
-        setPaymentIds(paymentIds);
-
-//        final long paymentId = updatePayment(p);
-  //      setPaymentId(paymentId);
+    void updateInvoiceState(RoomData.Invoice i,
+                            List<RoomData.InvoiceHTLC> htlcs,
+                            List<RoomData.Payment> payments) {
+        upsertInvoice(i);
+        upsertInvoiceHTLCs(htlcs);
+        upsertPayments(payments);
     }
 }

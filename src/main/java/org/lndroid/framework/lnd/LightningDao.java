@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 
 public class LightningDao implements ILightningDao {
 

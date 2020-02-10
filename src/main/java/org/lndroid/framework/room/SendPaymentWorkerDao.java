@@ -89,14 +89,11 @@ abstract class SendPaymentWorkerDaoRoom {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract void updateSendPayment(RoomData.SendPayment p);
 
-    @Query("UPDATE Payment SET peerPubkey = :peerPubkey WHERE type = :type AND sourceId = :sourceId")
-    abstract void setPaymentPeer(int type, long sourceId, String peerPubkey);
-
-    @Query("UPDATE Payment SET sourceHTLCId = :htlcId WHERE type = :type AND sourceId = :sourceId")
-    abstract void setPaymentHTLC(int type, long sourceId, long htlcId);
+    @Query("UPDATE Payment SET peerPubkey = :peerPubkey, sourceHTLCId = :htlcId WHERE type = :type AND sourceId = :sourceId")
+    abstract void setPaymentData(int type, long sourceId, String peerPubkey, long htlcId);
 
     @Insert
-    abstract long insertHTLC(RoomData.HTLCAttempt htlc);
+    abstract void insertHTLC(RoomData.HTLCAttempt htlc);
 
     private List<WalletData.SendPayment> fromRoom(List<RoomData.SendPayment> rsps) {
         List<WalletData.SendPayment> sps = new ArrayList<>();
@@ -122,14 +119,15 @@ abstract class SendPaymentWorkerDaoRoom {
     @Transaction
     public void updatePayment(RoomData.SendPayment sp) {
         updateSendPayment(sp);
-        setPaymentPeer(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(), sp.getData().destPubkey());
+        setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(), sp.getData().destPubkey(), 0L);
     }
 
     @Transaction
     public void settlePayment(RoomData.SendPayment sp, RoomData.HTLCAttempt htlc) {
         updateSendPayment(sp);
-        final long htlcId = insertHTLC(htlc);
-        setPaymentHTLC(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(), htlcId);
+        insertHTLC(htlc);
+        setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(),
+                sp.getData().destPubkey(), htlc.getData().id());
     }
 }
 

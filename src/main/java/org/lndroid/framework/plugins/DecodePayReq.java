@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
@@ -36,7 +36,7 @@ public class DecodePayReq extends LndActionBase<String, Data.PayReqString, Walle
     }
 
     @Override
-    protected WalletData.SendPayment createResponse(PluginContext ctx, String req, int authUserId, Data.PayReq r) {
+    protected WalletData.SendPayment createResponse(PluginContext ctx, String req, long authUserId, Data.PayReq r) {
         WalletData.SendPayment.Builder b = WalletData.SendPayment.builder();
         LightningCodec.PayReqConverter.decode(r, b);
         return b.build();

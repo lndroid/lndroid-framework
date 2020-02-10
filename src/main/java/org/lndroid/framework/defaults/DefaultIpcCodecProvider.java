@@ -1,4 +1,4 @@
-package org.lndroid.framework;
+package org.lndroid.framework.defaults;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

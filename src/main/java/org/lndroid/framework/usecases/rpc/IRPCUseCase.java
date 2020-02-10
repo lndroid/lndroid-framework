@@ -2,7 +2,7 @@ package org.lndroid.framework.usecases.rpc;
 
 import androidx.lifecycle.LifecycleOwner;
 
-import org.lndroid.framework.IResponseCallback;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.usecases.IRequestFactory;
 

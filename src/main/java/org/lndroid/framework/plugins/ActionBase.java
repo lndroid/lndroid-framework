@@ -7,6 +7,7 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.dao.IActionDao;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
@@ -21,7 +22,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
     protected abstract int defaultTimeout();
     protected abstract int maxTimeout();
     protected abstract boolean isUserPrivileged(Request req, WalletData.User user);
-    protected abstract Response createResponse(PluginContext ctx, Request req, int authUserId);
+    protected abstract Response createResponse(PluginContext ctx, Request req, long authUserId);
     protected abstract void signal(Response response);
     protected abstract Type getResponseType();
     protected abstract boolean isValidUser(WalletData.User user);
@@ -70,7 +71,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
         // noop
     }
 
-    private void commit(Request req, PluginContext ctx, int authUserId) {
+    private void commit(Request req, PluginContext ctx, long authUserId) {
         // commit
         Response response = createResponse(ctx, req, authUserId);
 

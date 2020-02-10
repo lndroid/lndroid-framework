@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.PluginContext;
 
@@ -29,7 +29,7 @@ public class ShareContact extends ActionBase<WalletData.ShareContactRequest, Wal
     }
 
     @Override
-    protected WalletData.ShareContactResponse createResponse(PluginContext ctx, WalletData.ShareContactRequest req, int authUserId) {
+    protected WalletData.ShareContactResponse createResponse(PluginContext ctx, WalletData.ShareContactRequest req, long authUserId) {
         return WalletData.ShareContactResponse.builder()
                 .build();
     }

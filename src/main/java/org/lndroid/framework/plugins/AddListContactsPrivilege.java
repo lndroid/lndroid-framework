@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.PluginContext;
 
@@ -30,9 +30,10 @@ public class AddListContactsPrivilege extends ActionBase<WalletData.ListContacts
 
     @Override
     protected WalletData.ListContactsPrivilege createResponse(
-            PluginContext ctx, WalletData.ListContactsPrivilege req, int authUserId) {
+            PluginContext ctx, WalletData.ListContactsPrivilege req, long authUserId) {
 
         return req.toBuilder()
+                .setId(server().getIdGenerator().generateId(WalletData.ListContactsPrivilege.class))
                 .setUserId(ctx.user.id())
                 .setAuthUserId(authUserId)
                 .setCreateTime(System.currentTimeMillis())

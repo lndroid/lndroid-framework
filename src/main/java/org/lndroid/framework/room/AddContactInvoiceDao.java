@@ -68,7 +68,7 @@ abstract class AddContactInvoiceDaoRoom
     public abstract List<RoomTransactions.AddContactInvoiceTransaction> getTransactions();
 
     @Override @Query("SELECT * FROM AddContactInvoiceTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddContactInvoiceTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.AddContactInvoiceTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.AddContactInvoiceTransaction tx);
@@ -79,28 +79,28 @@ abstract class AddContactInvoiceDaoRoom
     @Query("UPDATE AddContactInvoiceTransaction " +
             "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time);
+    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
 
     @Override
     @Query("UPDATE AddContactInvoiceTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Override
     @Query("UPDATE AddContactInvoiceTransaction " +
             "SET txState = :txState, txDoneTime = :time, txError = :code " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
 
     @Override
     @Query("UPDATE AddContactInvoiceTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(int txUserId, String txId, int txState, long time);
+    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
 
     @Override @Transaction
-    public void confirmTransaction(int txUserId, String txId, int txAuthUserId, long time,
+    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
                                    WalletData.AddContactInvoiceRequest authedRequest) {
 
         if (authedRequest != null) {
@@ -116,7 +116,7 @@ abstract class AddContactInvoiceDaoRoom
 
     @Override @Transaction
     public WalletData.AddContactInvoiceResponse commitTransaction(
-            int txUserId, String txId,
+            long txUserId, String txId,
             WalletData.AddContactInvoiceResponse rep, long time) {
 
         // get tx

@@ -8,13 +8,13 @@ import org.lndroid.framework.WalletData;
 
 public interface IAuthRequestDao {
     void init();
-    @Nullable WalletData.AuthRequest get(int id);
-    @Nullable WalletData.AuthRequest get(int userId, String txId);
-    @Nullable WalletData.User getAuthRequestUser(int authRequestId);
+    @Nullable WalletData.AuthRequest get(long id);
+    @Nullable WalletData.AuthRequest get(long userId, String txId);
+    @Nullable WalletData.User getAuthRequestUser(long authRequestId);
     WalletData.AuthRequest insert(WalletData.AuthRequest r);
-    void delete(int id);
+    void delete(long id);
     // bg requests are not persistent
     void deleteBackgroundRequests();
     List<WalletData.AuthRequest> getBackgroundRequests();
-    <T> T getTransactionRequest(int userId, String txId, Class<T> cls);
+    <T> T getTransactionRequest(long userId, String txId, Class<T> cls);
 }

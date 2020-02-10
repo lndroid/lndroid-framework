@@ -17,18 +17,18 @@ public interface ISendPaymentDao {
     List<Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment>> getTransactions();
 
     // get tx
-    Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> getTransaction(int txUserId, String txId);
+    Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> getTransaction(long txUserId, String txId);
 
     // start tx
     void startTransaction(Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> t);
 
     // write response to db (if required), attach response to tx, set to COMMITTED state,
     // resp.id will be initialized after this call.
-    WalletData.Payment commitTransaction(int txUserId, String txId, int txAuthUserId, WalletData.Payment p);
+    WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p);
 
     // set auth user/time, set to REJECTED state
-    void rejectTransaction(int txUserId, String txId, int txAuthUserId);
+    void rejectTransaction(long txUserId, String txId, long txAuthUserId);
 
     // mark as timed out, set to TX_TIMEOUT state
-    void timeoutTransaction(int txUserId, String txId);
+    void timeoutTransaction(long txUserId, String txId);
 }

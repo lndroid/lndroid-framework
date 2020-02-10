@@ -7,7 +7,7 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.client.IPluginClient;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 
 public class ListPayments extends ListData<WalletData.ListPaymentsRequest, WalletData.Payment> {
     public ListPayments(IPluginClient client) {

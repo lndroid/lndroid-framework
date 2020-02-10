@@ -41,7 +41,7 @@ public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, Wa
     }
 
     @Override
-    public Transaction<WalletData.OpenChannelRequest, WalletData.Channel> getTransaction(int txUserId, String txId) {
+    public Transaction<WalletData.OpenChannelRequest, WalletData.Channel> getTransaction(long txUserId, String txId) {
         RoomTransactions.OpenChannelTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -59,17 +59,17 @@ public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, Wa
     }
 
     @Override
-    public WalletData.Channel commitTransaction(int txUserId, String txId, int txAuthUserId, WalletData.Channel r) {
+    public WalletData.Channel commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Channel r) {
         return dao_.commitTransaction(txUserId, txId, txAuthUserId, r, System.currentTimeMillis());
     }
 
     @Override
-    public void rejectTransaction(int txUserId, String txId, int txAuthUserId) {
+    public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
         dao_.rejectTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
     }
 
     @Override
-    public void timeoutTransaction(int txUserId, String txId) {
+    public void timeoutTransaction(long txUserId, String txId) {
         dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
     }
 
@@ -85,7 +85,7 @@ abstract class OpenChannelDaoRoom {
     public abstract List<RoomTransactions.OpenChannelTransaction> getTransactions();
 
     @Query("SELECT * FROM OpenChannelTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.OpenChannelTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.OpenChannelTransaction getTransaction(long txUserId, String txId);
 
     @Insert
     public abstract void createTransaction(RoomTransactions.OpenChannelTransaction tx);
@@ -96,38 +96,33 @@ abstract class OpenChannelDaoRoom {
     @Query("UPDATE OpenChannelTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Query("UPDATE OpenChannelTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(int txUserId, String txId, int txState, long time);
+    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
 
     @Insert
-    public abstract long insertChannel(RoomData.Channel i);
+    public abstract void insertChannel(RoomData.Channel i);
 
-    @Query("UPDATE Channel SET id = id_ WHERE id_ = :id")
-    abstract void setChannelId(long id);
     @Query("UPDATE Channel SET channelPoint = :cp WHERE id = :id")
     abstract void setFakeChannelPoint(long id, String cp);
 
     @androidx.room.Transaction
-    public WalletData.Channel commitTransaction(int txUserId, String txId, int txAuthUserId, WalletData.Channel channel, long time) {
+    public WalletData.Channel commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Channel channel, long time) {
         // insert payment into it's own table
         RoomData.Channel p = new RoomData.Channel();
         p.setData(channel);
 
-        final long id = insertChannel(p);
-        setChannelId(id);
-        setFakeChannelPoint(id, Long.toString(id));
-
-        channel = channel.toBuilder().setId(id).build();
+        insertChannel(p);
+        setFakeChannelPoint(channel.id(), Long.toString(channel.id()));
 
         // get tx
         RoomTransactions.OpenChannelTransaction tx = getTransaction(txUserId, txId);
 
         // update state
-        tx.response = channel;
+        tx.setResponse(channel);
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
         if (txAuthUserId != 0) {

@@ -29,7 +29,7 @@ abstract class AddListContactsPrivilegeDaoRoom
 
     @Override
     @Query("SELECT * FROM AddListContactsPrivilegeTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddListContactsPrivilegeTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.AddListContactsPrivilegeTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.AddListContactsPrivilegeTransaction tx);
@@ -41,38 +41,31 @@ abstract class AddListContactsPrivilegeDaoRoom
     @Query("UPDATE AddListContactsPrivilegeTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Query("SELECT * FROM ListContactsPrivilege WHERE userId = :userId")
-    abstract RoomData.ListContactsPrivilege getByUserId(int userId);
+    abstract RoomData.ListContactsPrivilege getByUserId(long userId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract long insert(RoomData.ListContactsPrivilege r);
-
-    @Query("UPDATE ListContactsPrivilege SET id = id_ WHERE id_ = :id")
-    abstract void updateId(int id);
+    abstract void upsert(RoomData.ListContactsPrivilege r);
 
     // create value and add it to tx response and commit
     @Override @androidx.room.Transaction
     public WalletData.ListContactsPrivilege commitTransaction(
-            RoomTransactions.AddListContactsPrivilegeTransaction tx, int txAuthUserId, WalletData.ListContactsPrivilege v, long time) {
+            RoomTransactions.AddListContactsPrivilegeTransaction tx, long txAuthUserId, WalletData.ListContactsPrivilege v, long time) {
 
         RoomData.ListContactsPrivilege rv = getByUserId(v.userId());
-        if (rv == null)
+        if (rv == null) {
             rv = new RoomData.ListContactsPrivilege();
+            v = v.toBuilder().setId(rv.getData().id()).build();
+        }
         rv.setData(v);
 
-        // insert new user
-        final int id = (int) insert(rv);
-
-        // persist the value id
-        updateId(id);
-
-        // create new value object w/ proper id
-        v = v.toBuilder().setId(id).build();
+        // write
+        upsert(rv);
 
         // set response to tx
-        tx.setRequest(v);
+        tx.setResponse(v);
 
         // update state
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;

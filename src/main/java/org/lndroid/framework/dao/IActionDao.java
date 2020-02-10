@@ -10,17 +10,17 @@ public interface IActionDao<Request, Response> {
     List<Transaction<Request, Response>> getTransactions();
 
     // check if specific tx exists
-    Transaction<Request, Response> getTransaction(int txUserId, String txId);
+    Transaction<Request, Response> getTransaction(long txUserId, String txId);
 
     // start tx
     void startTransaction(Transaction<Request, Response> t);
 
     // actually add user, return new user object w/ id set properly
-    Response commitTransaction(int txUserId, String txId, int txAuthUserId, Response r);
+    Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r);
 
     // mark as rejected
-    void rejectTransaction(int txUserId, String txId, int txAuthUserId);
+    void rejectTransaction(long txUserId, String txId, long txAuthUserId);
 
     // mark as timed out
-    void timeoutTransaction(int txUserId, String txId);
+    void timeoutTransaction(long txUserId, String txId);
 }

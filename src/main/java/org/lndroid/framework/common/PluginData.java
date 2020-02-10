@@ -20,7 +20,6 @@ public class PluginData {
     // ipc Bundle keys
     public static final String IPC_VERSION = "ver";
     public static final String IPC_MESSAGE = "msg";
-    public static final String IPC_TIMESTAMP = "tm";
     public static final String IPC_PUBKEY = "pk";
     public static final String IPC_SIGNATURE = "sign";
 
@@ -45,6 +44,8 @@ public class PluginData {
         // common fields
         public abstract String type();
 
+        public abstract long timestamp();
+
         // the caller identity, null for in-process server replies,
         // IPC replies will have the identity w/ server appPubkey.
         @Nullable public abstract WalletData.UserIdentity userIdentity();
@@ -61,7 +62,7 @@ public class PluginData {
         @Nullable public abstract String error();
 
         // auth related
-        @Nullable public abstract Integer authId();
+        @Nullable public abstract Long authId();
         @Nullable public abstract Boolean isPrivileged();
 
         // attach data as payload for this message,
@@ -152,7 +153,8 @@ public class PluginData {
         private byte[] ipcData_;
 
         public static Builder builder() {
-            return new AutoValue_PluginData_PluginMessage.Builder();
+            return new AutoValue_PluginData_PluginMessage.Builder()
+                    .setTimestamp(System.currentTimeMillis());
         }
 
         public abstract Builder toBuilder();
@@ -160,13 +162,14 @@ public class PluginData {
         @AutoValue.Builder
         public static abstract class Builder {
             public abstract Builder setType(String type);
+            public abstract Builder setTimestamp(long timestamp);
             public abstract Builder setUserIdentity(WalletData.UserIdentity ui);
             public abstract Builder setPluginId(String pluginId);
             public abstract Builder setTxId(String txId);
             public abstract Builder setTimeout(Long timeout);
             public abstract Builder setCode(String code);
             public abstract Builder setError(String error);
-            public abstract Builder setAuthId(Integer authId);
+            public abstract Builder setAuthId(Long authId);
             public abstract Builder setIsPrivileged(Boolean isPrivileged);
 
             public abstract PluginMessage build();

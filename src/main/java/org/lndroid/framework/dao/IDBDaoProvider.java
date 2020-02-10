@@ -8,5 +8,6 @@ public interface IDBDaoProvider {
 
     IAuthDao getAuthDao();
     IAuthRequestDao getAuthRequestDao();
+    IRawQueryDao getRawQueryDao();
     IPluginDao getPluginDao(String pluginId);
 }

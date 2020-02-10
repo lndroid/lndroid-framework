@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.DefaultPlugins;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.dao.ISendPaymentDao;
 import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.common.IPluginData;
@@ -23,8 +24,9 @@ public class SendPayment implements IPluginForeground {
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 300000; // 5 min
 
-    ISendPaymentDao dao_;
-    IPluginForegroundCallback engine_;
+    private IPluginServer server_;
+    private ISendPaymentDao dao_;
+    private IPluginForegroundCallback engine_;
 
     public SendPayment() {
     }
@@ -40,6 +42,7 @@ public class SendPayment implements IPluginForeground {
 
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
+        server_ = server;
         dao_ = (ISendPaymentDao) server.getDaoProvider().getPluginDao(id());
         engine_ = callback;
 
@@ -75,12 +78,13 @@ public class SendPayment implements IPluginForeground {
         // noop
     }
 
-    private WalletData.Payment createResponse(PluginContext ctx, WalletData.SendPaymentRequest req, int authUserId) {
+    private WalletData.Payment createResponse(PluginContext ctx, WalletData.SendPaymentRequest req, long authUserId) {
         WalletData.Contact c = null;
         if (req.contactId() != 0)
             c = dao_.getContact(req.contactId());
 
         WalletData.SendPayment sp = WalletData.SendPayment.builder()
+                .setId(server_.getIdGenerator().generateId(WalletData.SendPayment.class))
                 .setUserId(ctx.user.id())
                 .setTxId(ctx.txId)
                 .setAuthUserId(authUserId)
@@ -108,15 +112,18 @@ public class SendPayment implements IPluginForeground {
                 .setMessage(req.message())
                 .setSenderPubkey(req.includeSenderPubkey() ? dao_.walletPubkey() : null)
                 .setIsKeysend(req.isKeysend())
-                .setRouteHints(req.routeHints())
+                .setRouteHints(Utils.assignRouteHintsIds(
+                        req.routeHints(), server_.getIdGenerator()))
                 .setFeatures(req.features())
                 .build();
 
         ImmutableMap.Builder<Long,WalletData.SendPayment> spb = ImmutableMap.builder();
-        spb.put(0L, sp);
+        spb.put(sp.id(), sp);
 
         return WalletData.Payment.builder()
+                .setId(server_.getIdGenerator().generateId(WalletData.Payment.class))
                 .setType(WalletData.PAYMENT_TYPE_SENDPAYMENT)
+                .setSourceId(sp.id())
                 .setUserId(sp.userId())
                 .setTime(sp.createTime())
                 .setSendPayments(spb.build())
@@ -125,7 +132,7 @@ public class SendPayment implements IPluginForeground {
                 .build();
     }
 
-    private void commit(PluginContext ctx, int authUserId) {
+    private void commit(PluginContext ctx, long authUserId) {
         // convert request to response
         WalletData.Payment p = createResponse(ctx, (WalletData.SendPaymentRequest)ctx.request, authUserId);
 
@@ -179,6 +186,11 @@ public class SendPayment implements IPluginForeground {
             engine_.onError(id(), ctx, Errors.PLUGIN_INPUT, Errors.errorMessage(Errors.PLUGIN_INPUT));
             return;
         }
+
+        // prepare request
+        req = req.toBuilder().setRouteHints(
+                Utils.assignRouteHintsIds(req.routeHints(), server_.getIdGenerator())
+        ).build();
 
         // create tx
         tx = new Transaction<>();

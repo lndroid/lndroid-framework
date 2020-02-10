@@ -20,31 +20,40 @@ To see sample app+wallet in action, check [this video](https://www.youtube.com/w
 - [x] Unified API access mechanism based on message passing, allowing to implement various patterns like RPC, streaming, etc
 - [x] All API methods are plugins, which can be added/replaced/modified by wallets
 - [x] Every API method defines it's own set of access conditions/permissions, and might trigger authorization request to be confirmed by human User
-- [x] Pluggable database layer to store framework data, and to cache lnd data to serve apps faster
+- [x] Pluggable database layer to store framework data, and to cache lnd data to serve apps faster, default - Android Room
 - [x] Pluggable codec to serialize IPC messages, default - GSON
-- [x] Pluggable key storage, which by default stores lnd wallet password in the keystore, allowing lnd to be started in the background when Apps connect to the API, or when background jobs are running
+- [x] Pluggable key storage, which by default stores lnd wallet password encrypted by key from the keystore, allowing lnd to be started in the background when Apps connect to the API, or when background jobs are running
 - [x] All API methods are idempotent: client might generate a random 'transaction id', save it, then start an API call with it, and if it's interrupted due to client/wallet failure or termination by OS, the same call might be resumed using the transaction id
 - [x] Connected apps are identified by a random pubkey, framework generates per-user (thus per-app) keypairs and passed it's pubkeys to apps on connect
-- [ ] Messages over IPC are signed using app/wallet private key, signatures verified by receiver using sender pubkey
-- [ ] Authentication for internal users (role != app), at least allow passwords and also device security facilities like 'device unlocked', bio/face id, etc 
 - [x] Failed payments are retried using Foreground Service up to max-tries and payment expiry
 - [x] Scheduled job to run lnd in background every X minutes for several minutes to accept payments
 - [x] Scheduled job to run lnd in background every X hours for ~1 hour to come in sync with network and node graph
-- [ ] Framework database is encrypted using keys derived from wallet password
+- [ ] Messages over IPC are signed using app/wallet private key, signatures verified by receiver using sender pubkey
+- [ ] Authentication for internal users (role != app), at least allow passwords and also device security facilities like 'device unlocked', bio/face id, etc 
+- [ ] Validation of every input params by every API method
+- [ ] Unit tests! Haha, we need some :)
+- [ ] Channel backups stored to local dir
+- [ ] Lnd and framework logs recorded and exposed over API 
+- [ ] Framework and Lnd API input/output messages saved and exposed over API 
+- [ ] Notifications: add API methods to start subscriptions, so that if wallet detects that client is not connected, sends Android Broadcast message that wakes up the client and allows it to consume the data requested by the call
+- [ ] Method/data versioning? Prepare for the future
+- [ ] First release
+
 - [ ] Database records with long-term effects like new users or privileges are signed by author's private key, signatures verified on every use of the record, if keys are invalidated records must be re-signed. 
 - [ ] Per-user keys are stored in AndroidKeystore using proper policies, validity of keys verified by signature of the parent user up to root, root user's key signed by keys derived from wallet password, thus if any of keys are invalidated due to policies or wallet password changes, the signed permissions/users in db must be re-signed which must require User interaction with the phone.
-- [ ] Lnd and framework logs recorded and exposed over API for developer convenience
-- [ ] Lnd API input/output messages saved and exposed over API for developer convenience
-- [ ] Notifications: API methods to start long/forever-running calls, such that if wallet detects that client is not connected, sends Android Broadcast message that wakes up the client and allows it to consume the data requested by the call
 - [ ] Macaroons: explore if macaroons can be given in exchange for permissions, if this could help apps provide more granular security to different macaroons using KeyStore policies
 - [ ] App spending (and other) limits: granular permissions are flexible but hard to understand for Users, simple per-app limits could be enough 
 - [ ] Permissions/privileges: explore the space of various options depending on apps needs
 - [ ] Lightning protocol extensions (Whatsat, etc): explore if we need specialized API methods and permissions, like 'default protocol app'
-- [ ] Unit tests! Haha, we need some :)
-- [ ] Lnd and framework db backups
-- [ ] Encrypted db uploaded to common services like Google Drive, encrypted using wallet password
+- [ ] Encrypted channel backup uploaded to common cloud storage services
+- [ ] Framework database is encrypted using keys derived from wallet password
 
-# Contributions welcome
+# Contributions wanted
+
+- [ ] LNURL support
+- [ ] WebLN support
+- [ ] NFC
+- [ ] WatchTowers
 
 Author is not an expert in lnd or crypto (or Android, for the matter), your advice and contributions will really help to bring Lndroid forward.
 

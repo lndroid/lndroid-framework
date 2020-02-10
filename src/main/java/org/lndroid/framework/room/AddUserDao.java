@@ -5,13 +5,9 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IActionDao;
-import org.lndroid.framework.engine.IPluginDao;
-import org.lndroid.framework.plugins.Transaction;
 
 public class AddUserDao extends ActionDaoBase<WalletData.AddUserRequest, WalletData.User, RoomTransactions.AddUserTransaction> {
 
@@ -20,10 +16,6 @@ public class AddUserDao extends ActionDaoBase<WalletData.AddUserRequest, WalletD
     AddUserDao(AddUserDaoRoom dao) {
         super(dao, RoomTransactions.AddUserTransaction.class);
         dao_ = dao;
-    }
-
-    public int getNextUserId() {
-        return (int)dao_.getMaxUserId() + 1;
     }
 }
 
@@ -35,7 +27,7 @@ abstract class AddUserDaoRoom implements IRoomActionDao<RoomTransactions.AddUser
 
     @Override
     @Query("SELECT * FROM AddUserTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddUserTransaction getTransaction(int txUserId, String txId);
+    public abstract RoomTransactions.AddUserTransaction getTransaction(long txUserId, String txId);
 
     @Override @Insert
     public abstract void createTransaction(RoomTransactions.AddUserTransaction tx);
@@ -47,39 +39,25 @@ abstract class AddUserDaoRoom implements IRoomActionDao<RoomTransactions.AddUser
     @Query("UPDATE AddUserTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
-
-    @Query("SELECT MAX(id_) FROM User")
-    abstract long getMaxUserId();
+    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     // helper to insert users
     @Insert
-    abstract long insertUser(RoomData.User r);
-
-    // helper to persist the embedded user id
-    // after auto-incremented user id was assigned during the insert
-    @Query("UPDATE User SET id = id_ WHERE id_ = :id")
-    abstract void setUserId(int id);
+    abstract void insertUser(RoomData.User r);
 
     // create user and add it to tx response and commit
     @Override @androidx.room.Transaction
     public WalletData.User commitTransaction(
-            RoomTransactions.AddUserTransaction tx, int txAuthUserId, WalletData.User user, long time) {
+            RoomTransactions.AddUserTransaction tx, long txAuthUserId, WalletData.User user, long time) {
 
         RoomData.User ru = new RoomData.User();
-        ru.data = user;
+        ru.setData(user);
 
         // insert new user
-        final int id = (int) insertUser(ru);
-
-        // persist the user id
-        setUserId(id);
-
-        // create new user object w/ proper id
-        user = user.toBuilder().setId(id).build();
+        insertUser(ru);
 
         // set response to tx
-        tx.response = user;
+        tx.setResponse(user);
 
         // update state
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;

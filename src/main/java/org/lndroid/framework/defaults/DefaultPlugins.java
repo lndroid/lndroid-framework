@@ -1,4 +1,4 @@
-package org.lndroid.framework.common;
+package org.lndroid.framework.defaults;
 
 public final class DefaultPlugins {
 

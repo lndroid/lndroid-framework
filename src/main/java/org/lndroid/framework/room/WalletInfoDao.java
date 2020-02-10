@@ -38,7 +38,7 @@ class WalletInfoDao implements IWalletInfoDao, IPluginDao {
 
 @Dao
 interface WalletInfoDaoRoom {
-    @Query("SELECT * FROM WalletInfo WHERE id_ = 0")
+    @Query("SELECT * FROM WalletInfo LIMIT 1")
     RoomData.WalletInfo get();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

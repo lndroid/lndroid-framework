@@ -32,10 +32,10 @@ public class AuthData {
         public abstract int type();
 
         // auth request id
-        public abstract int authId();
+        public abstract long authId();
 
         // tx credentials
-        public abstract int userId();
+        public abstract long userId();
         @Nullable public abstract String txId();
         @Nullable public abstract String pluginId();
 
@@ -61,9 +61,9 @@ public class AuthData {
 
             public abstract Builder setId(int id);
             public abstract Builder setType(int type);
-            public abstract Builder setUserId(int userId);
+            public abstract Builder setUserId(long userId);
             public abstract Builder setPluginId(String pluginId);
-            public abstract Builder setAuthId(int authId);
+            public abstract Builder setAuthId(long authId);
             public abstract Builder setTxId(String txId);
             public abstract Builder setCode(String code);
             public abstract Builder setError(String error);

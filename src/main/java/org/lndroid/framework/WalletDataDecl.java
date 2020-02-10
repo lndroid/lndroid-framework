@@ -13,6 +13,11 @@ public class WalletDataDecl {
     // You need to use corresponding WalletData.XXX struct to instanciate
     // these.
 
+    public interface EntityBase {
+        // all entities have an id
+        long id();
+    }
+
     public interface Error {
         @Nullable
         String code();
@@ -34,7 +39,7 @@ public class WalletDataDecl {
     public interface UserIdentity {
 
         // set for local clients who know their user id
-        int userId();
+        long userId();
 
         // set for apps
         @Nullable
@@ -45,9 +50,7 @@ public class WalletDataDecl {
     }
 
     public interface User {
-        int id();
-
-        int authUserId();
+        long authUserId();
 
         long createTime();
 
@@ -79,9 +82,9 @@ public class WalletDataDecl {
     // send over IPC, so no need to worry about converting
     // 'data' field.
     public interface AuthResponse {
-        int authId();
+        long authId();
 
-        int authUserId();
+        long authUserId();
 
         boolean authorized();
 
@@ -90,9 +93,7 @@ public class WalletDataDecl {
     }
 
     public interface AuthRequest {
-        int id();
-
-        int userId();
+        long userId();
 
         long createTime();
 
@@ -154,15 +155,10 @@ public class WalletDataDecl {
         boolean subscribe();
     }
 
-    public interface EntityBase {
-        // all entities have an id
-        long id();
-    }
-
     public interface Contact<RouteHint> {
-        int userId();
+        long userId();
 
-        int authUserId();
+        long authUserId();
 
         long createTime();
 
@@ -256,7 +252,7 @@ public class WalletDataDecl {
     public interface ListInvoicesRequest {
 
         // might trigger auth if userId != callerUserId and !onlyOwn
-        int userId();
+        long userId();
 
         // all other filters might trigger auth if !onlyOwn
         long invoiceId();
@@ -270,7 +266,7 @@ public class WalletDataDecl {
         @Nullable
         String preimageHashHex();
 
-        int authUserId();
+        long authUserId();
 
         long createFrom();
 
@@ -298,7 +294,7 @@ public class WalletDataDecl {
 
     public interface ListPaymentsRequest {
         // might trigger auth if userId != callerUserId and !onlyOwn
-        int userId();
+        long userId();
 
         // all filters might trigger auth if !onlyOwn
         int type();
@@ -322,7 +318,7 @@ public class WalletDataDecl {
 
     public interface ListContactsRequest {
         // might trigger auth if userId != callerUserId and !onlyOwn
-        int userId();
+        long userId();
 
         // sort order: id, name, createTime
         @Nullable
@@ -342,10 +338,10 @@ public class WalletDataDecl {
 
     public interface ListContactsPrivilege {
         // who is being granted
-        int userId();
+        long userId();
 
         // who authorized this grant
-        int authUserId();
+        long authUserId();
 
         // at what time
         long createTime();
@@ -353,10 +349,10 @@ public class WalletDataDecl {
 
     public interface ContactPaymentsPrivilege {
         // who is being granted
-        int userId();
+        long userId();
 
         // who authorized this grant
-        int authUserId();
+        long authUserId();
 
         // at what time
         long createTime();
@@ -473,10 +469,10 @@ public class WalletDataDecl {
         String txId(); // which tx created this invoice
 
         // user that created the invoice
-        int userId();
+        long userId();
 
         // who authed this invoice
-        int authUserId();
+        long authUserId();
 
         // internal description to be presented to the user,
         // not included in the paymentRequest
@@ -661,14 +657,14 @@ public class WalletDataDecl {
 
         // userId who called openChannel, might be 0 if
         // created by auto-pilot
-        int userId();
+        long userId();
 
         // if created by user
         @Nullable
         String txId();
 
         // user id who authed creation of this channel
-        int authUserId();
+        long authUserId();
 
         // user-provided description
         @Nullable
@@ -1056,7 +1052,7 @@ public class WalletDataDecl {
         // Following fields are for filtering-sorting only!
 
         // user that created the payment
-        int userId();
+        long userId();
 
         // last update time (sent/received?)
         // or maybe create time is better? see later.
@@ -1086,10 +1082,10 @@ public class WalletDataDecl {
         String txId();
 
         // user that created the payment
-        int userId();
+        long userId();
 
         // who authed this payment
-        int authUserId();
+        long authUserId();
 
         // internal description to be presented to the user
         @Nullable

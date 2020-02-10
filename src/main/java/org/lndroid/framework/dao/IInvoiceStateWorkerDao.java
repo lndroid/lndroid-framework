@@ -8,9 +8,10 @@ public interface IInvoiceStateWorkerDao {
 
     WalletData.Invoice getInvoiceByHash(String hashHex);
     List<WalletData.InvoiceHTLC> getInvoiceHTLCs(long invoiceId);
+    List<WalletData.Payment> getInvoicePayments(long invoiceId);
     long getMaxAddIndex();
     long getMaxSettleIndex();
-    long insertInvoice(WalletData.Invoice invoice);
-    void updateInvoiceState(WalletData.Invoice invoice, List<WalletData.InvoiceHTLC> htlcs);
-    void settleInvoice(WalletData.Invoice invoice, List<WalletData.InvoiceHTLC> htlcs, WalletData.Payment p);
+    void updateInvoiceState(WalletData.Invoice invoice,
+                            List<WalletData.InvoiceHTLC> htlcs,
+                            List<WalletData.Payment> payments);
 }

@@ -1,4 +1,7 @@
-package org.lndroid.framework;
+package org.lndroid.framework.engine;
+
+import org.lndroid.framework.common.ISigner;
+import org.lndroid.framework.common.IVerifier;
 
 // NOTE: since android key store implementation
 // is not thread-safe, plugin server will only
@@ -17,7 +20,10 @@ public interface IKeyStore {
     // init might be called twice, as with DaoProvider
     void init();
     boolean isAvailable();
-    String generateUserKeyPair(int userId, String role);
+    String generateUserKeyPair(long userId, String role);
     byte[] decryptWalletPassword(EncryptedData data);
     EncryptedData encryptWalletPassword(byte[] data);
+
+    IVerifier getVerifier();
+    ISigner getUserKeySigner(long userId);
 }

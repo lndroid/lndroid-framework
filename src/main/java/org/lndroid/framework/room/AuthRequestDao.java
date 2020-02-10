@@ -29,35 +29,34 @@ class AuthRequestDao implements IAuthRequestDao, IPluginDao {
     }
 
     @Override
-    public WalletData.AuthRequest get(int id) {
+    public WalletData.AuthRequest get(long id) {
         RoomData.AuthRequest r = dao_.get(id);
-        return r != null ? r.data : null;
+        return r != null ? r.getData() : null;
     }
 
     @Override
-    public WalletData.AuthRequest get(int userId, String txId) {
+    public WalletData.AuthRequest get(long userId, String txId) {
         RoomData.AuthRequest r = dao_.get(userId, txId);
-        return r != null ? r.data : null;
+        return r != null ? r.getData() : null;
     }
 
     @Nullable
     @Override
-    public WalletData.User getAuthRequestUser(int authRequestId) {
+    public WalletData.User getAuthRequestUser(long authRequestId) {
         RoomData.User r = dao_.getAuthRequestUser(authRequestId);
-        return r != null ? r.data : null;
+        return r != null ? r.getData() : null;
     }
 
     @Override
     public WalletData.AuthRequest insert(WalletData.AuthRequest r) {
         RoomData.AuthRequest d = new RoomData.AuthRequest();
-        d.id_ = r.id(); // reuse if it's externally provided
-        d.data = r;
-        int id = dao_.insert(d);
-        return r.toBuilder().setId(id).build();
+        d.setData(r);
+        dao_.insert(d);
+        return r;
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(long id) {
         dao_.delete(id);
     }
 
@@ -70,7 +69,7 @@ class AuthRequestDao implements IAuthRequestDao, IPluginDao {
     public List<WalletData.AuthRequest> getBackgroundRequests() {
         List<WalletData.AuthRequest> r = new ArrayList<>();
         for (RoomData.AuthRequest ar: dao_.getBackgroundRequests())
-            r.add(ar.data);
+            r.add(ar.getData());
         return r;
     }
 
@@ -80,7 +79,7 @@ class AuthRequestDao implements IAuthRequestDao, IPluginDao {
     }
 
     @Override
-    public <T> T getTransactionRequest(int userId, String txId, Class<T> cls) {
+    public <T> T getTransactionRequest(long userId, String txId, Class<T> cls) {
         RoomTransactions.RoomTransactionBase<?,?> tx = null;
         if (isTxRequestClass(cls, RoomTransactions.AddUserTransaction.class))
             tx = dao_.getAddUserTransaction(userId, txId);
@@ -116,30 +115,20 @@ class AuthRequestDao implements IAuthRequestDao, IPluginDao {
 
 @Dao
 abstract class AuthRequestDaoRoom {
-    @Query("SELECT * FROM AuthRequest WHERE id_ = :id")
-    abstract RoomData.AuthRequest get(int id);
+    @Query("SELECT * FROM AuthRequest WHERE id = :id")
+    abstract RoomData.AuthRequest get(long id);
 
     @Query("SELECT * FROM AuthRequest WHERE userId = :userId AND txId = :txId")
-    abstract RoomData.AuthRequest get(int userId, String txId);
+    abstract RoomData.AuthRequest get(long userId, String txId);
 
     @Query("SELECT * FROM User WHERE id = (SELECT userId FROM AuthRequest WHERE id = :authRequestId)")
-    abstract RoomData.User getAuthRequestUser(int authRequestId);
+    abstract RoomData.User getAuthRequestUser(long authRequestId);
 
     @Insert
-    abstract long insertImpl(RoomData.AuthRequest r);
+    abstract void insert(RoomData.AuthRequest r);
 
-    @Query("UPDATE AuthRequest SET id = id_ WHERE id_ = :id")
-    abstract void setId(int id);
-
-    @Transaction
-    int insert(RoomData.AuthRequest r) {
-        int id = (int) insertImpl(r);
-        setId(id);
-        return id;
-    }
-
-    @Query("DELETE FROM AuthRequest WHERE id_ = :id")
-    abstract void delete(int id);
+    @Query("DELETE FROM AuthRequest WHERE id = :id")
+    abstract void delete(long id);
 
     @Query("DELETE FROM AuthRequest WHERE background != 0")
     abstract void deleteBackgroundRequests();
@@ -149,40 +138,40 @@ abstract class AuthRequestDaoRoom {
 
     // FIXME it is not a great place to put these
     @Query("SELECT * FROM AddUserTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.AddUserTransaction getAddUserTransaction(int userId, String txId);
+    abstract RoomTransactions.AddUserTransaction getAddUserTransaction(long userId, String txId);
 
     @Query("SELECT * FROM NewAddressTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.NewAddressTransaction getNewAddressTransaction(int userId, String txId);
+    abstract RoomTransactions.NewAddressTransaction getNewAddressTransaction(long userId, String txId);
 
     @Query("SELECT * FROM DecodePayReqTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.DecodePayReqTransaction getDecodePayReqTransaction(int userId, String txId);
+    abstract RoomTransactions.DecodePayReqTransaction getDecodePayReqTransaction(long userId, String txId);
 
     @Query("SELECT * FROM AddInvoiceTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.AddInvoiceTransaction getAddInvoiceTransaction(int userId, String txId);
+    abstract RoomTransactions.AddInvoiceTransaction getAddInvoiceTransaction(long userId, String txId);
 
     @Query("SELECT * FROM SendPaymentTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.SendPaymentTransaction getSendPaymentTransaction(int userId, String txId);
+    abstract RoomTransactions.SendPaymentTransaction getSendPaymentTransaction(long userId, String txId);
 
     @Query("SELECT * FROM OpenChannelTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.OpenChannelTransaction getOpenChannelTransaction(int userId, String txId);
+    abstract RoomTransactions.OpenChannelTransaction getOpenChannelTransaction(long userId, String txId);
 
     @Query("SELECT * FROM AddContactTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.AddContactTransaction getAddContactTransaction(int userId, String txId);
+    abstract RoomTransactions.AddContactTransaction getAddContactTransaction(long userId, String txId);
 
     @Query("SELECT * FROM AddListContactsPrivilegeTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.AddListContactsPrivilegeTransaction getAddListContactsPrivilegeTransaction(int userId, String txId);
+    abstract RoomTransactions.AddListContactsPrivilegeTransaction getAddListContactsPrivilegeTransaction(long userId, String txId);
 
     @Query("SELECT * FROM AddContactPaymentsPrivilegeTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.AddContactPaymentsPrivilegeTransaction getAddContactPaymentsPrivilegeTransaction(int userId, String txId);
+    abstract RoomTransactions.AddContactPaymentsPrivilegeTransaction getAddContactPaymentsPrivilegeTransaction(long userId, String txId);
 
     @Query("SELECT * FROM ConnectPeerTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.ConnectPeerTransaction getConnectPeerTransaction(int userId, String txId);
+    abstract RoomTransactions.ConnectPeerTransaction getConnectPeerTransaction(long userId, String txId);
 
     @Query("SELECT * FROM ShareContactTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.ShareContactTransaction getShareContactTransaction(int userId, String txId);
+    abstract RoomTransactions.ShareContactTransaction getShareContactTransaction(long userId, String txId);
 
     @Query("SELECT * FROM AddContactInvoiceTransaction WHERE txUserId = :userId AND txId = :txId")
-    abstract RoomTransactions.AddContactInvoiceTransaction getAddContactInvoiceTransaction(int userId, String txId);
+    abstract RoomTransactions.AddContactInvoiceTransaction getAddContactInvoiceTransaction(long userId, String txId);
 
 
 }

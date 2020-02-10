@@ -62,7 +62,8 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     }
 
     @Override
-    public Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> getTransaction(int txUserId, String txId) {
+    public Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> getTransaction(
+            long txUserId, String txId) {
         RoomTransactions.SendPaymentTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -80,17 +81,17 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     }
 
     @Override
-    public WalletData.Payment commitTransaction(int txUserId, String txId, int txAuthUserId, WalletData.Payment p) {
+    public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p) {
         return dao_.commitTransaction(txUserId, txId, txAuthUserId, p, System.currentTimeMillis());
     }
 
     @Override
-    public void rejectTransaction(int txUserId, String txId, int txAuthUserId) {
+    public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
         dao_.rejectTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
     }
 
     @Override
-    public void timeoutTransaction(int txUserId, String txId) {
+    public void timeoutTransaction(long txUserId, String txId) {
         dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
     }
 
@@ -126,13 +127,13 @@ abstract class SendPaymentDaoRoom {
     }
 
     @Query("SELECT id FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
-    abstract boolean hasContactPaymentsPrivilege(int userId, long contactId);
+    abstract boolean hasContactPaymentsPrivilege(long userId, long contactId);
 
     @Query("SELECT * FROM SendPaymentTransaction WHERE txState = 0")
     public abstract List<RoomTransactions.SendPaymentTransaction> getTransactionsRoom();
 
     @Query("SELECT * FROM SendPaymentTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.SendPaymentTransaction getTransactionRoom(int txUserId, String txId);
+    public abstract RoomTransactions.SendPaymentTransaction getTransactionRoom(long txUserId, String txId);
 
     @Insert
     public abstract void createTransaction(RoomTransactions.SendPaymentTransaction tx);
@@ -143,22 +144,18 @@ abstract class SendPaymentDaoRoom {
     @Query("UPDATE SendPaymentTransaction " +
             "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(int txUserId, String txId, int txAuthUserId, int txState, long time);
+    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
     @Query("UPDATE SendPaymentTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(int txUserId, String txId, int txState, long time);
+    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
 
     @Insert
-    public abstract long insertSendPayment(RoomData.SendPayment i);
-    @Query("UPDATE SendPayment SET id = id_ WHERE id_ = :id")
-    abstract void setSendPaymentId(long id);
+    public abstract void insertSendPayment(RoomData.SendPayment i);
 
     @Insert
     public abstract long insertPayment(RoomData.Payment p);
-    @Query("UPDATE Payment SET id = id_ WHERE id_ = :id")
-    abstract void setPaymentId(long id);
 
     void readRouteHints(RoomTransactions.SendPaymentTransaction tx) {
         ImmutableList<WalletData.RouteHint> routeHints = routeDao_.getRouteHints(routeHintsParentId(tx));
@@ -173,7 +170,7 @@ abstract class SendPaymentDaoRoom {
         return txs;
     }
 
-    public RoomTransactions.SendPaymentTransaction getTransaction(int txUserId, String txId) {
+    public RoomTransactions.SendPaymentTransaction getTransaction(long txUserId, String txId) {
         RoomTransactions.SendPaymentTransaction tx = getTransactionRoom(txUserId, txId);
         if (tx != null)
             readRouteHints(tx);
@@ -194,39 +191,27 @@ abstract class SendPaymentDaoRoom {
     }
 
     @androidx.room.Transaction
-    public WalletData.Payment commitTransaction(int txUserId, String txId, int txAuthUserId,
+    public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId,
                                                 WalletData.Payment payment, long time) {
 
         // get tx
         RoomTransactions.SendPaymentTransaction tx = getTransaction(txUserId, txId);
 
         // get sendpayment to be written
-        WalletData.SendPayment sp = payment.sendPayments().get(0L);
+        WalletData.SendPayment sp = payment.sendPayments().get(payment.sourceId());
 
         // insert sendpayment
         RoomData.SendPayment rsp = new RoomData.SendPayment();
         rsp.setData(sp);
-
-        final long id = insertSendPayment(rsp);
-        setSendPaymentId(id);
-
-        // create new SP w/ proper id
-        sp = sp.toBuilder().setId(id).build();
+        insertSendPayment(rsp);
 
         // write route hints
         routeDao_.upsertRouteHints(RoomData.routeHintsParentId(sp), sp.routeHints());
 
-        // set payment source id
-        payment = payment.toBuilder()
-                .setSourceId(id)
-                .build();
-
         // insert payment
         RoomData.Payment rp = new RoomData.Payment();
         rp.setData(payment);
-
-        final long pid = insertPayment(rp);
-        setPaymentId(pid);
+        insertPayment(rp);
 
         // update state
         tx.setResponse(sp);
@@ -239,16 +224,6 @@ abstract class SendPaymentDaoRoom {
 
         // write tx
         updateTransaction(tx);
-
-        // create list of SP w/ proper id
-        ImmutableMap.Builder<Long,WalletData.SendPayment> spb = ImmutableMap.builder();
-        spb.put(id, sp);
-
-        // create new Payment object w/ proper ids set
-        payment = payment.toBuilder()
-                .setId(pid)
-                .setSendPayments(spb.build())
-                .build();
 
         return payment;
     }

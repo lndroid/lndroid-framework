@@ -29,6 +29,6 @@ public class GetInvoiceDao implements IGetInvoiceDao, IPluginDao {
 
 @Dao
 interface GetInvoiceDaoRoom {
-    @Query("SELECT * FROM Invoice WHERE id_ = :id")
+    @Query("SELECT * FROM Invoice WHERE id = :id")
     RoomData.Invoice get(long id);
 }
