@@ -4,29 +4,33 @@ import android.os.Bundle;
 
 public class PluginUtils {
 
+    public static final String USER_KEY_ALIAS_PREFIX = "uk_";
+    public static String userKeyAlias(long userId) {
+        return USER_KEY_ALIAS_PREFIX+userId;
+    }
+
     public static String checkPluginMessageIpc(
-            Bundle b, IVerifier verifier) {
-        if (b == null)
+            Bundle b, String pubkey, IVerifier verifier) {
+        if (b == null || pubkey == null)
             return Errors.PLUGIN_INPUT;
 
         byte[] payload = b.getByteArray(PluginData.IPC_MESSAGE);
-        String pubkey = b.getString(PluginData.IPC_PUBKEY);
         String signature = b.getString(PluginData.IPC_SIGNATURE);
-        String version = b.getString(PluginData.IPC_VERSION);
-        if (payload == null || pubkey == null || signature == null)
-            return Errors.PLUGIN_INPUT;
-
-        if (!PluginData.IPC_CURRENT_VERSION.equals(version))
+        if (payload == null || signature == null)
             return Errors.MESSAGE_FORMAT;
 
         if (!verifier.verify(payload, pubkey, signature))
-            return Errors.MESSAGE_FORMAT;
+            return Errors.MESSAGE_AUTH;
 
         return null;
     }
 
     public static PluginData.PluginMessage decodePluginMessageIpc(Bundle b, ICodec<PluginData.PluginMessage> codec) {
         if (b == null)
+            return null;
+
+        String version = b.getString(PluginData.IPC_VERSION);
+        if (!PluginData.IPC_CURRENT_VERSION.equals(version))
             return null;
 
         byte[] payload = b.getByteArray(PluginData.IPC_MESSAGE);
@@ -53,7 +57,6 @@ public class PluginUtils {
         Bundle b = new Bundle();
         b.putString(PluginData.IPC_VERSION, PluginData.IPC_CURRENT_VERSION);
         b.putByteArray(PluginData.IPC_MESSAGE, payload);
-        b.putString(PluginData.IPC_PUBKEY, signer.getPublicKey());
 
         final String signature = signer.sign(payload);
         // FIXME what if sign==null?

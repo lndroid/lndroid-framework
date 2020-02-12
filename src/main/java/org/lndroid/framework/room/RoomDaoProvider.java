@@ -31,11 +31,11 @@ public class RoomDaoProvider implements IDBDaoProvider {
         config_ = c;
     }
 
-    private void initDb(String db, byte[] password) {
+    @Override
+    public void init(String db, byte[] password, OpenCallback cb) {
 
         // FIXME apply password to decrypt db
 
-        // FIXME addCallback to pre-populate?
         db_ = Room.databaseBuilder(config_.getContext(), RoomDB.class, db)
                 // FIXME implement migrations after the first release
                 .fallbackToDestructiveMigration()
@@ -105,23 +105,16 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.NODE_INFO_WORKER,
                 new NodeInfoDao(db_.nodeInfoDao()));
 
-        // ensure root user
-        if (authDao_.get(WalletData.ROOT_USER_ID) == null) {
-            RoomData.User u = new RoomData.User();
-            u.setData(WalletData.User.builder()
-                    .setId(WalletData.ROOT_USER_ID)
-                    .setPubkey("FIXME_root_pubkey") // FIXME generate
-                    .setRole(WalletData.USER_ROLE_ROOT)
-                    .build()
-            );
-            db_.userAddDao().insertUser(u);
+        if (cb != null) {
+            cb.onOpen();
         }
     }
 
     @Override
-    public void init(String db, byte[] password) {
-        // ready to start db
-        initDb(db, password);
+    public void insertUser(WalletData.User user) {
+        RoomData.User ru = new RoomData.User();
+        ru.setData(user);
+        db_.userAddDao().insertUser(ru);
     }
 
     @Override

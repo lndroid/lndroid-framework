@@ -26,6 +26,8 @@ public class WalletDataBuilders {
     interface UserIdentityBuilder<Builder> {
         Builder setUserId(long id);
 
+        Builder setSessionToken(String sessionToken);
+
         Builder setAppPackageName(String packageName);
 
         Builder setAppPubkey(String pubkey);
@@ -39,6 +41,10 @@ public class WalletDataBuilders {
         Builder setCreateTime(long createTime);
 
         Builder setRole(String role);
+
+        Builder setAuthType(String authType);
+
+        Builder setNonce(String nonce);
 
         Builder setPubkey(String pubkey);
 
@@ -70,6 +76,10 @@ public class WalletDataBuilders {
 
     interface AddUserRequestBuilder<Builder> {
         Builder setRole(String role);
+
+        Builder setAuthType(String authType);
+
+        Builder setPassword(String password);
 
         Builder setAppPubkey(String appPubkey);
 

@@ -3,7 +3,7 @@ package org.lndroid.framework.room;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-@Database(version = 60, exportSchema = true, entities = {
+@Database(version = 61, exportSchema = true, entities = {
         RoomData.AuthRequest.class,
         RoomData.Channel.class,
         RoomData.ChannelBalance.class,

@@ -2,6 +2,8 @@ package org.lndroid.framework.defaults;
 
 import android.util.Log;
 
+import org.lndroid.framework.common.PluginUtils;
+import org.lndroid.framework.dao.IDBDaoProvider;
 import org.lndroid.framework.dao.IRawQueryDao;
 import org.lndroid.framework.engine.IDaoConfig;
 import org.lndroid.framework.engine.IKeyStore;
@@ -319,7 +321,35 @@ public class DefaultDaoProvider implements IDaoProvider {
 
         // as we'll need it for init/unlock
         // ready to start db
-        roomDaos_.init(config_.getDatabaseName(), password);
+        roomDaos_.init(config_.getDatabaseName(), password, new IDBDaoProvider.OpenCallback() {
+            @Override
+            public void onOpen() {
+                // ensure root user
+                if (roomDaos_.getAuthDao().get(WalletData.ROOT_USER_ID) == null) {
+                    final String nonce = keyStore_.generatePasswordKeyNonce();
+                    final boolean secure = keyStore_.isDeviceSecure();
+
+                    WalletData.User u = WalletData.User.builder()
+                            .setId(WalletData.ROOT_USER_ID)
+                            .setCreateTime(System.currentTimeMillis())
+                            .setRole(WalletData.USER_ROLE_ROOT)
+                            .setNonce(nonce)
+                            .setAuthType(secure
+                                    ? WalletData.AUTH_TYPE_SCREEN_LOCK
+                                    : WalletData.AUTH_TYPE_NONE)
+                            .build();
+
+                    final String pubkey = keyStore_.generateKeyPair(
+                            PluginUtils.userKeyAlias(u.id()),
+                            u.authType(),
+                            u.nonce(),
+                            null);
+                    u = u.toBuilder().setPubkey(pubkey).build();
+                    roomDaos_.insertUser(u);
+                }
+
+            }
+        });
 
         // ensure lnd daemon is started,
         startLnd(password);

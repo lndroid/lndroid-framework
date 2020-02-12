@@ -1,5 +1,7 @@
 package org.lndroid.framework.engine;
 
+import org.lndroid.framework.WalletData;
+import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.common.ISigner;
 import org.lndroid.framework.common.IVerifier;
 
@@ -19,11 +21,18 @@ public interface IKeyStore {
 
     // init might be called twice, as with DaoProvider
     void init();
+
     boolean isAvailable();
-    String generateUserKeyPair(long userId, String role);
+    boolean isDeviceSecure();
+    boolean isBiometricsAvailable();
+    boolean isDeviceLocked();
+
+    String generatePasswordKeyNonce();
+    String generateKeyPair(String alias, String authType, String nonce, String password);
+    ISigner getKeySigner(String alias);
+    IVerifier getVerifier();
+
     byte[] decryptWalletPassword(EncryptedData data);
     EncryptedData encryptWalletPassword(byte[] data);
 
-    IVerifier getVerifier();
-    ISigner getUserKeySigner(long userId);
 }

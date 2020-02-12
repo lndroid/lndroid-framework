@@ -393,14 +393,43 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         sendTxMessage(r, ipc, client, null);
     }
 
-    private boolean isAuthenticPluginMessage(
-            WalletData.User user, PluginData.PluginMessage pm, boolean ipc) {
-        if (ipc && !user.isApp())
-            return false;
+    private String checkAuthenticPluginMessage(
+            WalletData.User user, Message msg, PluginData.PluginMessage pm, boolean ipc) {
 
-        // FIXME ensure user session is actually valid,
-        // using KeyStore, somehow...
-        return true;
+        if (ipc && !user.isApp()) {
+            Log.e(TAG, "ipc message " + msg + " from non-app " + user);
+            return Errors.FORBIDDEN;
+        }
+
+        if (!ipc && user.isApp()) {
+            Log.e(TAG, "local message " + msg + " from app " + user);
+            return Errors.FORBIDDEN;
+        }
+
+        if (ipc) {
+            String code = PluginUtils.checkPluginMessageIpc(
+                    msg.getData(), user.appPubkey(), keyStore_.getVerifier());
+
+            if (code != null) {
+                Log.e(TAG, "bad ipc message " + msg + " from "+user+" code " + code);
+                return code;
+            }
+        } else {
+            if (keyStore_.isDeviceLocked()){
+                Log.e(TAG, "bad local message " + msg + " from "+user+" on locked device");
+                return Errors.FORBIDDEN;
+            }
+
+            String code = PluginUtilsLocal.checkPluginMessageLocal(
+                    pm, user.pubkey(), keyStore_.getVerifier());
+
+            if (code != null) {
+                Log.e(TAG, "bad local message " + msg + " from "+user+" code " + code);
+                return code;
+            }
+        }
+
+        return null;
     }
 
     private boolean isAuthenticAuthMessage(
@@ -408,10 +437,54 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         if (user.isApp())
             return false;
 
-        // FIXME ensure user session is actually valid,
-        // using KeyStore, somehow...
+        // FIXME shall we use session tokens too?
         return true;
     }
+
+    private boolean checkLocalPluginMessage(Message msg, PluginData.PluginMessage pm) {
+        if (pm == null)
+            throw new RuntimeException("Message not provided");
+
+        if (msg.replyTo == null)
+            throw new RuntimeException("Client not provided");
+
+        if (pm.userIdentity() == null)
+            throw new RuntimeException("User identity not provided");
+
+        if (pm.userIdentity().userId() == 0)
+            throw new RuntimeException("User id not provided");
+
+        if (pm.userIdentity().sessionToken() == null)
+            throw new RuntimeException("User id not provided");
+
+        return true;
+    }
+
+    private boolean checkIPCPluginMessage(Message msg, PluginData.PluginMessage pm) {
+
+        if (pm == null)
+            return false;
+
+        if (msg.replyTo == null)
+            return false;
+
+        if (pm.userIdentity() == null) {
+            sendTxError(pm, true, Errors.MESSAGE_FORMAT, msg.replyTo);
+            return false;
+        }
+
+        if (pm.userIdentity().appPubkey() == null) {
+            sendTxError(pm, true, Errors.MESSAGE_FORMAT, msg.replyTo);
+            return false;
+        }
+
+        // FIXME get caller package name (packageManager().getNameForUID(msg.ui)) and compare to the one specified
+        //  in the message to drop invalid messages (like when someone stole the app keys but couldn't
+        //  fake his UID identity on OS level)
+
+        return true;
+    }
+
 
     private void onPluginMessage(Message msg) {
 
@@ -424,45 +497,17 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
 
         final boolean ipc = pm == null;
         if (ipc) {
-            String code = PluginUtils.checkPluginMessageIpc(msg.getData(), keyStore_.getVerifier());
-            if (code != null) {
-                Log.e(TAG, "bad message "+msg+" code "+code);
-                return;
-            }
-
+            // deserialize IPC message
             pm = PluginUtils.decodePluginMessageIpc(msg.getData(), ipcPluginMessageCodec_);
         }
 
-        if (pm == null) {
-            if (!ipc)
-                throw new RuntimeException("Message not provided");
-            return;
-        }
-
-        if (msg.replyTo == null) {
-            if (!ipc)
-                throw new RuntimeException("Client not provided");
-            return;
-        }
-
-        if (pm.userIdentity() == null) {
-            if (!ipc)
-                throw new RuntimeException("User identity not provided");
-            sendTxError(pm, ipc, Errors.MESSAGE_FORMAT, msg.replyTo);
-            return;
-        }
-
+        // basic checks
         if (ipc) {
-            if (pm.userIdentity().appPubkey() == null) {
-                sendTxError(pm, ipc, Errors.MESSAGE_FORMAT, msg.replyTo);
+            if (!checkIPCPluginMessage(msg, pm))
                 return;
-            }
-            // FIXME get caller package name (packageManager().getNameForUID(msg.ui)) and compare to the one specified
-            //  in the message to drop invalid messages (like when someone stole the app keys but couldn't
-            //  fake his UID identity on OS level)
         } else {
-            if (pm.userIdentity().userId() == 0)
-                throw new RuntimeException("User id not provided");
+            if (!checkLocalPluginMessage(msg, pm))
+                return;
         }
 
         // protect from replays
@@ -505,8 +550,9 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             return;
         }
 
-        if (!isAuthenticPluginMessage(user, pm, ipc)) {
-            sendTxError(pm, ipc, Errors.FORBIDDEN, msg.replyTo);
+        final String authCode = checkAuthenticPluginMessage(user, msg, pm, ipc);
+        if (authCode != null) {
+            sendTxError(pm, ipc, authCode, msg.replyTo);
             return;
         }
 
@@ -973,7 +1019,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         try {
             if (ipc) {
 
-                ISigner signer = keyStore_.getUserKeySigner(user.id());
+                ISigner signer = keyStore_.getKeySigner(PluginUtils.userKeyAlias(user.id()));
                 // FIXME if signer == null
                 // - key not available in the keystore
                 // - wtf?

@@ -43,8 +43,10 @@ class PluginClient extends Handler implements IPluginClient {
     private String servicePackageName_;
     private String serviceClassName_;
     private String servicePubkey_;
+
     private boolean bound_;
     private Map<String, Plugin> plugins_ = new HashMap<>();
+    private String sessionToken_;
 
     private ServiceConnection connection_;
     private Queue<Pair<WeakReference<PluginTransaction>, Message>> queue_ = new LinkedList<>();
@@ -63,9 +65,13 @@ class PluginClient extends Handler implements IPluginClient {
 
         PluginTransaction createTransaction(String txId, IPluginTransactionCallback cb) {
             if (txId.isEmpty()) // FIXME use GUID?
-                txId = pluginId_ + "_"+new Long(System.currentTimeMillis()).toString();
+                txId = pluginId_ + "_"+System.currentTimeMillis();
 
-            PluginTransaction t = new PluginTransaction(pluginId_, userId_, txId, cb, client_);
+            WalletData.UserIdentity txUserId = userId_.toBuilder()
+                    .setSessionToken(sessionToken_)
+                    .build();
+
+            PluginTransaction t = new PluginTransaction(pluginId_, txUserId, txId, cb, client_);
             transactions_.put(txId, new WeakReference<PluginTransaction>(t));
 
             return t;
@@ -102,6 +108,11 @@ class PluginClient extends Handler implements IPluginClient {
         if (ipc_) {
             connection_ = createConnection();
         }
+    }
+
+    @Override
+    public void setSessionToken(String token) {
+        sessionToken_ = token;
     }
 
     private void sendQueuedMessages() {
@@ -181,7 +192,7 @@ class PluginClient extends Handler implements IPluginClient {
         if (ipc_) {
 
             String code = PluginUtils.checkPluginMessageIpc(
-                    msg.getData(), verifier_);
+                    msg.getData(), servicePubkey_, verifier_);
             if (code != null) {
                 Log.e(TAG, "bad server message "+code);
                 // FIXME inform caller, somehow, that server might have changed it's identity

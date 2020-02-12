@@ -97,20 +97,15 @@ public final class WalletData {
     @AutoValueClass(className = AutoValue_WalletData_UserIdentity.class)
     public static abstract class UserIdentity implements WalletDataDecl.UserIdentity {
 
-        public final boolean isValid() {
-            return userId() != 0
-                    || (appPackageName() != null && !appPackageName().isEmpty()
-                    && appPubkey() != null && !appPubkey().isEmpty()
-            );
-        }
-
         public static UserIdentity create(
                 long userId,
+                String sessionToken,
                 String appPackageName,
                 String appPubkey
         ) {
             return builder()
                     .setUserId(userId)
+                    .setSessionToken(sessionToken)
                     .setAppPackageName(appPackageName)
                     .setAppPubkey(appPubkey)
                     .build();
@@ -128,16 +123,6 @@ public final class WalletData {
                 WalletDataDecl.UserIdentity,
                 WalletDataBuilders.IBuilder<UserIdentity>,
                 WalletDataBuilders.UserIdentityBuilder<Builder> {
-
-            abstract UserIdentity autoBuild();
-
-            @Override
-            public UserIdentity build() {
-                UserIdentity ui = autoBuild();
-                if (!ui.isValid())
-                    throw new IllegalStateException("Bad user identity");
-                return ui;
-            }
         }
     }
 
@@ -225,25 +210,22 @@ public final class WalletData {
 
     public static final int ROOT_USER_ID = 1;
 
+    public static final int MIN_PASSWORD_LEN = 4;
+
     public static final String USER_ROLE_ROOT = "root";
     public static final String USER_ROLE_USER = "user";
     public static final String USER_ROLE_APP = "app";
-    public static final String USER_ROLE_GUEST = "guest";
+    public static final String USER_ROLE_BG = "bg";
+
+    public static final String AUTH_TYPE_NONE = "none";
+    public static final String AUTH_TYPE_PASSWORD = "password";
+    public static final String AUTH_TYPE_SCREEN_LOCK = "screenLock";
+    public static final String AUTH_TYPE_DEVICE_SECURITY = "deviceSecurity";
+    public static final String AUTH_TYPE_BIO = "bio";
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_User.class)
     public static abstract class User implements WalletDataDecl.EntityBase, WalletDataDecl.User {
-
-        public boolean isValid() {
-            return role() != null && !role().equals("")
-                    && pubkey() != null && !pubkey().equals("")
-                    && (!role().equals(USER_ROLE_APP)
-                    || (appPubkey() != null && !appPubkey().equals("")
-                    && appPackageName() != null && !appPackageName().equals("")
-                    && appLabel() != null && !appLabel().equals("")
-            )
-            );
-        }
 
         // some helpers
         public boolean isRoot() {
@@ -259,6 +241,8 @@ public final class WalletData {
                 long authUserId,
                 long createTime,
                 String role,
+                String authType,
+                String nonce,
                 String pubkey,
                 String appPubkey,
                 String appPackageName,
@@ -269,11 +253,13 @@ public final class WalletData {
                     .setAuthUserId(authUserId)
                     .setCreateTime(createTime)
                     .setRole(role)
+                    .setAuthType(authType)
+                    .setNonce(nonce)
                     .setPubkey(pubkey)
                     .setAppPubkey(appPubkey)
                     .setAppPackageName(appPackageName)
                     .setAppLabel(appLabel)
-                    .autoBuild();
+                    .build();
         }
 
         public static Builder builder() {
@@ -292,15 +278,6 @@ public final class WalletData {
                 WalletDataBuilders.IBuilder<User>,
                 WalletDataBuilders.UserBuilder<Builder>
         {
-            public abstract User autoBuild();
-
-            @Override
-            public User build() {
-                User u = autoBuild();
-                if (!u.isValid())
-                    throw new IllegalArgumentException("Bad user");
-                return u;
-            }
         }
     }
 
@@ -311,21 +288,25 @@ public final class WalletData {
         public final boolean isValid() {
             return role() != null && !role().equals("")
                     && (!role().equals(USER_ROLE_APP)
-                    || (appPubkey() != null && !appPubkey().equals("")
-                    && appPackageName() != null && !appPackageName().equals("")
-                    && appLabel() != null && !appLabel().equals("")
-            )
-            );
+                        || (appPubkey() != null && !appPubkey().equals("")
+                            && appPackageName() != null && !appPackageName().equals("")
+                            && appLabel() != null && !appLabel().equals("")
+                        )
+                    );
         }
 
         public static AddUserRequest create(
                 String role,
+                String authType,
+                String password,
                 String appPubkey,
                 String appPackageName,
                 String appLabel)
         {
             return builder()
                     .setRole(role)
+                    .setAuthType(authType)
+                    .setPassword(password)
                     .setAppPubkey(appPubkey)
                     .setAppPackageName(appPackageName)
                     .setAppLabel(appLabel)
