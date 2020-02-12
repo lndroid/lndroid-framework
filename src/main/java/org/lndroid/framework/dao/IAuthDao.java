@@ -8,4 +8,5 @@ public interface IAuthDao {
     void init();
     @Nullable WalletData.User get(long id);
     @Nullable WalletData.User getByAppPubkey(String pubkey);
+    @Nullable WalletData.User getAuthInfo(long id);
 }

@@ -30,6 +30,7 @@ public interface IKeyStore {
     String generatePasswordKeyNonce();
     String generateKeyPair(String alias, String authType, String nonce, String password);
     ISigner getKeySigner(String alias);
+    ISigner getPasswordKeySigner(String alias, String nonce, String password);
     IVerifier getVerifier();
 
     byte[] decryptWalletPassword(EncryptedData data);

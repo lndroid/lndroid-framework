@@ -133,6 +133,14 @@ public class AuthClient extends Handler implements IAuthClient {
     }
 
     @Override
+    public void getUserAuthInfo(long userId, IResponseCallback<WalletData.User> cb) {
+        AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
+                .setType(AuthData.MESSAGE_TYPE_USER_AUTH_TYPE)
+                .setUserId(userId);
+        send(b, cb);
+    }
+
+    @Override
     public void genSeed(WalletData.GenSeedRequest r, IResponseCallback<WalletData.GenSeedResponse> cb) {
         sendWalletMessage(AuthData.MESSAGE_TYPE_GEN_SEED, r, cb);
     }

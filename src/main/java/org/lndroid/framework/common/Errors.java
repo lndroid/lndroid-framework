@@ -17,7 +17,10 @@ public class Errors {
     public static final String NO_WALLET = "org.lndroid.errors.NO_WALLET";
 
     // wallet locked, need UI to unlock it
-    public static final String LOCKED = "org.lndroid.errors.LOCKED";
+    public static final String WALLET_LOCKED = "org.lndroid.errors.WALLET_LOCKED";
+
+    // device locked, txs from user roles are rejected
+    public static final String DEVICE_LOCKED = "org.lndroid.errors.DEVICE_LOCKED";
 
     // transaction timed out, authorization of this tx is no longer possible,
     // receiving data for this tx is no longer possible
@@ -53,6 +56,9 @@ public class Errors {
     // IPC server failed, reconnect and retry (returned by client-side to calling code)
     public static final String IPC_ERROR = "org.lndroid.errors.IPC_ERROR";
 
+    // IPC server identity changed, need to run connect-to-wallet flow
+    public static final String IPC_IDENTITY_ERROR = "org.lndroid.errors.IPC_IDENTITY_ERROR";
+
     // FIXME why separate errors for these?
     public static final String PAYMENT_NO_HASH = "org.lndroid.errors.PAYMENT_NO_HASH";
     public static final String PAYMENT_BAD_INPUT = "org.lndroid.errors.PAYMENT_BAD_INPUT";
@@ -64,7 +70,8 @@ public class Errors {
             case REJECTED: return "Call rejected";
             case WALLET_ERROR: return "Internal wallet error";
             case NO_WALLET: return "Wallet not found";
-            case LOCKED: return "Wallet locked";
+            case WALLET_LOCKED: return "Wallet locked";
+            case DEVICE_LOCKED: return "Device locked";
             case PLUGIN_INPUT: return "Invalid plugin input";
             case TX_TIMEOUT: return "Transaction time out";
             case PAYMENT_NO_HASH: return "Payment hash not provided";

@@ -26,8 +26,6 @@ public class WalletDataBuilders {
     interface UserIdentityBuilder<Builder> {
         Builder setUserId(long id);
 
-        Builder setSessionToken(String sessionToken);
-
         Builder setAppPackageName(String packageName);
 
         Builder setAppPubkey(String pubkey);

@@ -10,7 +10,6 @@ import android.security.keystore.KeyProperties;
 import android.util.Log;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.common.ISigner;
 import org.lndroid.framework.common.IVerifier;
 import org.lndroid.framework.engine.IKeyStore;
@@ -35,12 +34,11 @@ import javax.crypto.spec.PBEKeySpec;
 public class DefaultKeyStore implements IKeyStore {
     private static final String TAG = "DefaultKeyStore";
     private static final String WP_KEY_ALIAS = "WALLET_PASSWORD_KEY";
-    private static final String USER_KEY_ALIAS_PREFIX = "USER_KEY_";
-    private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-    private static int DEFAULT_AUTH_VALIDITY_DURATION = 6 * 60 * 60; // 6h
+    private static final String WP_CIPHER = "AES/GCM/NoPadding";
+    private static int DEFAULT_WP_AUTH_VALIDITY_DURATION = 6 * 60 * 60; // 6h
     private static int PASSWORD_KEY_SIZE = 128;
 
-    private static final String lock_ = "";
+    private static final Object lock_ = new Object();
     private static DefaultKeyStore instance_;
 
     private Context ctx_;
@@ -140,7 +138,7 @@ public class DefaultKeyStore implements IKeyStore {
         try {
             final int avd = wpAuthValidityDuration_ != 0
                     ? wpAuthValidityDuration_
-                    : DEFAULT_AUTH_VALIDITY_DURATION;
+                    : DEFAULT_WP_AUTH_VALIDITY_DURATION;
 
             KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
 
@@ -215,7 +213,7 @@ public class DefaultKeyStore implements IKeyStore {
             if (key == null)
                 return null;
 
-            final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            final Cipher cipher = Cipher.getInstance(WP_CIPHER);
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
             EncryptedData result = new EncryptedData();
@@ -246,7 +244,7 @@ public class DefaultKeyStore implements IKeyStore {
 
             SecretKey key = ((KeyStore.SecretKeyEntry) ks.getEntry(WP_KEY_ALIAS, null)).getSecretKey();
             if (key != null) {
-                final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+                final Cipher cipher = Cipher.getInstance(WP_CIPHER);
                 final GCMParameterSpec spec = new GCMParameterSpec(128, data.iv);
                 cipher.init(Cipher.DECRYPT_MODE, key, spec);
                 return cipher.doFinal(data.data);
@@ -279,8 +277,7 @@ public class DefaultKeyStore implements IKeyStore {
         }
     }
 
-    @Override
-    public String generateKeyPair(String alias, String authType, String nonce, String password) {
+    private KeyPair generateKeyPairImpl(String alias, String authType, String nonce, String password) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
 
@@ -335,14 +332,32 @@ public class DefaultKeyStore implements IKeyStore {
                     KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
             kpg.initialize(params.build(), seed);
 
-            KeyPair kp = kpg.generateKeyPair();
+            return kpg.generateKeyPair();
+        } catch (Exception e) {
+            Log.e(TAG, "generate key pair error "+e);
+        }
 
+        return null;
+    }
+
+    private PublicKey getUnrestrictedPubkey(PublicKey pk) {
+        try {
             // A known bug in Android 6.0 (API Level 23) causes user authentication-related
             // authorizations to be enforced even for public keys. To work around this issue extract
             // the public key material to use outside of Android Keystore. For example:
-            PublicKey unrestrictedPublicKey =
-                    KeyFactory.getInstance(kp.getPublic().getAlgorithm()).generatePublic(
-                            new X509EncodedKeySpec(kp.getPublic().getEncoded()));
+            return KeyFactory.getInstance(pk.getAlgorithm()).generatePublic(
+                    new X509EncodedKeySpec(pk.getEncoded()));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public String generateKeyPair(String alias, String authType, String nonce, String password) {
+        try {
+            KeyPair kp = generateKeyPairImpl(alias, authType, nonce, password);
+
+            PublicKey unrestrictedPublicKey = getUnrestrictedPubkey (kp.getPublic());
 
             // password-based keys are immediately deleted after we've
             // acquired the pubkey
@@ -390,6 +405,29 @@ public class DefaultKeyStore implements IKeyStore {
         if (key == null)
             return null;
 
-        return new DefaultSigner(key.getPrivateKey(), key.getCertificate().getPublicKey());
+        String pubkey = HEX.fromBytes(
+                getUnrestrictedPubkey (key.getCertificate().getPublicKey()).getEncoded());
+        return DefaultSigner.create(key.getPrivateKey(), pubkey);
+    }
+
+    @Override
+    public ISigner getPasswordKeySigner(String alias, String nonce, String password) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            return null;
+
+        try {
+            KeyPair kp = generateKeyPairImpl(alias, WalletData.AUTH_TYPE_PASSWORD, nonce, password);
+            if (kp == null)
+                return null;
+
+            String pubkey = HEX.fromBytes(
+                    getUnrestrictedPubkey (kp.getPublic()).getEncoded());
+            return DefaultSigner.createForPasswordKey(kp.getPrivate(), pubkey, alias);
+
+        } catch (Exception e) {
+            Log.e(TAG, "getKeySigner error "+e);
+            return null;
+        }
     }
 }

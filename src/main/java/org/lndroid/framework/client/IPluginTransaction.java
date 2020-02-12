@@ -9,6 +9,8 @@ public interface IPluginTransaction {
     String id();
     // true if tx is started and still active (no error was returned by server)
     boolean isActive();
+    // to override the client's current token
+    void setSessionToken(String token);
     // call to start request
     void start(Object r, Type type);
     // pass tx timeout in ms

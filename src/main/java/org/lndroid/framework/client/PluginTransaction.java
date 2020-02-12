@@ -13,18 +13,19 @@ class PluginTransaction implements IPluginTransaction {
 
     private String pluginId_;
     private WalletData.UserIdentity userIdentity_;
+    private String sessionToken_;
     private PluginClient client_;
     private String txId_;
     private IPluginTransactionCallback cb_;
     private boolean started_;
 
     PluginTransaction(String pluginId,
-                      WalletData.UserIdentity userId,
                       String txId,
+                      WalletData.UserIdentity userIdentity,
                       IPluginTransactionCallback cb,
                       PluginClient client) {
         pluginId_ = pluginId;
-        userIdentity_ = userId;
+        userIdentity_ = userIdentity;
         client_ = client;
         txId_ = txId;
         cb_ = cb;
@@ -45,8 +46,20 @@ class PluginTransaction implements IPluginTransaction {
         return started_;
     }
 
+    @Override
+    public void setSessionToken(String token) {
+        sessionToken_ = token;
+    }
+
+    public String sessionToken() { return sessionToken_; }
+
     public void onIpcError() {
         cb_.onError(Errors.IPC_ERROR, Errors.errorMessage(Errors.IPC_ERROR));
+        started_ = false;
+    }
+
+    public void onIpcIdentityError() {
+        cb_.onError(Errors.IPC_IDENTITY_ERROR, Errors.errorMessage(Errors.IPC_IDENTITY_ERROR));
         started_ = false;
     }
 
@@ -68,12 +81,14 @@ class PluginTransaction implements IPluginTransaction {
 
         PluginData.PluginMessage pm = PluginData.PluginMessage.builder()
                 .setType(PluginData.MESSAGE_TYPE_START)
+                .setUserIdentity(userIdentity_)
                 .setPluginId(pluginId_)
                 .setTxId(txId_)
-                .setUserIdentity(userIdentity_)
                 .setTimeout(timeout)
                 .build();
         pm.assignData(r, type);
+        if (sessionToken_ != null)
+            pm.assignSessionToken(sessionToken_);
 
         send(pm);
     }
@@ -85,11 +100,13 @@ class PluginTransaction implements IPluginTransaction {
 
         PluginData.PluginMessage pm = PluginData.PluginMessage.builder()
                 .setType(PluginData.MESSAGE_TYPE_REQUEST)
+                .setUserIdentity(userIdentity_)
                 .setPluginId(pluginId_)
                 .setTxId(txId_)
-                .setUserIdentity(userIdentity_)
                 .build();
         pm.assignData(r, type);
+        if (sessionToken_ != null)
+            pm.assignSessionToken(sessionToken_);
 
         send(pm);
     }

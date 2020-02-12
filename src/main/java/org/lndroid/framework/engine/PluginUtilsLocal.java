@@ -35,12 +35,15 @@ public class PluginUtilsLocal {
             st.timestamp = Long.parseLong(fields[0]);
             st.duration = Long.parseLong(fields[1]);
             st.plugin = fields[2];
+            if (st.plugin.isEmpty())
+                st.plugin = null;
 
             return st;
         }
 
         private String formatPayload() {
-            return "" + timestamp + "_" + duration + "_" + plugin;
+            return "" + timestamp + "_" + duration + "_" +
+                    (plugin != null ? plugin : "");
         }
 
         public byte[] preparePayload() {
@@ -68,17 +71,17 @@ public class PluginUtilsLocal {
 
     public static String checkPluginMessageLocal(
             PluginData.PluginMessage pm, String pubkey, IVerifier verifier) {
-        if (pm.userIdentity().sessionToken() == null)
+        if (pm.sessionToken() == null)
             return Errors.MESSAGE_FORMAT;
 
         // parse token
-        SessionToken st = SessionToken.parse(pm.userIdentity().sessionToken());
+        SessionToken st = SessionToken.parse(pm.sessionToken());
         if (st == null)
-            return Errors.MESSAGE_AUTH;
+            return Errors.MESSAGE_FORMAT;
 
         final long now = System.currentTimeMillis();
         if (st.timestamp > now || st.timestamp < (now + st.duration))
-            return Errors.MESSAGE_FORMAT;
+            return Errors.MESSAGE_AUTH;
 
         if (!st.plugin.isEmpty() && !st.plugin.equals(pm.pluginId()))
             return Errors.MESSAGE_AUTH;

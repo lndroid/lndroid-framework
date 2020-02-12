@@ -65,6 +65,11 @@ public class PluginData {
         @Nullable public abstract Long authId();
         @Nullable public abstract Boolean isPrivileged();
 
+        // we want to freely re-assign new tokens w/o rebuilding the message
+        @Nullable public String sessionToken() { return sessionToken_; }
+        public void assignSessionToken(String token) { sessionToken_ = token; }
+        private transient String sessionToken_;
+
         // attach data as payload for this message,
         // along with it's type that will be used to encode the message
         // for IPC transport.

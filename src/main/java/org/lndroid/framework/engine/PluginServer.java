@@ -415,9 +415,10 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 return code;
             }
         } else {
-            if (keyStore_.isDeviceLocked()){
+            // bg role should be able to run in locked device!
+            if (!WalletData.USER_ROLE_BG.equals(user.role()) && keyStore_.isDeviceLocked()){
                 Log.e(TAG, "bad local message " + msg + " from "+user+" on locked device");
-                return Errors.FORBIDDEN;
+                return Errors.DEVICE_LOCKED;
             }
 
             String code = PluginUtilsLocal.checkPluginMessageLocal(
@@ -454,8 +455,8 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         if (pm.userIdentity().userId() == 0)
             throw new RuntimeException("User id not provided");
 
-        if (pm.userIdentity().sessionToken() == null)
-            throw new RuntimeException("User id not provided");
+        if (pm.sessionToken() == null)
+            throw new RuntimeException("User session not provided");
 
         return true;
     }
@@ -532,7 +533,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 sendTxError(pm, ipc, Errors.NO_WALLET, msg.replyTo);
                 return;
             case WalletData.WALLET_STATE_AUTH:
-                sendTxError(pm, ipc, Errors.LOCKED, msg.replyTo);
+                sendTxError(pm, ipc, Errors.WALLET_LOCKED, msg.replyTo);
                 return;
             case WalletData.WALLET_STATE_OK:
                 break;
@@ -631,8 +632,8 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             return;
         }
 
-        // if pm is present we might be pretty sure it's not a
-        // remote attacker and thus can throw on this local logical error.
+        // FIXME check caller uid (somehow) to make sure it's not remote call!
+
         if (msg.replyTo == null)
             throw new RuntimeException("Client not provided");
 
@@ -670,6 +671,10 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
 
             case AuthData.MESSAGE_TYPE_GET_TX:
                 onGetAuthTxRequest(pm, msg.replyTo);
+                break;
+
+            case AuthData.MESSAGE_TYPE_USER_AUTH_TYPE:
+                onGetUserAuthTypeRequest(pm, msg.replyTo);
                 break;
 
             default:
@@ -748,6 +753,17 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         sendAuthMessage(builder.build(), client);
     }
 
+    private void onGetUserAuthTypeRequest(AuthData.AuthMessage pm, Messenger client) {
+        WalletData.User u = authDao_.getAuthInfo(pm.userId());
+        AuthData.AuthMessage m = AuthData.AuthMessage.builder()
+                .setId(pm.id())
+                .setType(pm.type())
+                .setData(u)
+                .build();
+
+        sendAuthMessage(m, client);
+    }
+
     private void onGetAuthRequest(AuthData.AuthMessage pm, Messenger client) {
         WalletData.AuthRequest ar = authRequestDao_.get(pm.authId());
         if (ar == null) {
@@ -785,7 +801,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 replyAuthError(pm, Errors.NO_WALLET, client);
                 return;
             case WalletData.WALLET_STATE_AUTH:
-                replyAuthError(pm, Errors.LOCKED, client);
+                replyAuthError(pm, Errors.WALLET_LOCKED, client);
                 return;
             case WalletData.WALLET_STATE_OK:
                 break;

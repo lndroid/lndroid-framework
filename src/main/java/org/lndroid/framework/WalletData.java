@@ -99,13 +99,11 @@ public final class WalletData {
 
         public static UserIdentity create(
                 long userId,
-                String sessionToken,
                 String appPackageName,
                 String appPubkey
         ) {
             return builder()
                     .setUserId(userId)
-                    .setSessionToken(sessionToken)
                     .setAppPackageName(appPackageName)
                     .setAppPubkey(appPubkey)
                     .build();

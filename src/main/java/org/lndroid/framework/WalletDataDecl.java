@@ -42,10 +42,6 @@ public class WalletDataDecl {
         // and can generate proper token
         long userId();
 
-        // signed token: tm+duration+plugins+signature
-        @Nullable
-        String sessionToken ();
-
         // set for apps over IPC
         @Nullable
         String appPackageName();

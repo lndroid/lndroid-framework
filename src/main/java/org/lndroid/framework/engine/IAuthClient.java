@@ -8,6 +8,9 @@ public interface IAuthClient {
     // subscribe to wallet state updates
     void subscribeWalletState(IResponseCallback<WalletData.WalletState> cb);
 
+    // get info about how to perform user auth
+    void getUserAuthInfo(long userId, IResponseCallback<WalletData.User> cb);
+
     // generate seed if wallet state is INIT
     void genSeed(WalletData.GenSeedRequest r, IResponseCallback<WalletData.GenSeedResponse> cb);
 
