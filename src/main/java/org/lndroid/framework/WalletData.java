@@ -88,6 +88,7 @@ public final class WalletData {
         public byte[] aezeedPassphrase;
         public List<String> cipherSeedMnemonic;
         public byte[] walletPassword;
+        public byte[] multiChannelBackup;
     }
 
     public static class InitWalletResponse {

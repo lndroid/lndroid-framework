@@ -28,17 +28,20 @@ To see sample app+wallet in action, check [this video](https://www.youtube.com/w
 - [x] Failed payments are retried using Foreground Service up to max-tries and payment expiry
 - [x] Scheduled job to run lnd in background every X minutes for several minutes to accept payments
 - [x] Scheduled job to run lnd in background every X hours for ~1 hour to come in sync with network and node graph
-- [ ] Messages over IPC are signed using app/wallet private key, signatures verified by receiver using sender pubkey
+- [x] Messages over IPC are signed using app/wallet private key, signatures verified by receiver using sender pubkey
 - [x] Authentication for internal users (role != app), at least allow passwords and also device security facilities like 'device unlocked', bio/face id, etc 
-- [ ] Authentication UI for internal users, default UI for password plus call BioPrompt when necessary (if keys are unavailable)
+- [ ] Authentication UI for internal users, default UI for password plus call BioPrompt when necessary
+- [ ] Lnd and framework logs recorded and exposed over API 
+- [ ] Framework and Lnd API input/output messages saved and exposed over API
+- [ ] Add common features to manage coins/channels/peers/contacts/apps
+- [ ] Notifications: add API methods to start subscriptions, so that if wallet detects that client is not connected, it sends Android Broadcast message that wakes up the client and allows it to consume the data requested by the call
+- [ ] 'Default receiver' privilege, to delegate notifications to specific apps 
+- [ ] Testnet release
+
+- [ ] Method/data versioning? Prepare for the future
 - [ ] Validation of every input params by every API method
 - [ ] Unit tests! Haha, we need some :)
 - [ ] Channel backups stored to local dir
-- [ ] Lnd and framework logs recorded and exposed over API 
-- [ ] Framework and Lnd API input/output messages saved and exposed over API 
-- [ ] Notifications: add API methods to start subscriptions, so that if wallet detects that client is not connected, sends Android Broadcast message that wakes up the client and allows it to consume the data requested by the call
-- [ ] Method/data versioning? Prepare for the future
-- [ ] First release
 
 - [ ] Database records with long-term effects like new users or privileges are signed by author's private key, signatures verified on every use of the record, if keys are invalidated records must be re-signed. 
 - [ ] Per-user keys are stored in AndroidKeystore using proper policies, validity of keys verified by signature of the parent user up to root, root user's key signed by keys derived from wallet password, thus if any of keys are invalidated due to policies or wallet password changes, the signed permissions/users in db must be re-signed which must require User interaction with the phone.

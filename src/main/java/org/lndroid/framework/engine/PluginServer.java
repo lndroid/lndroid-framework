@@ -45,6 +45,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     private IPluginProvider pluginProvider_;
+    private IDaoConfig daoConfig_;
     private IDaoProvider daoProvider_;
     private ICodecProvider ipcCodecProvider_;
     private ICodec<PluginData.PluginMessage> ipcPluginMessageCodec_;
@@ -96,6 +97,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     private Map<String, Set<String>> subscribers_ = new HashMap<>();
 
     PluginServer(IPluginProvider pluginProvider,
+                 IDaoConfig daoConfig,
                  IDaoProvider daoProvider,
                  ICodecProvider ipcCodecProvider,
                  IAuthComponentProvider authComponentProvider,
@@ -103,12 +105,18 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                  IIdGenerator idGenerator
     ){
         pluginProvider_ = pluginProvider;
+        daoConfig_ = daoConfig;
         daoProvider_ = daoProvider;
         ipcCodecProvider_ = ipcCodecProvider;
         ipcPluginMessageCodec_ = ipcCodecProvider_.get(PluginData.PluginMessage.class);
         authComponentProvider_ = authComponentProvider;
         keyStore_ = keyStore;
         idGenerator_ = idGenerator;
+    }
+
+    @Override
+    public IDaoConfig getDaoConfig() {
+        return daoConfig_;
     }
 
     @Override
@@ -1035,12 +1043,12 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         try {
             if (ipc) {
 
-                ISigner signer = keyStore_.getKeySigner(PluginUtils.userKeyAlias(user.id()));
-                if (signer == null || !signer.getPublicKey().equals(user.pubkey())) {
-                    // FIXME key invalidated
-                    // - send error and ask to retry?
+                ISigner signer = null;
+                if (user != null)
+                    signer = keyStore_.getKeySigner(PluginUtils.userKeyAlias(user.id()));
+                if (signer != null && !signer.getPublicKey().equals(user.pubkey())) {
+                    signer = null;
                     Log.e(TAG, "keystore signer not available for "+user);
-                    return false;
                 }
 
                 Bundle b = PluginUtils.encodePluginMessageIpc(
@@ -1133,6 +1141,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         // client tries to recover the tx
         if (ctx.authRequest == null) {
             WalletData.AuthRequest.Builder b = WalletData.AuthRequest.builder()
+                    .setId(idGenerator_.generateId(WalletData.AuthRequest.class))
                     .setPluginId(pluginId)
                     .setTxId(ctx.txId)
                     .setUserId(ctx.user.id())
@@ -1160,7 +1169,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     public long onAuthBackground(String pluginId, String type) {
         Log.i(TAG, "onAuthBackground plugin "+pluginId+" type "+type);
         WalletData.AuthRequest ar = WalletData.AuthRequest.builder()
-                .setId(0) // set empty value
+                .setId(idGenerator_.generateId(WalletData.AuthRequest.class))
                 .setPluginId(pluginId)
                 .setBackground(true)
                 .setType(type)

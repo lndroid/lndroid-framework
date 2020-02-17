@@ -240,19 +240,30 @@ class PluginClient extends Handler implements IPluginClient {
         PluginData.PluginMessage pm = (PluginData.PluginMessage) msg.obj;
         if (ipc_) {
 
+            pm = PluginUtils.decodePluginMessageIpc(msg.getData(), ipcPluginMessageCodec_);
+            if (pm != null)
+                pm.assignCodecProvider(ipcCodecProvider_);
+
             String code = PluginUtils.checkPluginMessageIpc(
                     msg.getData(), servicePubkey_, verifier_);
             if (code != null) {
                 Log.e(TAG, "bad server message "+code+" expected pubkey "+servicePubkey_);
-                Plugin p = plugins_.get(pm.pluginId());
-                PluginTransaction tx = p.getTransaction(pm.txId());
-                tx.onIpcIdentityError();
+                if (pm != null) {
+                    Plugin p = plugins_.get(pm.pluginId());
+                    PluginTransaction tx = p.getTransaction(pm.txId());
+                    if (tx != null)
+                        tx.onIpcIdentityError();
+                }
+
+                if (onError_ != null) {
+                    onError_.onResponse(WalletData.Error.builder()
+                            .setCode(Errors.IPC_IDENTITY_ERROR)
+                            .setMessage(Errors.errorMessage(Errors.IPC_IDENTITY_ERROR))
+                            .build());
+                }
+
                 return;
             }
-
-            pm = PluginUtils.decodePluginMessageIpc(msg.getData(), ipcPluginMessageCodec_);
-            if (pm != null)
-                pm.assignCodecProvider(ipcCodecProvider_);
         }
 
         if (pm != null)

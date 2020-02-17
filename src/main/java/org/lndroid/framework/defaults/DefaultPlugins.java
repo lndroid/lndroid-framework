@@ -51,4 +51,5 @@ public final class DefaultPlugins {
 
     public static final String NODE_INFO_WORKER = "org.lndroid.plugins.NODE_INFO_WORKER";
 
+    public static final String CHANNEL_BACKUP_WORKER = "org.lndroid.plugins.CHANNEL_BACKUP_WORKER";
 }

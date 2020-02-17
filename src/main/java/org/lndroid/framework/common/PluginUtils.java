@@ -58,10 +58,11 @@ public class PluginUtils {
         b.putString(PluginData.IPC_VERSION, PluginData.IPC_CURRENT_VERSION);
         b.putByteArray(PluginData.IPC_MESSAGE, payload);
 
-        final String signature = signer.sign(payload);
-        // FIXME what if sign==null?
-
-        b.putString(PluginData.IPC_SIGNATURE, signature);
+        if (signer != null) {
+            final String signature = signer.sign(payload);
+            // FIXME what if sign==null?
+            b.putString(PluginData.IPC_SIGNATURE, signature);
+        }
 
         return b;
     }

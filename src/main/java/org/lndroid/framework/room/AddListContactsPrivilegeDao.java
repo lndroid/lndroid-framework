@@ -57,6 +57,7 @@ abstract class AddListContactsPrivilegeDaoRoom
         RoomData.ListContactsPrivilege rv = getByUserId(v.userId());
         if (rv == null) {
             rv = new RoomData.ListContactsPrivilege();
+        } else {
             v = v.toBuilder().setId(rv.getData().id()).build();
         }
         rv.setData(v);

@@ -21,6 +21,7 @@ public class PluginServerStarter {
     private static Messenger server_;
 
     private IPluginProvider pluginProvider_;
+    private IDaoConfig daoConfig_;
     private IDaoProvider daoProvider_;
     private ICodecProvider ipcCodecProvider_;
     private IAuthComponentProvider authComponentProvider_;
@@ -58,6 +59,7 @@ public class PluginServerStarter {
 //            Looper.myLooper().setMessageLogging(new LogPrinter(Log.VERBOSE,"PluginServerLooper"));
             PluginServer server = new PluginServer(
                     pluginProvider_,
+                    daoConfig_,
                     daoProvider_,
                     ipcCodecProvider_,
                     authComponentProvider_,
@@ -72,6 +74,11 @@ public class PluginServerStarter {
 
     public PluginServerStarter setPluginProvider(IPluginProvider provider) {
         pluginProvider_ = provider;
+        return this;
+    }
+
+    public PluginServerStarter setDaoConfig(IDaoConfig config) {
+        daoConfig_ = config;
         return this;
     }
 
@@ -114,6 +121,8 @@ public class PluginServerStarter {
             throw new RuntimeException("Auth component provider not specified");
         if (idGenerator_ == null)
             idGenerator_ = new DefaultIdGenerator(daoProvider_);
+        if (daoConfig_ == null)
+            throw new RuntimeException("Dao config not specified");
 
         // to avoid several starters from racing
         synchronized (lock_) {

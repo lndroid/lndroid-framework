@@ -17,6 +17,7 @@ import org.lndroid.framework.plugins.AddContactPaymentsPrivilege;
 import org.lndroid.framework.plugins.AddInvoice;
 import org.lndroid.framework.plugins.AddListContactsPrivilege;
 import org.lndroid.framework.plugins.AddUser;
+import org.lndroid.framework.plugins.ChannelBackupWorker;
 import org.lndroid.framework.plugins.ChannelBalanceWorker;
 import org.lndroid.framework.plugins.ChannelStateWorker;
 import org.lndroid.framework.plugins.ConnectPeer;
@@ -158,6 +159,8 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.ADD_CONTACT_INVOICE, new ForegroundPlugin(new AddContactInvoice()));
 
         plugins_.put(DefaultPlugins.NODE_INFO_WORKER, new BackgroundPlugin(new NodeInfoWorker()));
+
+        plugins_.put(DefaultPlugins.CHANNEL_BACKUP_WORKER, new BackgroundPlugin(new ChannelBackupWorker()));
 
     }
 

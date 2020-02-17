@@ -58,7 +58,7 @@ interface AuthDaoRoom {
     @Query("SELECT * FROM User WHERE appPubkey = :pk")
     RoomData.User getByAppPubkey(String pk);
 
-    @Query("SELECT id_, id, authUserId, createTime, authType, nonce FROM User WHERE id = :id")
+    @Query("SELECT id_, id, authUserId, createTime, authType, nonce, pubkey FROM User WHERE id = :id")
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     RoomData.User getAuthInfo(long id);
 }

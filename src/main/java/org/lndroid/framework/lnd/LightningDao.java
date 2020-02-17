@@ -134,6 +134,11 @@ public class LightningDao implements ILightningDao {
         req.aezeedPassphrase = r.aezeedPassphrase;
         req.cipherSeedMnemonic = r.cipherSeedMnemonic;
         req.walletPassword = r.walletPassword;
+        if (r.multiChannelBackup != null) {
+            req.chanBackups = new Data.ChanBackupSnapshot();
+            req.chanBackups.multiChanBackup = new Data.MultiChanBackup();
+            req.chanBackups.multiChanBackup.multiChanBackup = r.multiChannelBackup;
+        }
         client().initWallet(req, new ILightningCallback<Data.InitWalletResponse>() {
             @Override
             public void onResponse(Data.InitWalletResponse response) {

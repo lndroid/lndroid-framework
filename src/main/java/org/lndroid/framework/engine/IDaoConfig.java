@@ -10,4 +10,5 @@ public interface IDaoConfig {
     String getDatabasePath();
     String getPasswordFileName();
     String getLndDirName();
+    String getBackupPath();
 }

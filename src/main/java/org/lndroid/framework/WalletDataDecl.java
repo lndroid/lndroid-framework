@@ -1380,4 +1380,117 @@ public class WalletDataDecl {
         ImmutableList<Integer> features();
     }
 
+    interface SendManyRequest {
+        /// The map from addresses to amounts
+        @Nullable
+        ImmutableMap<String, Long> addrToAmount();
+
+        /// The target number of blocks that this transaction should be confirmed by.
+        int targetConf();
+
+        /// A manual fee rate set in sat/byte that should be used when crafting the transaction.
+        long satPerByte();
+    }
+
+    interface SendCoinsRequest {
+        /// The address to send coins to
+        @Nullable
+        String addr();
+
+        /// The amount in satoshis to send
+        long amount();
+
+        /// The target number of blocks that this transaction should be confirmed by.
+        int targetConf();
+
+        /// A manual fee rate set in sat/byte that should be used when crafting the transaction.
+        Long satPerByte();
+
+        /**
+         If set, then the amount field will be ignored, and lnd will attempt to
+         send all the coins under control of the internal wallet to the specified
+         address.
+         */
+        boolean sendAll();
+    }
+
+    interface Transaction {
+        // lndroid fields
+
+        // which tx created this payment
+        @Nullable
+        String txId();
+
+        // user that created the tx
+        long userId();
+
+        // who authed the tx
+        long authUserId();
+
+        // when was it created
+        long createTime();
+
+        // internal description to be presented to the user
+        @Nullable
+        String purpose();
+
+        // current number of tries
+        int tries();
+
+        // max number of tries
+        int maxTries();
+
+        // deadline for retries, in ms
+        long maxTryTime();
+
+        // last time we retried, in ms
+        long lastTryTime();
+
+        // next time we'll retry, in ms
+        long nextTryTime();
+
+        // 0 - pending, 1 - sent, 2 - failed, 3 - sending, 4 - rejected by user
+        int state();
+
+        // error code if state=failed
+        @Nullable
+        String errorCode();
+
+        // error message by lndroid
+        @Nullable
+        String errorMessage();
+
+        // lnd fields
+
+        /// The transaction hash
+        String txHash();
+
+        /// The transaction amount, denominated in satoshis
+        long amount();
+
+        /// The number of confirmations
+        int numConfirmations();
+
+        /// The hash of the block this transaction was included in
+        @Nullable
+        String blockHash();
+
+        /// The height of the block this transaction was included in
+        int blockHeight();
+
+        /// Timestamp of this transaction
+        long timestamp();
+
+        /// Fees paid for this transaction
+        long totalFees();
+
+        /// Addresses that received funds for this transaction
+        @Nullable
+        ImmutableList<String> destAddresses();
+
+        /// The raw transaction hex.
+        @Nullable
+        String rawTxHex();
+    }
+
 }

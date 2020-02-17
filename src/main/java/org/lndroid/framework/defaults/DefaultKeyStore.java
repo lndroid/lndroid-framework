@@ -431,6 +431,9 @@ public class DefaultKeyStore implements IKeyStore {
                 pk.nonce = pubkeyToNonce(unrestrictedPublicKey);
                 pk.key = generatePasswordKey(pk.nonce, password);
                 writePasswordKey(alias, pk);
+            } else {
+                File file = new File(getPasswordFile(alias));
+                file.delete();
             }
 
             // FIXME maybe use this instead?

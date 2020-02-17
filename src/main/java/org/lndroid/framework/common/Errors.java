@@ -84,6 +84,7 @@ public class Errors {
             case MESSAGE_AUTH: return "Message auth failed";
             case LND_ERROR: return "Lnd error";
             case IPC_ERROR: return "IPC error";
+            case IPC_IDENTITY_ERROR: return "IPC server identity error";
             case AUTH_INPUT: return "Unknown auth request";
         }
 
