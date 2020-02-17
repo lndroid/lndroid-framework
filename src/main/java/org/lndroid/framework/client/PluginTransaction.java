@@ -85,6 +85,7 @@ class PluginTransaction implements IPluginTransaction {
                 .setPluginId(pluginId_)
                 .setTxId(txId_)
                 .setTimeout(timeout)
+                .setTimestamp(System.currentTimeMillis())
                 .build();
         pm.assignData(r, type);
         if (sessionToken_ != null)
@@ -103,6 +104,7 @@ class PluginTransaction implements IPluginTransaction {
                 .setUserIdentity(userIdentity_)
                 .setPluginId(pluginId_)
                 .setTxId(txId_)
+                .setTimestamp(System.currentTimeMillis())
                 .build();
         pm.assignData(r, type);
         if (sessionToken_ != null)
@@ -121,6 +123,7 @@ class PluginTransaction implements IPluginTransaction {
                 .setPluginId(pluginId_)
                 .setTxId(txId_)
                 .setUserIdentity(userIdentity_)
+                .setTimestamp(System.currentTimeMillis())
                 .build();
 
         send(pm);

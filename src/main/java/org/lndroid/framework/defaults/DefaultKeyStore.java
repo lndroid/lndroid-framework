@@ -15,14 +15,19 @@ import org.lndroid.framework.common.IVerifier;
 import org.lndroid.framework.engine.IKeyStore;
 import org.lndroid.framework.common.HEX;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -35,30 +40,30 @@ public class DefaultKeyStore implements IKeyStore {
     private static final String TAG = "DefaultKeyStore";
     private static final String WP_KEY_ALIAS = "WALLET_PASSWORD_KEY";
     private static final String WP_CIPHER = "AES/GCM/NoPadding";
+    private static final String PASSWORD_ALIAS_SUFFIX = "_pwd";
     private static int DEFAULT_WP_AUTH_VALIDITY_DURATION = 6 * 60 * 60; // 6h
-    private static int PASSWORD_KEY_SIZE = 128;
+    private static int PASSWORD_KEY_SIZE = 256;
+    private static int PASSWORD_NONCE_SIZE = 256; // sha256
 
     private static final Object lock_ = new Object();
     private static DefaultKeyStore instance_;
+    private String passwordDir_;
 
     private Context ctx_;
     private boolean isAvailable_;
     private int wpAuthValidityDuration_;
 
-    DefaultKeyStore(Context appCtx) {
+    DefaultKeyStore(Context appCtx, String passwordDir) {
         ctx_ = appCtx;
+        passwordDir_ = passwordDir;
     }
 
-    public static DefaultKeyStore getInstance(Context appCtx) {
+    public static DefaultKeyStore getInstance(Context appCtx, String passwordDir) {
         synchronized (lock_) {
             if (instance_ == null)
-                instance_ = new DefaultKeyStore(appCtx);
+                instance_ = new DefaultKeyStore(appCtx, passwordDir);
             return instance_;
         }
-    }
-
-    public void setWalletPasswordAuthValidityDuration(int avd) {
-        wpAuthValidityDuration_ = avd;
     }
 
     @Override
@@ -77,8 +82,10 @@ public class DefaultKeyStore implements IKeyStore {
             // generate the key immediately to check if
             // device supports it before we declare
             // our key store as 'isAvailable'
-            if (!ks.containsAlias(WP_KEY_ALIAS))
-                generateWalletPasswordKey();
+            if (!ks.containsAlias(WP_KEY_ALIAS)) {
+                SecretKey sk = generateWalletPasswordKey();
+                Log.i(TAG, "wallet key generated "+(sk != null));
+            }
 
             isAvailable_ = ks.containsAlias(WP_KEY_ALIAS);
         }
@@ -123,14 +130,6 @@ public class DefaultKeyStore implements IKeyStore {
         }
     }
 
-    @Override
-    public String generatePasswordKeyNonce() {
-        byte[] nonce = new byte[PASSWORD_KEY_SIZE / 8];
-        SecureRandom r = new SecureRandom();
-        r.nextBytes(nonce);
-        return HEX.fromBytes(nonce);
-    }
-
     private SecretKey generateWalletPasswordKey() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
@@ -161,6 +160,8 @@ public class DefaultKeyStore implements IKeyStore {
                 ;
             }
 
+            // FIXME only set if SB is available
+            /*
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                 // these methods require API min 28
                 builder
@@ -172,10 +173,7 @@ public class DefaultKeyStore implements IKeyStore {
                 ;
             }
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                // this method requires API min 24
-                builder.setInvalidatedByBiometricEnrollment(true);
-            }
+             */
 
             keyGenerator.init(builder.build());
             return keyGenerator.generateKey();
@@ -256,28 +254,70 @@ public class DefaultKeyStore implements IKeyStore {
         return null;
     }
 
-    private SecureRandom generateSeedFromPassword(String nonce, String password) {
+    private String getPasswordFile(String alias) {
+        return passwordDir_+"/."+alias;
+    }
+
+    private byte[] generatePasswordKey(byte[] nonce, String password) {
         try {
             // first do PWKDF2 to get secret key from password
+            final long start = System.currentTimeMillis();
             final int iterationCount = 10000;
             KeySpec keySpec = new PBEKeySpec(
                     password.toCharArray(),
-                    HEX.toBytes(nonce),
+                    nonce,
                     iterationCount,
                     PASSWORD_KEY_SIZE);
             SecretKeyFactory keyFactory = SecretKeyFactory
                     .getInstance("PBKDF2WithHmacSHA1");
-            byte[] keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
 
-            // next, use secret as random seed for keypair
-            return new SecureRandom(keyBytes);
-
+            byte[] key = keyFactory.generateSecret(keySpec).getEncoded();
+            Log.i(TAG, "pbkdf for nonce "+nonce+" in "+(System.currentTimeMillis() - start)+" ms");
+            return key;
         } catch (Exception e) {
+            Log.e(TAG, "generatePasswordKey error "+e);
             return null;
         }
     }
 
-    private KeyPair generateKeyPairImpl(String alias, String authType, String nonce, String password) {
+    static class PasswordKey {
+        byte[] nonce;
+        byte[] key;
+    }
+
+    private void writePasswordKey(String alias, PasswordKey pk) {
+        try {
+            File file = new File(getPasswordFile(alias));
+
+            FileOutputStream f = new FileOutputStream(file);
+            f.write(pk.key);
+            f.write(pk.nonce);
+            f.close();
+
+        } catch (Exception e) {
+            Log.e(TAG, "writeKeyPassword error "+e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private PasswordKey readPasswordKey(String alias) {
+        try {
+            FileInputStream s = new FileInputStream(getPasswordFile(alias));
+            byte[] buffer = new byte[512];
+            final int r = s.read(buffer);
+            if (r == (PASSWORD_KEY_SIZE + PASSWORD_NONCE_SIZE)) {
+                PasswordKey pk = new PasswordKey();
+                pk.key = Arrays.copyOfRange(buffer, 0, PASSWORD_KEY_SIZE);
+                pk.nonce = Arrays.copyOfRange(buffer, PASSWORD_KEY_SIZE, PASSWORD_KEY_SIZE + PASSWORD_NONCE_SIZE);
+                return pk;
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
+
+    private KeyPair generateKeyPairImpl(String alias, String authType) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
 
@@ -287,11 +327,11 @@ public class DefaultKeyStore implements IKeyStore {
         try {
 
             KeyGenParameterSpec.Builder params = new KeyGenParameterSpec.Builder(
-                    alias,
+                    WalletData.AUTH_TYPE_PASSWORD.equals(authType)
+                    ? alias + PASSWORD_ALIAS_SUFFIX
+                    : alias,
                     KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
                     .setDigests(KeyProperties.DIGEST_SHA256);
-
-            SecureRandom seed = null;
 
             switch (authType) {
                 case WalletData.AUTH_TYPE_NONE:
@@ -318,21 +358,18 @@ public class DefaultKeyStore implements IKeyStore {
                     break;
 
                 case WalletData.AUTH_TYPE_PASSWORD:
-                    seed = generateSeedFromPassword(nonce, password);
                     break;
 
                 default:
-                    return null;
+                    throw new RuntimeException("Unknown auth type");
             }
-
-            if (seed == null)
-                seed = new SecureRandom();
 
             KeyPairGenerator kpg = KeyPairGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
-            kpg.initialize(params.build(), seed);
+            kpg.initialize(params.build());
 
-            return kpg.generateKeyPair();
+            KeyPair kp = kpg.generateKeyPair();
+            return kp;
         } catch (Exception e) {
             Log.e(TAG, "generate key pair error "+e);
         }
@@ -352,21 +389,52 @@ public class DefaultKeyStore implements IKeyStore {
         }
     }
 
-    @Override
-    public String generateKeyPair(String alias, String authType, String nonce, String password) {
+    private byte[] pubkeyToNonce(PublicKey pk) {
         try {
-            KeyPair kp = generateKeyPairImpl(alias, authType, nonce, password);
+            MessageDigest digest = null;
+            digest = MessageDigest.getInstance("SHA-256");
+            digest.reset();
+            return digest.digest(pk.getEncoded());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /* authType=password:
+    generate:
+    - keypair is generated w/ special alias suffix
+    - pubkey converted to nonce using sha-256
+    - pbkdf turns password+nonce into a hash
+    - hash written to a file
+    get_signer;
+    - read alias password file from disk, if any
+    - if alias password exists, get key from suffixed alias, otherwise use plain alias
+    - after key is read from keystore, when password is available
+    - do pbkdf using pubkey as nonce and password to get the hash
+    - compare hashes, if ok - proceed
+    security:
+    - if pubkey is invalidated due to keystore policy, password is useless
+    - if password file deleted, no key will be retrieved from keystore using plain alias
+    - if key is regenerated in keystore, password key won't match bcs pubkey is nonce
+    - if key is regenerated and password file deleted then pubkey won't match the one in user db
+    * */
+    @Override
+    public String generateKeyPair(String alias, String authType, String password) {
+        try {
+            KeyPair kp = generateKeyPairImpl(alias, authType);
 
             PublicKey unrestrictedPublicKey = getUnrestrictedPubkey (kp.getPublic());
+            Log.i(TAG, "new keypair alias "+alias+" pubkey "+HEX.fromBytes(unrestrictedPublicKey.getEncoded()));
 
-            // password-based keys are immediately deleted after we've
-            // acquired the pubkey
             if (WalletData.AUTH_TYPE_PASSWORD.equals(authType)) {
-                KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
-                ks.load(null);
-                ks.deleteEntry(alias);
+                PasswordKey pk = new PasswordKey();
+                pk.nonce = pubkeyToNonce(unrestrictedPublicKey);
+                pk.key = generatePasswordKey(pk.nonce, password);
+                writePasswordKey(alias, pk);
             }
 
+            // FIXME maybe use this instead?
+            // https://stackoverflow.com/questions/40155888/how-can-i-generate-a-valid-ecdsa-ec-key-pair
             return HEX.fromBytes(unrestrictedPublicKey.getEncoded());
 
         } catch (Exception e) {
@@ -387,15 +455,19 @@ public class DefaultKeyStore implements IKeyStore {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
 
+        final PasswordKey pk = readPasswordKey(alias);
+
         KeyStore.PrivateKeyEntry key = null;
         try {
             KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
             ks.load(null);
 
-            if (!ks.containsAlias(alias))
+            final String keyAlias = pk != null ? alias + PASSWORD_ALIAS_SUFFIX : alias;
+
+            if (!ks.containsAlias(keyAlias))
                 return null;
 
-            key = ((KeyStore.PrivateKeyEntry) ks.getEntry(alias, null));
+            key = ((KeyStore.PrivateKeyEntry) ks.getEntry(keyAlias, null));
 
         } catch (Exception e) {
             Log.e(TAG, "getKeySigner error "+e);
@@ -405,29 +477,26 @@ public class DefaultKeyStore implements IKeyStore {
         if (key == null)
             return null;
 
-        String pubkey = HEX.fromBytes(
-                getUnrestrictedPubkey (key.getCertificate().getPublicKey()).getEncoded());
-        return DefaultSigner.create(key.getPrivateKey(), pubkey);
-    }
+        PublicKey unrestrictedPubkey = getUnrestrictedPubkey (key.getCertificate().getPublicKey());
+        String pubkey = HEX.fromBytes(unrestrictedPubkey.getEncoded());
 
-    @Override
-    public ISigner getPasswordKeySigner(String alias, String nonce, String password) {
+        if (pk != null) {
+            final byte[] nonce = pubkeyToNonce(unrestrictedPubkey);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            return null;
-
-        try {
-            KeyPair kp = generateKeyPairImpl(alias, WalletData.AUTH_TYPE_PASSWORD, nonce, password);
-            if (kp == null)
+            // key regenerated, password file not updated!
+            if (!Arrays.equals(nonce, pk.nonce))
                 return null;
 
-            String pubkey = HEX.fromBytes(
-                    getUnrestrictedPubkey (kp.getPublic()).getEncoded());
-            return DefaultSigner.createForPasswordKey(kp.getPrivate(), pubkey, alias);
-
-        } catch (Exception e) {
-            Log.e(TAG, "getKeySigner error "+e);
-            return null;
+            return DefaultSigner.createAuthPassword(key.getPrivateKey(), pubkey, new DefaultSigner.IPasswordVerifier() {
+                @Override
+                public boolean verify(String password) {
+                    byte[] reqKey = generatePasswordKey(nonce, password);
+                    return Arrays.equals(reqKey, pk.key);
+                }
+            });
+        } else {
+            return DefaultSigner.create(key.getPrivateKey(), pubkey);
         }
     }
+
 }

@@ -326,23 +326,22 @@ public class DefaultDaoProvider implements IDaoProvider {
             public void onOpen() {
                 // ensure root user
                 if (roomDaos_.getAuthDao().get(WalletData.ROOT_USER_ID) == null) {
-                    final String nonce = keyStore_.generatePasswordKeyNonce();
                     final boolean secure = keyStore_.isDeviceSecure();
 
                     WalletData.User u = WalletData.User.builder()
                             .setId(WalletData.ROOT_USER_ID)
                             .setCreateTime(System.currentTimeMillis())
                             .setRole(WalletData.USER_ROLE_ROOT)
-                            .setNonce(nonce)
                             .setAuthType(secure
                                     ? WalletData.AUTH_TYPE_SCREEN_LOCK
+//                                    ? WalletData.AUTH_TYPE_DEVICE_SECURITY
+//                                    ? WalletData.AUTH_TYPE_BIO
                                     : WalletData.AUTH_TYPE_NONE)
                             .build();
 
                     final String pubkey = keyStore_.generateKeyPair(
                             PluginUtils.userKeyAlias(u.id()),
                             u.authType(),
-                            u.nonce(),
                             null);
                     u = u.toBuilder().setPubkey(pubkey).build();
                     roomDaos_.insertUser(u);

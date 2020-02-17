@@ -33,13 +33,11 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
     @Override
     protected WalletData.User createResponse(PluginContext ctx, WalletData.AddUserRequest req, long authUserId) {
         final long userId = server().getIdGenerator().generateId(WalletData.User.class);
-        final String nonce = server().getKeyStore().generatePasswordKeyNonce();
         WalletData.User u = WalletData.User.builder()
                 .setId(userId)
                 .setAuthUserId(authUserId)
                 .setCreateTime(System.currentTimeMillis())
                 .setRole(req.role())
-                .setNonce(nonce)
                 .setAuthType(req.authType())
                 .setAppPackageName(req.appPackageName())
                 .setAppLabel(req.appLabel())
@@ -49,7 +47,6 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
         final String pubkey = server().getKeyStore().generateKeyPair(
                 PluginUtils.userKeyAlias(u.id()),
                 u.authType(),
-                u.nonce(),
                 req.password());
         return u.toBuilder()
                 .setPubkey(pubkey)

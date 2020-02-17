@@ -416,10 +416,10 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             }
         } else {
             // bg role should be able to run in locked device!
-            if (!WalletData.USER_ROLE_BG.equals(user.role()) && keyStore_.isDeviceLocked()){
-                Log.e(TAG, "bad local message " + msg + " from "+user+" on locked device");
-                return Errors.DEVICE_LOCKED;
-            }
+//            if (!WalletData.USER_ROLE_BG.equals(user.role()) && keyStore_.isDeviceLocked()){
+//                Log.e(TAG, "bad local message " + msg + " from "+user+" on locked device");
+//                return Errors.DEVICE_LOCKED;
+//            }
 
             String code = PluginUtilsLocal.checkPluginMessageLocal(
                     pm, user.pubkey(), keyStore_.getVerifier());
@@ -483,6 +483,14 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         //  in the message to drop invalid messages (like when someone stole the app keys but couldn't
         //  fake his UID identity on OS level)
 
+        // protect from replays (only applicable for IPC where the full message is signed)
+        final long MAX_TTL = 10000; // ms
+        final long now = System.currentTimeMillis();
+        if (pm.timestamp() > now || pm.timestamp() < (now - MAX_TTL)) {
+            sendTxError(pm, true, Errors.MESSAGE_FORMAT, msg.replyTo);
+            return false;
+        }
+
         return true;
     }
 
@@ -509,14 +517,6 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         } else {
             if (!checkLocalPluginMessage(msg, pm))
                 return;
-        }
-
-        // protect from replays
-        final long MAX_TTL = 10000; // ms
-        final long now = System.currentTimeMillis();
-        if (pm.timestamp() > now || pm.timestamp() < (now - MAX_TTL)) {
-            sendTxError(pm, ipc, Errors.MESSAGE_FORMAT, msg.replyTo);
-            return;
         }
 
         // assign codecs
@@ -673,7 +673,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 onGetAuthTxRequest(pm, msg.replyTo);
                 break;
 
-            case AuthData.MESSAGE_TYPE_USER_AUTH_TYPE:
+            case AuthData.MESSAGE_TYPE_USER_AUTH_INFO:
                 onGetUserAuthTypeRequest(pm, msg.replyTo);
                 break;
 
@@ -1036,10 +1036,12 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             if (ipc) {
 
                 ISigner signer = keyStore_.getKeySigner(PluginUtils.userKeyAlias(user.id()));
-                // FIXME if signer == null
-                // - key not available in the keystore
-                // - wtf?
-                // - send error and ask to retry?
+                if (signer == null || !signer.getPublicKey().equals(user.pubkey())) {
+                    // FIXME key invalidated
+                    // - send error and ask to retry?
+                    Log.e(TAG, "keystore signer not available for "+user);
+                    return false;
+                }
 
                 Bundle b = PluginUtils.encodePluginMessageIpc(
                         pm,

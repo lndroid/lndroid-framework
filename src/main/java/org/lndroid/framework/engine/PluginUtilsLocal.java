@@ -35,7 +35,7 @@ public class PluginUtilsLocal {
             st.timestamp = Long.parseLong(fields[0]);
             st.duration = Long.parseLong(fields[1]);
             st.plugin = fields[2];
-            if (st.plugin.isEmpty())
+            if (st.plugin.isEmpty() || st.plugin.equals("*"))
                 st.plugin = null;
 
             return st;
@@ -43,7 +43,7 @@ public class PluginUtilsLocal {
 
         private String formatPayload() {
             return "" + timestamp + "_" + duration + "_" +
-                    (plugin != null ? plugin : "");
+                    (plugin != null ? plugin : "*");
         }
 
         public byte[] preparePayload() {
@@ -80,10 +80,10 @@ public class PluginUtilsLocal {
             return Errors.MESSAGE_FORMAT;
 
         final long now = System.currentTimeMillis();
-        if (st.timestamp > now || st.timestamp < (now + st.duration))
+        if (st.timestamp > now || st.timestamp < (now - st.duration))
             return Errors.MESSAGE_AUTH;
 
-        if (!st.plugin.isEmpty() && !st.plugin.equals(pm.pluginId()))
+        if (st.plugin != null && !st.plugin.equals(pm.pluginId()))
             return Errors.MESSAGE_AUTH;
 
         if (!verifier.verify(st.payload, pubkey, st.signature))

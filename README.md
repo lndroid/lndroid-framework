@@ -29,7 +29,8 @@ To see sample app+wallet in action, check [this video](https://www.youtube.com/w
 - [x] Scheduled job to run lnd in background every X minutes for several minutes to accept payments
 - [x] Scheduled job to run lnd in background every X hours for ~1 hour to come in sync with network and node graph
 - [ ] Messages over IPC are signed using app/wallet private key, signatures verified by receiver using sender pubkey
-- [ ] Authentication for internal users (role != app), at least allow passwords and also device security facilities like 'device unlocked', bio/face id, etc 
+- [x] Authentication for internal users (role != app), at least allow passwords and also device security facilities like 'device unlocked', bio/face id, etc 
+- [ ] Authentication UI for internal users, default UI for password plus call BioPrompt when necessary (if keys are unavailable)
 - [ ] Validation of every input params by every API method
 - [ ] Unit tests! Haha, we need some :)
 - [ ] Channel backups stored to local dir

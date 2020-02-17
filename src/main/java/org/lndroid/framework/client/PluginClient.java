@@ -187,7 +187,10 @@ class PluginClient extends Handler implements IPluginClient {
     }
 
     public void handlePluginMessage(PluginData.PluginMessage pm) {
-        Log.i(TAG, "received tx "+pm.txId()+" type "+pm.type()+" plugin "+pm.pluginId());
+        if (PluginData.MESSAGE_TYPE_ERROR.equals(pm.type()))
+            Log.e(TAG, "received error tx "+pm.txId()+" e "+pm.code()+" plugin "+pm.pluginId());
+        else
+            Log.i(TAG, "received tx "+pm.txId()+" type "+pm.type()+" plugin "+pm.pluginId());
 
         if (PluginData.MESSAGE_TYPE_ERROR.equals(pm.type())) {
 

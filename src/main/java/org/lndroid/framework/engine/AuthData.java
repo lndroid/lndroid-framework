@@ -18,7 +18,7 @@ public class AuthData {
     public static final int MESSAGE_TYPE_UNLOCK_WALLET = 7;
     public static final int MESSAGE_TYPE_GET = 8;
     public static final int MESSAGE_TYPE_GET_TX = 9;
-    public static final int MESSAGE_TYPE_USER_AUTH_TYPE = 10;
+    public static final int MESSAGE_TYPE_USER_AUTH_INFO = 10;
 
     @AutoValue
     @AutoValueClass(className = AutoValue_AuthData_AuthMessage.class)

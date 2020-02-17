@@ -68,6 +68,7 @@ public class AuthClient extends Handler implements IAuthClient {
             case AuthData.MESSAGE_TYPE_UNLOCK_WALLET:
             case AuthData.MESSAGE_TYPE_GET:
             case AuthData.MESSAGE_TYPE_GET_TX:
+            case AuthData.MESSAGE_TYPE_USER_AUTH_INFO:
                 onCallback(pm);
                 break;
 
@@ -135,7 +136,7 @@ public class AuthClient extends Handler implements IAuthClient {
     @Override
     public void getUserAuthInfo(long userId, IResponseCallback<WalletData.User> cb) {
         AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
-                .setType(AuthData.MESSAGE_TYPE_USER_AUTH_TYPE)
+                .setType(AuthData.MESSAGE_TYPE_USER_AUTH_INFO)
                 .setUserId(userId);
         send(b, cb);
     }
