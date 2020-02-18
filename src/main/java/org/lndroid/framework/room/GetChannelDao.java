@@ -4,10 +4,10 @@ import androidx.room.Dao;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IGetChannelDao;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class GetChannelDao implements IGetChannelDao, IPluginDao {
+public class GetChannelDao implements IGetDao<WalletData.Channel>, IPluginDao {
     private GetChannelDaoRoom dao_;
 
     GetChannelDao(GetChannelDaoRoom dao) {

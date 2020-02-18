@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class ListContactsDao implements IPluginDao {
+public class ListContactsDao implements
+        IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult>, IPluginDao {
 
     private ListContactsDaoRoom dao_;
 
@@ -32,15 +34,15 @@ public class ListContactsDao implements IPluginDao {
         return where;
     }
 
+    @Override
     public WalletData.ListContactsResult list(
             WalletData.ListContactsRequest req,
             WalletData.ListPage page,
-            long callerUserId,
-            boolean clearPubkey) {
+            WalletData.User user) {
 
         String where = "";
         if (req.onlyOwn())
-            where = and(where, "userId = "+callerUserId);
+            where = and(where, "userId = "+user.id());
 
         String sort = "id_"; // NOTE, id_ not id
         if ("createTime".equals(req.sort()))
@@ -51,11 +53,12 @@ public class ListContactsDao implements IPluginDao {
         final String desc = req.sortDesc() ? "DESC" : "ASC";
         final String query = "SELECT id_ FROM Contact "+where+
                 " ORDER BY "+sort+" "+desc;
-        return dao_.listContacts(new SimpleSQLiteQuery(query), page, clearPubkey);
+        return dao_.listContacts(new SimpleSQLiteQuery(query), page, /*clearPubkey=*/user.isApp());
     }
 
-    public boolean hasPrivilege(long userId) {
-        return dao_.hasListContactsPrivilege(userId);
+    @Override
+    public boolean hasPrivilege(WalletData.ListContactsRequest req, WalletData.User user) {
+        return dao_.hasListContactsPrivilege(user.id());
     }
 
     @Override

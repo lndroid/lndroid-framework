@@ -51,6 +51,8 @@ final class RoomConverters {
 
             StringBuffer b = new StringBuffer();
             for (String line : list) {
+                if (line.contains("\n"))
+                    throw new RuntimeException("String list with multi-line entries not supported");
                 b.append(line);
                 b.append("\n");
             }
@@ -95,6 +97,41 @@ final class RoomConverters {
             for (String line : lines.split("\\r?\\n")) {
                 if (!line.isEmpty())
                     b.add(Integer.valueOf(line));
+            }
+            return b.build();
+        }
+    }
+
+    static class ImmutableStringLongMapConverter {
+
+        @TypeConverter
+        public static String fromStringList(Map<String, Long> map) {
+            if (map == null)
+                return null;
+
+            StringBuffer b = new StringBuffer();
+            for (Map.Entry<String, Long> e: map.entrySet()) {
+                if (e.getKey().contains("\n"))
+                    throw new RuntimeException("String list with multi-line entries not supported");
+                b.append(e.getKey());
+                b.append("\n");
+                b.append(e.getValue().toString());
+                b.append("\n");
+            }
+            return b.toString();
+        }
+
+        @TypeConverter
+        public static ImmutableMap<String,Long> toImmutableStringLongMap(String lines) {
+            if (lines == null)
+                return null;
+
+            ImmutableMap.Builder<String, Long> b = ImmutableMap.builder();
+            String[] list = lines.split("\\r?\\n");
+            for (int i = 0; i < list.length - 1; i += 2) {
+                String key = list[i];
+                Long value = Long.parseLong(list[i+1]);
+                b.put(key, value);
             }
             return b.build();
         }

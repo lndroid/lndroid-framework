@@ -73,8 +73,8 @@ public class OpenChannelWorker implements IPluginBackground {
         // bad payment?
         if (!LightningCodec.OpenChannelCodec.encode(c, r)) {
             Log.e(TAG, "open channel error bad request");
-            b.setErrorCode(Errors.PAYMENT_BAD_INPUT);
-            b.setErrorMessage(Errors.errorMessage(Errors.PAYMENT_BAD_INPUT));
+            b.setErrorCode(Errors.PLUGIN_INPUT);
+            b.setErrorMessage(Errors.errorMessage(Errors.PLUGIN_INPUT));
             b.setState(WalletData.CHANNEL_STATE_FAILED);
             onUpdate(b.build());
             return;

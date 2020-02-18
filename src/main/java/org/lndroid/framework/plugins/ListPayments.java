@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
@@ -14,7 +15,7 @@ import org.lndroid.framework.room.ListPaymentsDao;
 
 public class ListPayments extends ListBase<WalletData.ListPaymentsRequest, WalletData.Payment> {
 
-    private ListPaymentsDao dao_;
+    private IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult> dao_;
 
     public ListPayments() {
         super(DefaultPlugins.LIST_PAYMENTS);
@@ -23,7 +24,7 @@ public class ListPayments extends ListBase<WalletData.ListPaymentsRequest, Walle
     @Override
     protected WalletData.ListPaymentsResult listEntities(
             WalletData.ListPaymentsRequest req, WalletData.ListPage page, WalletData.User user) {
-        return dao_.list(req, page, user.id());
+        return dao_.list(req, page, user);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class ListPayments extends ListBase<WalletData.ListPaymentsRequest, Walle
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (ListPaymentsDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult>) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override
@@ -55,7 +56,7 @@ public class ListPayments extends ListBase<WalletData.ListPaymentsRequest, Walle
 
     @Override
     protected boolean isUserPrivileged(WalletData.ListPaymentsRequest req, WalletData.User user) {
-        return user.isRoot() || req.onlyOwn() || dao_.hasPrivilege(req, user.id());
+        return user.isRoot() || req.onlyOwn() || dao_.hasPrivilege(req, user);
     }
 
 }

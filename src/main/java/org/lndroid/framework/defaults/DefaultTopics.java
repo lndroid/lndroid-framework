@@ -26,4 +26,7 @@ public final class DefaultTopics {
     public static final String CONTACT_STATE = "org.lndroid.topics.CONTACT_STATE";
 
     public static final String NODE_INFO_SELF = "org.lndroid.topics.NODE_INFO_SELF";
+
+    public static final String NEW_TRANSACTION = "org.lndroid.topics.NEW_TRANSACTION";
+    public static final String TRANSACTION_STATE = "org.lndroid.topics.TRANSACTION_STATE";
 }

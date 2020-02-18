@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class ListPaymentsDao implements IPluginDao {
+public class ListPaymentsDao implements
+        IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult>, IPluginDao {
     private ListPaymentsDaoRoom dao_;
 
     ListPaymentsDao(ListPaymentsDaoRoom dao) {
@@ -36,8 +38,10 @@ public class ListPaymentsDao implements IPluginDao {
         return where;
     }
 
+    @Override
     public WalletData.ListPaymentsResult list(WalletData.ListPaymentsRequest req,
-                                              WalletData.ListPage page, long callerUserId) {
+                                              WalletData.ListPage page,
+                                              WalletData.User user) {
         String where = "";
 
         if (req.contactId() != 0) {
@@ -54,7 +58,7 @@ public class ListPaymentsDao implements IPluginDao {
 
         // onlyOwn takes priority
         if (req.onlyOwn())
-            where = and(where, "userId = "+callerUserId);
+            where = and(where, "userId = "+user.id());
         else if (req.userId() != 0)
             where = and(where, "userId = "+req.userId());
 
@@ -66,8 +70,6 @@ public class ListPaymentsDao implements IPluginDao {
             where = and(where, "time <= "+req.timeFrom());
         if (req.timeTill() != 0)
             where = and(where, "time <= "+req.timeTill());
-        if (req.onlyOwn())
-            where = and(where, "userId = "+callerUserId);
         if (req.onlyMessages())
             where = and(where, "message IS NOT NULL");
 
@@ -81,9 +83,10 @@ public class ListPaymentsDao implements IPluginDao {
         return dao_.listPayments(new SimpleSQLiteQuery(query), page);
     }
 
-    public boolean hasPrivilege(WalletData.ListPaymentsRequest req, long userId) {
+    @Override
+    public boolean hasPrivilege(WalletData.ListPaymentsRequest req, WalletData.User user) {
         if (req.contactId() != 0)
-            return dao_.hasContactPaymentsPrivilege(userId, req.contactId());
+            return dao_.hasContactPaymentsPrivilege(user.id(), req.contactId());
         return false;
     }
 

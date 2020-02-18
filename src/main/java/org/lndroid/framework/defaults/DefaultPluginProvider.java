@@ -29,6 +29,7 @@ import org.lndroid.framework.plugins.GetChannelBalance;
 import org.lndroid.framework.plugins.GetContact;
 import org.lndroid.framework.plugins.GetInvoice;
 import org.lndroid.framework.plugins.GetSendPayment;
+import org.lndroid.framework.plugins.GetTransaction;
 import org.lndroid.framework.plugins.GetUser;
 import org.lndroid.framework.plugins.GetWalletBalance;
 import org.lndroid.framework.plugins.GetWalletInfo;
@@ -36,14 +37,18 @@ import org.lndroid.framework.plugins.InvoiceStateWorker;
 import org.lndroid.framework.plugins.ListContacts;
 import org.lndroid.framework.plugins.ListInvoices;
 import org.lndroid.framework.plugins.ListPayments;
+import org.lndroid.framework.plugins.ListTransactions;
 import org.lndroid.framework.plugins.NewAddress;
 import org.lndroid.framework.plugins.NodeInfoWorker;
 import org.lndroid.framework.plugins.OpenChannel;
 import org.lndroid.framework.plugins.OpenChannelWorker;
+import org.lndroid.framework.plugins.SendCoins;
+import org.lndroid.framework.plugins.SendCoinsWorker;
 import org.lndroid.framework.plugins.SendPayment;
 import org.lndroid.framework.plugins.SendPaymentWorker;
 import org.lndroid.framework.plugins.ShareContact;
 import org.lndroid.framework.plugins.SubscribeSendPayments;
+import org.lndroid.framework.plugins.TransactionStateWorker;
 import org.lndroid.framework.plugins.WalletBalanceWorker;
 import org.lndroid.framework.plugins.WalletInfoWorker;
 
@@ -126,6 +131,7 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.CHANNEL_BALANCE_WORKER, new BackgroundPlugin(new ChannelBalanceWorker()));
 
         plugins_.put(DefaultPlugins.NEW_ADDRESS, new ForegroundPlugin(new NewAddress()));
+        plugins_.put(DefaultPlugins.ESTIMATE_FEE, new ForegroundPlugin(new EstimateFee()));
 
         plugins_.put(DefaultPlugins.CONNECT_PEER, new ForegroundPlugin(new ConnectPeer()));
 
@@ -161,6 +167,15 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.NODE_INFO_WORKER, new BackgroundPlugin(new NodeInfoWorker()));
 
         plugins_.put(DefaultPlugins.CHANNEL_BACKUP_WORKER, new BackgroundPlugin(new ChannelBackupWorker()));
+
+        plugins_.put(DefaultPlugins.SEND_COINS, new ForegroundPlugin(new SendCoins()));
+        plugins_.put(DefaultPlugins.SEND_COINS_WORKER, new BackgroundPlugin(new SendCoinsWorker()));
+        plugins_.put(DefaultPlugins.TRANSACTION_STATE_WORKER, new BackgroundPlugin(new TransactionStateWorker()));
+        plugins_.put(DefaultPlugins.GET_TRANSACTION, new ForegroundPlugin(new GetTransaction()));
+        plugins_.put(DefaultPlugins.LIST_TRANSACTIONS, new ForegroundPlugin(new ListTransactions()));
+
+
+
 
     }
 

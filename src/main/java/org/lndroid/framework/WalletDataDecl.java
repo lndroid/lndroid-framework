@@ -785,6 +785,31 @@ public class WalletDataDecl {
         /// The counterparty's current balance in this channel
         long remoteBalance();
 
+        /// The height at which this channel will be confirmed
+        int confirmationHeight();
+
+        /// The balance in satoshis encumbered in this channel
+        long limboBalance();
+
+        /// The height at which funds can be swept into the wallet
+        int maturityHeight();
+
+        /*
+          Remaining # of blocks until the commitment output can be swept.
+          Negative values indicate how many blocks have passed since becoming
+          mature.
+        */
+        // calculate from current height
+        // int blocksTilMaturity = 5 [ json_name = "blocks_til_maturity" ];
+
+        /// The total value of funds successfully recovered from this channel
+        long recoveredBalance();
+
+        // repeated PendingHTLC pending_htlcs = 8 [ json_name = "pending_htlcs" ];
+
+        /// The transaction id of the closing transaction
+        String closingTxid();
+
         /**
          * The amount calculated to be paid in fees for the current set of commitment
          * transactions. The fee amount is persisted with the channel in order to
@@ -870,6 +895,8 @@ public class WalletDataDecl {
          * by the channel scoring system over the lifetime of the channel [EXPERIMENTAL].
          */
         long uptime();
+
+
     }
 
     public interface OpenChannelRequest {
@@ -1393,23 +1420,31 @@ public class WalletDataDecl {
     }
 
     interface SendCoinsRequest {
-        /// The address to send coins to
-        @Nullable
-        String addr();
+        // lndroid fields
 
-        /// The amount in satoshis to send
-        long amount();
+        @Nullable
+        String purpose();
+
+        // max number of tries
+        int maxTries();
+
+        // deadline for retries, in ms
+        long maxTryTime();
+
+        /// The map from addresses to amounts
+        @Nullable
+        ImmutableMap<String, Long> addrToAmount();
 
         /// The target number of blocks that this transaction should be confirmed by.
         int targetConf();
 
         /// A manual fee rate set in sat/byte that should be used when crafting the transaction.
-        Long satPerByte();
+        long satPerByte();
 
         /**
          If set, then the amount field will be ignored, and lnd will attempt to
          send all the coins under control of the internal wallet to the specified
-         address.
+         address. addrToAmount must contain a single address.
          */
         boolean sendAll();
     }
@@ -1429,6 +1464,9 @@ public class WalletDataDecl {
 
         // when was it created
         long createTime();
+
+        // when was it broadcasted
+        long sendTime();
 
         // internal description to be presented to the user
         @Nullable
@@ -1460,12 +1498,32 @@ public class WalletDataDecl {
         @Nullable
         String errorMessage();
 
+        // request fields
+
+        /// The map from addresses to amounts
+        @Nullable
+        ImmutableMap<String, Long> addrToAmount();
+
+        /// The target number of blocks that this transaction should be confirmed by.
+        int targetConf();
+
+        /// A manual fee rate set in sat/byte that should be used when crafting the transaction.
+        long satPerByte();
+
+        /**
+         If set, then the amount field will be ignored, and lnd will attempt to
+         send all the coins under control of the internal wallet to the specified
+         address. addrToAmount must contain a single address.
+         */
+        boolean sendAll();
+
+
         // lnd fields
 
         /// The transaction hash
         String txHash();
 
-        /// The transaction amount, denominated in satoshis
+        /// The total transaction amount, denominated in satoshis
         long amount();
 
         /// The number of confirmations
@@ -1491,6 +1549,36 @@ public class WalletDataDecl {
         /// The raw transaction hex.
         @Nullable
         String rawTxHex();
+    }
+
+    public interface ListTransactionsRequest {
+        long userId();
+
+        long timeFrom();
+
+        long timeTill();
+
+        // sort order: time, amount
+        @Nullable
+        String sort();
+
+        boolean sortDesc();
+    }
+
+    interface EstimateFeeRequest {
+        /// The map from addresses to amounts for the transaction.
+        ImmutableMap<String, Long> addrToAmount();
+
+        /// The target number of blocks that this transaction should be confirmed by.
+        int targetConf();
+    }
+
+    interface EstimateFeeResponse {
+        /// The total fee in satoshis.
+        long feeSat();
+
+        /// The fee rate in satoshi/byte.
+        long feerateSatPerByte();
     }
 
 }

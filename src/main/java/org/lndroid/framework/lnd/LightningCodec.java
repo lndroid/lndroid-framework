@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
@@ -477,5 +478,77 @@ public class LightningCodec {
         }
     }
 
+    public static class SendCoinsCodec {
+
+        public static boolean encode(WalletData.Transaction req, Data.SendCoinsRequest r) {
+
+            r.sendAll = req.sendAll();
+            r.targetConf = req.targetConf();
+            r.satPerByte = req.satPerByte();
+            if (req.addrToAmount() != null && req.addrToAmount().size() == 1) {
+                for (Map.Entry<String,Long> e: req.addrToAmount().entrySet()) {
+                    r.addr = e.getKey();
+                    r.amount = e.getValue();
+                }
+            }
+            return r.sendAll || r.amount != 0;
+        }
+
+        public static boolean encode(WalletData.Transaction req, Data.SendManyRequest r) {
+
+            r.targetConf = req.targetConf();
+            r.satPerByte = req.satPerByte();
+            if (req.addrToAmount() != null) {
+                r.addrToAmount = new HashMap<>();
+                for (Map.Entry<String,Long> e: req.addrToAmount().entrySet()) {
+                    r.addrToAmount.put(e.getKey(), e.getValue());
+                }
+            }
+            return r.addrToAmount != null;
+        }
+
+        public static void decode(Data.SendCoinsResponse rep, WalletData.Transaction.Builder b) {
+            b.setTxHash(rep.txid);
+        }
+
+        public static void decode(Data.SendManyResponse rep, WalletData.Transaction.Builder b) {
+            b.setTxHash(rep.txid);
+        }
+    }
+
+    public static class TransactionConverter {
+        public static void decode(Data.Transaction r, WalletData.Transaction.Builder b) {
+            b.setTxHash(r.txHash);
+            b.setAmount(r.amount);
+            b.setBlockHash(r.blockHash);
+            b.setBlockHeight(r.blockHeight);
+            b.setNumConfirmations(r.numConfirmations);
+            b.setRawTxHex(r.rawTxHex);
+            b.setTimestamp(r.timeStamp);
+            b.setTotalFees(r.totalFees);
+            if (r.destAddresses != null) {
+                ImmutableList.Builder<String> ab = ImmutableList.builder();
+                for(String a: r.destAddresses)
+                    ab.add(a);
+                b.setDestAddresses(ab.build());
+            }
+        }
+    }
+
+    public static class EstimateFeeCodec {
+
+        public static boolean encode(WalletData.EstimateFeeRequest req, Data.EstimateFeeRequest r) {
+            if (req.addrToAmount() != null) {
+                r.addrToAmount = new HashMap<>(req.addrToAmount());
+            }
+            r.targetConf = req.targetConf();
+            return r.addrToAmount != null && !r.addrToAmount.isEmpty();
+        }
+
+        public static void decode(Data.EstimateFeeResponse rep, WalletData.EstimateFeeResponse.Builder b) {
+            b.setFeeSat(rep.feeSat);
+            b.setFeerateSatPerByte(rep.feerateSatPerByte);
+        }
+    }
 
 }

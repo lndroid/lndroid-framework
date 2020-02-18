@@ -3,7 +3,7 @@ package org.lndroid.framework.room;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-@Database(version = 62, exportSchema = true, entities = {
+@Database(version = 63, exportSchema = true, entities = {
         RoomData.AuthRequest.class,
         RoomData.Channel.class,
         RoomData.ChannelBalance.class,
@@ -21,6 +21,7 @@ import androidx.room.RoomDatabase;
         RoomData.Payment.class,
         RoomData.RoutingPolicy.class,
         RoomData.RouteHint.class,
+        RoomData.Transaction.class,
         RoomData.WalletBalance.class,
         RoomData.WalletInfo.class,
         RoomData.User.class,
@@ -32,8 +33,10 @@ import androidx.room.RoomDatabase;
         RoomTransactions.AddUserTransaction.class,
         RoomTransactions.ConnectPeerTransaction.class,
         RoomTransactions.DecodePayReqTransaction.class,
+        RoomTransactions.EstimateFeeTransaction.class,
         RoomTransactions.NewAddressTransaction.class,
         RoomTransactions.OpenChannelTransaction.class,
+        RoomTransactions.SendCoinsTransaction.class,
         RoomTransactions.SendPaymentTransaction.class,
         RoomTransactions.ShareContactTransaction.class,
 })
@@ -58,6 +61,7 @@ abstract class RoomDB extends RoomDatabase {
     abstract ConnectPeerDaoRoom connectPeerDao();
 
     abstract DecodePayReqDaoRoom decodePayReqDao();
+    abstract EstimateFeeDaoRoom estimateFeeDao();
 
     abstract AddInvoiceDaoRoom addInvoiceDao();
     abstract InvoiceStateWorkerDaoRoom invoiceStateWorkerDao();
@@ -90,4 +94,10 @@ abstract class RoomDB extends RoomDatabase {
     abstract RouteHintsDaoRoom routeHintsDao();
 
     abstract NodeInfoDaoRoom nodeInfoDao();
+
+    abstract SendCoinsDaoRoom sendCoinsDao();
+    abstract SendCoinsWorkerDaoRoom sendCoinsWorkerDao();
+    abstract TransactionStateWorkerDaoRoom transactionStateWorkerDao();
+    abstract GetTransactionDaoRoom getTransactionDao();
+    abstract ListTransactionsDaoRoom listTransactionsDao();
 }

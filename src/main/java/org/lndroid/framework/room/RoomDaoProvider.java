@@ -63,9 +63,11 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.WALLET_INFO_WORKER,
                 pluginDaos_.get(DefaultPlugins.GET_WALLET_INFO));
 
-        pluginDaos_.put(DefaultPlugins.NEW_ADDRESS, new NewAddressDao(db_.newAddressDao()));
         pluginDaos_.put(DefaultPlugins.CONNECT_PEER, new ConnectPeerDao(db_.connectPeerDao()));
+
+        pluginDaos_.put(DefaultPlugins.NEW_ADDRESS, new NewAddressDao(db_.newAddressDao()));
         pluginDaos_.put(DefaultPlugins.DECODE_PAYREQ, new DecodePayReqDao(db_.decodePayReqDao()));
+        pluginDaos_.put(DefaultPlugins.ESTIMATE_FEE, new EstimateFeeDao(db_.estimateFeeDao()));
 
         pluginDaos_.put(DefaultPlugins.ADD_INVOICE, new AddInvoiceDao(db_.addInvoiceDao()));
         pluginDaos_.put(DefaultPlugins.INVOICE_STATE_WORKER, new InvoiceStateWorkerDao(db_.invoiceStateWorkerDao()));
@@ -104,6 +106,18 @@ public class RoomDaoProvider implements IDBDaoProvider {
 
         pluginDaos_.put(DefaultPlugins.NODE_INFO_WORKER,
                 new NodeInfoDao(db_.nodeInfoDao()));
+
+        pluginDaos_.put(DefaultPlugins.SEND_COINS,
+                new SendCoinsDao(db_.sendCoinsDao()));
+        pluginDaos_.put(DefaultPlugins.SEND_COINS_WORKER,
+                new SendCoinsWorkerDao(db_.sendCoinsWorkerDao()));
+        pluginDaos_.put(DefaultPlugins.TRANSACTION_STATE_WORKER,
+                new TransactionStateWorkerDao(db_.transactionStateWorkerDao()));
+        pluginDaos_.put(DefaultPlugins.GET_TRANSACTION,
+                new GetTransactionDao(db_.getTransactionDao()));
+        pluginDaos_.put(DefaultPlugins.LIST_TRANSACTIONS,
+                new ListTransactionsDao(db_.listTransactionsDao()));
+
 
         if (cb != null) {
             cb.onOpen();

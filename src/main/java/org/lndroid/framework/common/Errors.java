@@ -59,10 +59,6 @@ public class Errors {
     // IPC server identity changed, need to run connect-to-wallet flow
     public static final String IPC_IDENTITY_ERROR = "org.lndroid.errors.IPC_IDENTITY_ERROR";
 
-    // FIXME why separate errors for these?
-    public static final String PAYMENT_NO_HASH = "org.lndroid.errors.PAYMENT_NO_HASH";
-    public static final String PAYMENT_BAD_INPUT = "org.lndroid.errors.PAYMENT_BAD_INPUT";
-
     public static String errorMessage(String e) {
         switch (e) {
             case UNKNOWN_CALLER: return "Calling user not found";
@@ -74,8 +70,6 @@ public class Errors {
             case DEVICE_LOCKED: return "Device locked";
             case PLUGIN_INPUT: return "Invalid plugin input";
             case TX_TIMEOUT: return "Transaction time out";
-            case PAYMENT_NO_HASH: return "Payment hash not provided";
-            case PAYMENT_BAD_INPUT: return "Payment has wrong parameters";
             case TX_INVALIDATE: return "Data set invalidated";
             case TX_DONE: return "Transaction finished";
             case PLUGIN_PROTOCOL: return "Plugin protocol error";

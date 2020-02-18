@@ -5,8 +5,8 @@ import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.IGetSendPaymentDao;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
@@ -17,7 +17,7 @@ public class GetSendPayment extends GetBase<Long> {
     private static final String TAG = "GetSendPayment";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetSendPaymentDao dao_;
+    private IGetDao<WalletData.SendPayment> dao_;
 
     public GetSendPayment() {
         super(DefaultPlugins.GET_SEND_PAYMENT, DefaultTopics.SEND_PAYMENT_STATE);
@@ -30,7 +30,6 @@ public class GetSendPayment extends GetBase<Long> {
 
     @Override
     protected boolean isUserPrivileged(PluginContext ctx, WalletDataDecl.GetRequestTmpl<Long> req, WalletData.User user) {
-        // FIXME implement
         return user.isRoot();
     }
 
@@ -57,6 +56,6 @@ public class GetSendPayment extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IGetSendPaymentDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IGetDao<WalletData.SendPayment>) server.getDaoProvider().getPluginDao(id());
     }
 }

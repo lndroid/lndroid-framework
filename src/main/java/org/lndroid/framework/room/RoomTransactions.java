@@ -136,5 +136,21 @@ public class RoomTransactions {
             extends RoomTransactionBase<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse> {
     }
 
+    @Entity(primaryKeys = {"txUserId", "txId"})
+    @TypeConverters({
+            RoomConverters.ImmutableStringLongMapConverter.class,
+            RoomConverters.ImmutableStringListConverter.class,
+    })
+    static class SendCoinsTransaction
+            extends RoomTransactionBase<WalletData.SendCoinsRequest, WalletData.Transaction> {
+    }
+
+    @Entity(primaryKeys = {"txUserId", "txId"})
+    @TypeConverters({
+            RoomConverters.ImmutableStringLongMapConverter.class,
+    })
+    static class EstimateFeeTransaction extends RoomTransactionBase<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> {
+    }
+
 
 }

@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
@@ -14,7 +15,7 @@ import org.lndroid.framework.room.ListContactsDao;
 
 public class ListContacts extends ListBase<WalletData.ListContactsRequest, WalletData.Contact> {
 
-    private ListContactsDao dao_;
+    private IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult> dao_;
 
     public ListContacts() {
         super(DefaultPlugins.LIST_CONTACTS);
@@ -23,7 +24,7 @@ public class ListContacts extends ListBase<WalletData.ListContactsRequest, Walle
     @Override
     protected WalletData.ListContactsResult listEntities(
             WalletData.ListContactsRequest req, WalletData.ListPage page, WalletData.User user) {
-        return dao_.list(req, page, user.id(), user.isApp());
+        return dao_.list(req, page, user);
     }
 
     @Override
@@ -43,13 +44,13 @@ public class ListContacts extends ListBase<WalletData.ListContactsRequest, Walle
 
     @Override
     protected boolean isUserPrivileged(WalletData.ListContactsRequest req, WalletData.User user) {
-        return user.isRoot() || dao_.hasPrivilege(user.id());
+        return user.isRoot() || dao_.hasPrivilege(req, user);
     }
 
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (ListContactsDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult>) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

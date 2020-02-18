@@ -114,12 +114,12 @@ public class ChannelStateWorker implements IPluginBackground {
         // which means we don't need to call listchannels...
         // - subscribe to updates
         // - until synced_ == true, buffer any incoming updates
-        // - load opening channels,
+        // - load opening/lost channels,
         // - if not empty - start sync sequence
         // - call PendingChannels, then ListChannels, then ClosedChannels
         //  - in this order, one by one, otherwise we might end up missing some
         //    channel state transition
-        // - after opening channels are updated or turned to RETRY, set synched_=true
+        // - after opening channels are updated or turned to RETRY (if not found), set synched_=true
         // and process all buffered subs
 
 

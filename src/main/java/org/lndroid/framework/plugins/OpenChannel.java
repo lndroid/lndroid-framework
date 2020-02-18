@@ -21,7 +21,6 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
 
     @Override
     protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.OpenChannelRequest, WalletData.Channel> tx) {
-        // FIXME
         return user.isRoot();
     }
 
@@ -53,7 +52,6 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
 
     @Override
     protected boolean isValid(WalletData.OpenChannelRequest req) {
-        // FIXME move to req.isValid
         if (req.nodePubkey() == null || LightningCodec.hexToBytes(req.nodePubkey()) == null)
             return false;
         if (req.localFundingAmount() <= 0)

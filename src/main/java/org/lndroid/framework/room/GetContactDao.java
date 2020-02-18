@@ -5,10 +5,10 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IGetContactDao;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class GetContactDao implements IGetContactDao, IPluginDao {
+public class GetContactDao implements IGetDao<WalletData.Contact>, IPluginDao {
     private GetContactDaoRoom dao_;
 
     GetContactDao(GetContactDaoRoom dao, RouteHintsDaoRoom routeDao) {

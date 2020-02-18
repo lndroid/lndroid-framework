@@ -108,8 +108,8 @@ public class SendPaymentWorker implements IPluginBackground {
         for(WalletData.SendPayment p: list) {
             if (p.paymentHashHex() == null || p.paymentHashHex().equals("")) {
                 p = p.toBuilder()
-                        .setErrorCode(Errors.PAYMENT_NO_HASH)
-                        .setErrorMessage(Errors.errorMessage(p.errorCode()))
+                        .setErrorCode(Errors.PLUGIN_INPUT)
+                        .setErrorMessage(Errors.errorMessage(Errors.PLUGIN_INPUT))
                         .setState(WalletData.SEND_PAYMENT_STATE_FAILED)
                         .build();
                 onUpdate(p);
@@ -340,8 +340,8 @@ public class SendPaymentWorker implements IPluginBackground {
         if (!LightningCodec.SendToRouteCodec.encode(b, r)) {
             Log.e(TAG, "send payment error bad request");
             onUpdate(b
-                    .setErrorCode(Errors.PAYMENT_BAD_INPUT)
-                    .setErrorMessage(Errors.errorMessage(Errors.PAYMENT_BAD_INPUT))
+                    .setErrorCode(Errors.PLUGIN_INPUT)
+                    .setErrorMessage(Errors.errorMessage(Errors.PLUGIN_INPUT))
                     .setState(WalletData.SEND_PAYMENT_STATE_FAILED)
                     .build());
             return;

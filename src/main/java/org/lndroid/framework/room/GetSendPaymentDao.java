@@ -4,10 +4,10 @@ import androidx.room.Dao;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IGetSendPaymentDao;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class GetSendPaymentDao implements IGetSendPaymentDao, IPluginDao {
+public class GetSendPaymentDao implements IGetDao<WalletData.SendPayment>, IPluginDao {
 
     private GetSendPaymentDaoRoom dao_;
 

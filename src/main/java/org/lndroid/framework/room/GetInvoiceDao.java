@@ -4,10 +4,10 @@ import androidx.room.Dao;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IGetInvoiceDao;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class GetInvoiceDao implements IGetInvoiceDao, IPluginDao {
+public class GetInvoiceDao implements IGetDao<WalletData.Invoice>, IPluginDao {
 
     private GetInvoiceDaoRoom dao_;
 

@@ -8,6 +8,7 @@ public final class DefaultPlugins {
     public static final String GET_AUTH_REQUEST_USER = "org.lndroid.plugins.GET_AUTH_REQUEST_USER";
 
     public static final String DECODE_PAYREQ = "org.lndroid.plugins.DECODE_PAYREQ";
+    public static final String ESTIMATE_FEE = "org.lndroid.plugins.ESTIMATE_FEE";
 
     public static final String CONNECT_PEER = "org.lndroid.plugins.CONNECT_PEER";
 
@@ -36,6 +37,7 @@ public final class DefaultPlugins {
     public static final String OPEN_CHANNEL_WORKER = "org.lndroid.plugins.OPEN_CHANNEL_WORKER";
     public static final String GET_CHANNEL = "org.lndroid.plugins.GET_CHANNEL";
     public static final String CHANNEL_STATE_WORKER = "org.lndroid.plugins.CHANNEL_STATE_WORKER";
+    public static final String LIST_CHANNEL = "org.lndroid.plugins.LIST_CHANNEL";
 
     public static final String LIST_PAYMENTS = "org.lndroid.plugins.LIST_PAYMENTS";
 
@@ -52,4 +54,11 @@ public final class DefaultPlugins {
     public static final String NODE_INFO_WORKER = "org.lndroid.plugins.NODE_INFO_WORKER";
 
     public static final String CHANNEL_BACKUP_WORKER = "org.lndroid.plugins.CHANNEL_BACKUP_WORKER";
+
+    public static final String SEND_COINS = "org.lndroid.plugins.SEND_COINS";
+    public static final String SEND_COINS_WORKER = "org.lndroid.plugins.SEND_COINS_WORKER";
+    public static final String GET_TRANSACTION = "org.lndroid.plugins.GET_TRANSACTION";
+    public static final String LIST_TRANSACTIONS = "org.lndroid.plugins.LIST_TRANSACTIONS";
+    public static final String TRANSACTION_STATE_WORKER = "org.lndroid.plugins.TRANSACTION_STATE_WORKER";
+
 }

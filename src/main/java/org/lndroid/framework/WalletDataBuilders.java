@@ -524,4 +524,69 @@ public class WalletDataBuilders {
         Builder setFeatures(ImmutableList<Integer> features);
     }
 
+    interface SendCoinsRequestBuilder<Builder> {
+        Builder setPurpose(String purpose);
+        Builder setMaxTries(int maxTries);
+        Builder setMaxTryTime(long maxTryTime);
+        Builder setAddrToAmount(ImmutableMap<String, Long> addrToAmount);
+        Builder setTargetConf(int targetConf);
+        Builder setSatPerByte(long satPerByte);
+        Builder setSendAll(boolean sendAll);
+    }
+
+    interface TransactionBuilder<Builder> {
+        Builder setId(long id);
+        Builder setTxId(String txId);
+        Builder setUserId(long userId);
+        Builder setAuthUserId(long authUserId);
+        Builder setCreateTime(long createTime);
+        Builder setSendTime(long sendTime);
+        Builder setPurpose(String purpose);
+        Builder setTries(int tries);
+        Builder setMaxTries(int maxTries);
+        Builder setMaxTryTime(long maxTryTime);
+        Builder setLastTryTime(long lastTryTime);
+        Builder setNextTryTime(long nextTryTime);
+        Builder setState(int state);
+        Builder setErrorCode(String errorCode);
+        Builder setErrorMessage(String errorMessage);
+        Builder setAddrToAmount(ImmutableMap<String, Long> addrToAmount);
+        Builder setTargetConf(int targetConf);
+        Builder setSatPerByte(long satPerByte);
+        Builder setSendAll(boolean sendAll);
+        Builder setTxHash(String txHash);
+        Builder setAmount(long amount);
+        Builder setNumConfirmations(int numConfirmations);
+        Builder setBlockHash(String blockHash);
+        Builder setBlockHeight(int blockHeight);
+        Builder setTimestamp(long timestamp);
+        Builder setTotalFees(long totalFees);
+        Builder setDestAddresses(ImmutableList<String> destAddresses);
+        Builder setRawTxHex(String rawTxHex);
+    }
+
+    interface ListTransactionsRequestBuilder<Builder> {
+        Builder setOnlyOwn(boolean onlyOwn);
+        Builder setNoAuth(boolean noAuth);
+        Builder setEnablePaging(boolean enablePaging);
+
+        Builder setUserId(long userId);
+        Builder setTimeFrom(long timeFrom);
+        Builder setTimeTill(long timeTill);
+
+        Builder setSort(String sort);
+        Builder setSortDesc(boolean sortDesc);
+    }
+
+    interface EstimateFeeRequestBuilder<Builder> {
+        Builder setAddrToAmount(ImmutableMap<String, Long> addrToAmount);
+        Builder setTargetConf(int targetConf);
+    }
+
+    interface EstimateFeeResponseBuilder<Builder> {
+        Builder setFeeSat(long feeSat);
+        Builder setFeerateSatPerByte(long feerateSatPerByte);
+    }
+
+
 }

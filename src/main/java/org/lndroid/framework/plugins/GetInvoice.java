@@ -5,8 +5,8 @@ import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.IGetInvoiceDao;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
@@ -14,10 +14,9 @@ import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetInvoice extends GetBase<Long> {
-    private static final String TAG = "GetWalletBalance";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetInvoiceDao dao_;
+    private IGetDao<WalletData.Invoice> dao_;
 
     public GetInvoice() {
         super(DefaultPlugins.GET_INVOICE, DefaultTopics.INVOICE_STATE);
@@ -26,7 +25,7 @@ public class GetInvoice extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IGetInvoiceDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IGetDao<WalletData.Invoice>) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

@@ -5,9 +5,9 @@ import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
+import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.IGetContactDao;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
@@ -17,7 +17,7 @@ public class GetContact extends GetBase<Long> {
     private static final String TAG = "GetContact";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetContactDao dao_;
+    private IGetDao<WalletData.Contact> dao_;
 
     public GetContact() {
         super(DefaultPlugins.GET_CONTACT, DefaultTopics.CONTACT_STATE);
@@ -29,8 +29,8 @@ public class GetContact extends GetBase<Long> {
     }
 
     @Override
-    protected boolean isUserPrivileged(PluginContext ctx, WalletDataDecl.GetRequestTmpl<Long> req, WalletData.User user) {
-        // FIXME implement
+    protected boolean isUserPrivileged(
+            PluginContext ctx, WalletDataDecl.GetRequestTmpl<Long> req, WalletData.User user) {
         return user.isRoot();
     }
 
@@ -58,6 +58,6 @@ public class GetContact extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IGetContactDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IGetDao<WalletData.Contact>) server.getDaoProvider().getPluginDao(id());
     }
 }

@@ -2258,4 +2258,284 @@ public final class WalletData {
         }
     }
 
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_SendCoinsRequest.class)
+    public static abstract class SendCoinsRequest
+            implements WalletDataDecl.SendCoinsRequest {
+
+        public static SendCoinsRequest create(
+                String purpose,
+                int maxTries,
+                long maxTryTime,
+                ImmutableMap<String, Long> addrToAmount,
+                int targetConf,
+                long satPerByte,
+                boolean sendAll
+        ) {
+            return builder()
+                    .setPurpose(purpose)
+                    .setMaxTries(maxTries)
+                    .setMaxTryTime(maxTryTime)
+                    .setAddrToAmount(addrToAmount)
+                    .setTargetConf(targetConf)
+                    .setSatPerByte(satPerByte)
+                    .setSendAll(sendAll)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_SendCoinsRequest.Builder()
+                    .setMaxTries(0)
+                    .setMaxTryTime(0)
+                    .setTargetConf(0)
+                    .setSatPerByte(0)
+                    .setSendAll(false)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.SendCoinsRequest,
+                WalletDataBuilders.IBuilder<SendCoinsRequest>,
+                WalletDataBuilders.SendCoinsRequestBuilder<Builder>
+        {
+        }
+    }
+
+    public static final int TRANSACTION_STATE_PENDING = 0;
+    public static final int TRANSACTION_STATE_SENT = 1;
+    public static final int TRANSACTION_STATE_FAILED = 2;
+    public static final int TRANSACTION_STATE_SENDING = 3;
+    public static final int TRANSACTION_STATE_REJECTED = 4;
+    // if tx broadcast was interrupted by failure and we don't know
+    // if it succeeded or not, waiting for full sync w/ lnd
+    public static final int TRANSACTION_STATE_LOST = 5;
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_Transaction.class)
+    public static abstract class Transaction
+            implements WalletDataDecl.EntityBase, WalletDataDecl.Transaction {
+
+        public static Transaction create(
+                long id,
+                String txId,
+                long userId,
+                long authUserId,
+                long createTime,
+                long sendTime,
+                String purpose,
+                int tries,
+                int maxTries,
+                long maxTryTime,
+                long lastTryTime,
+                long nextTryTime,
+                int state,
+                String errorCode,
+                String errorMessage,
+                ImmutableMap<String, Long> addrToAmount,
+                int targetConf,
+                long satPerByte,
+                boolean sendAll,
+                String txHash,
+                long amount,
+                int numConfirmations,
+                String blockHash,
+                int blockHeight,
+                long timestamp,
+                long totalFees,
+                ImmutableList<String> destAddresses,
+                String rawTxHex
+        ) {
+            return builder()
+                    .setId(id)
+                    .setTxId(txId)
+                    .setUserId(userId)
+                    .setAuthUserId(authUserId)
+                    .setCreateTime(createTime)
+                    .setSendTime(sendTime)
+                    .setPurpose(purpose)
+                    .setTries(tries)
+                    .setMaxTries(maxTries)
+                    .setMaxTryTime(maxTryTime)
+                    .setLastTryTime(lastTryTime)
+                    .setNextTryTime(nextTryTime)
+                    .setState(state)
+                    .setErrorCode(errorCode)
+                    .setErrorMessage(errorMessage)
+                    .setAddrToAmount(addrToAmount)
+                    .setTargetConf(targetConf)
+                    .setSatPerByte(satPerByte)
+                    .setSendAll(sendAll)
+                    .setTxHash(txHash)
+                    .setAmount(amount)
+                    .setNumConfirmations(numConfirmations)
+                    .setBlockHash(blockHash)
+                    .setBlockHeight(blockHeight)
+                    .setTimestamp(timestamp)
+                    .setTotalFees(totalFees)
+                    .setDestAddresses(destAddresses)
+                    .setRawTxHex(rawTxHex)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_Transaction.Builder()
+                    .setId(0)
+                    .setUserId(0)
+                    .setAuthUserId(0)
+                    .setCreateTime(0)
+                    .setTries(0)
+                    .setMaxTries(0)
+                    .setMaxTryTime(0)
+                    .setLastTryTime(0)
+                    .setNextTryTime(0)
+                    .setState(TRANSACTION_STATE_PENDING)
+                    .setTargetConf(0)
+                    .setSatPerByte(0)
+                    .setSendAll(false)
+                    .setAmount(0)
+                    .setNumConfirmations(0)
+                    .setBlockHeight(0)
+                    .setTimestamp(0)
+                    .setTotalFees(0)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.EntityBase,
+                WalletDataDecl.Transaction,
+                WalletDataBuilders.IBuilder<Transaction>,
+                WalletDataBuilders.TransactionBuilder<Builder>
+        {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_ListTransactionsResult.class)
+    public static abstract class ListTransactionsResult implements WalletDataDecl.ListResultTmpl<Transaction> {
+
+        public static ListTransactionsResult create(
+                ImmutableList<Transaction> items,
+                int count,
+                int position
+        ) {
+            return builder()
+                    .setItems(items)
+                    .setCount(count)
+                    .setPosition(position)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_ListTransactionsResult.Builder()
+                    .setCount(0)
+                    .setPosition(0);
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.ListResultTmpl<Transaction>,
+                WalletDataBuilders.IBuilder<ListTransactionsResult>,
+                WalletDataBuilders.ListResultTmplBuilder<Transaction, Builder> {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_ListTransactionsRequest.class)
+    public static abstract class ListTransactionsRequest extends ListRequestBase implements WalletDataDecl.ListTransactionsRequest {
+
+        // FIXME add static factory method
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_ListTransactionsRequest.Builder()
+                    .setUserId(0)
+                    .setTimeFrom(0)
+                    .setTimeTill(0)
+                    .setSortDesc(false)
+                    .setOnlyOwn(false)
+                    .setNoAuth(false)
+                    .setEnablePaging(false);
+        }
+
+        public abstract Builder toBuilder();
+
+        public ListTransactionsRequest withPage(ListPage page) {
+            return toBuilder().setPage(page).build();
+        }
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.ListTransactionsRequest,
+                WalletDataBuilders.IBuilder<ListTransactionsRequest>,
+                WalletDataBuilders.ListTransactionsRequestBuilder<Builder> {
+            public abstract Builder setPage(ListPage page);
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_EstimateFeeRequest.class)
+    public static abstract class EstimateFeeRequest implements WalletDataDecl.EstimateFeeRequest {
+
+        public static EstimateFeeRequest create(
+                ImmutableMap<String, Long> addrToAmount,
+                int targetConf
+        ) {
+            return builder()
+                    .setAddrToAmount(addrToAmount)
+                    .setTargetConf(targetConf)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_EstimateFeeRequest.Builder()
+                    .setTargetConf(0);
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataBuilders.IBuilder<EstimateFeeRequest>,
+                WalletDataBuilders.EstimateFeeRequestBuilder<Builder> {
+        }
+    }
+
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_EstimateFeeResponse.class)
+    public static abstract class EstimateFeeResponse implements WalletDataDecl.EstimateFeeResponse {
+
+        public static EstimateFeeResponse create(
+                long feeSat,
+                long feerateSatPerByte
+        ) {
+            return builder()
+                    .setFeeSat(feeSat)
+                    .setFeerateSatPerByte(feerateSatPerByte)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_EstimateFeeResponse.Builder()
+                    .setFeeSat(0)
+                    .setFeerateSatPerByte(0)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataBuilders.IBuilder<EstimateFeeResponse>,
+                WalletDataBuilders.EstimateFeeResponseBuilder<Builder> {
+        }
+    }
+
 }

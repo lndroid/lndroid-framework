@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
@@ -14,7 +15,7 @@ import org.lndroid.framework.room.ListInvoicesDao;
 
 public class ListInvoices extends ListBase<WalletData.ListInvoicesRequest, WalletData.Invoice> {
 
-    private ListInvoicesDao dao_;
+    private IListDao<WalletData.ListInvoicesRequest, WalletData.ListInvoicesResult> dao_;
 
     public ListInvoices() {
         super(DefaultPlugins.LIST_INVOICES);
@@ -23,7 +24,7 @@ public class ListInvoices extends ListBase<WalletData.ListInvoicesRequest, Walle
     @Override
     protected WalletData.ListInvoicesResult listEntities(
             WalletData.ListInvoicesRequest req, WalletData.ListPage page, WalletData.User user) {
-        return dao_.list(req, page, user.id());
+        return dao_.list(req, page, user);
     }
 
     @Override
@@ -43,14 +44,13 @@ public class ListInvoices extends ListBase<WalletData.ListInvoicesRequest, Walle
 
     @Override
     protected boolean isUserPrivileged(WalletData.ListInvoicesRequest req, WalletData.User user) {
-        // FIXME
         return user.isRoot() || req.onlyOwn();
     }
 
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (ListInvoicesDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IListDao<WalletData.ListInvoicesRequest, WalletData.ListInvoicesResult>) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

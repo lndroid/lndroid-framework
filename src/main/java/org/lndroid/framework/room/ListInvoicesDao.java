@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
 
-public class ListInvoicesDao implements IPluginDao {
+public class ListInvoicesDao implements
+        IListDao<WalletData.ListInvoicesRequest, WalletData.ListInvoicesResult>, IPluginDao {
 
     private ListInvoicesDaoRoom dao_;
 
@@ -34,10 +36,11 @@ public class ListInvoicesDao implements IPluginDao {
         return where;
     }
 
+    @Override
     public WalletData.ListInvoicesResult list(
             WalletData.ListInvoicesRequest req,
             WalletData.ListPage page,
-            long callerUserId) {
+            WalletData.User user) {
 
         String where = "";
         if (req.invoiceId() != 0)
@@ -63,7 +66,7 @@ public class ListInvoicesDao implements IPluginDao {
         if (req.purpose() != null && !req.purpose().equals(""))
             where = and(where, "purpose LIKE '%"+ DatabaseUtils.sqlEscapeString(req.purpose())+"%'");
         if (req.onlyOwn())
-            where = and(where, "userId = "+callerUserId);
+            where = and(where, "userId = "+user.id());
         if (req.states() != null && !req.states().isEmpty()) {
             where = and(where, "state IN (-1, ");
             for(int state: req.states()) {
@@ -82,6 +85,11 @@ public class ListInvoicesDao implements IPluginDao {
         final String query = "SELECT id_ FROM Invoice "+where+
                 " ORDER BY "+sort+" "+desc;
         return dao_.listInvoices(new SimpleSQLiteQuery(query), page);
+    }
+
+    @Override
+    public boolean hasPrivilege(WalletData.ListInvoicesRequest req, WalletData.User user) {
+        return false;
     }
 
     @Override

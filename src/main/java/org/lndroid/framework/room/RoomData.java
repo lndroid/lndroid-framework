@@ -206,4 +206,14 @@ final class RoomData {
     static class RoutingPolicy extends RoomEntityBase<WalletData.RoutingPolicy> {
     }
 
+    @Entity(indices = {
+            @Index(unique = true, value = {"txHash"}),
+    })
+    @TypeConverters({
+            RoomConverters.ImmutableStringLongMapConverter.class,
+            RoomConverters.ImmutableStringListConverter.class,
+    })
+    static class Transaction extends RoomEntityBase<WalletData.Transaction> {
+    }
+
 }
