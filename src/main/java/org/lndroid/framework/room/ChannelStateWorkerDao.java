@@ -9,6 +9,9 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IChannelStateWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChannelStateWorkerDao implements IChannelStateWorkerDao, IPluginDao {
 
     private ChannelStateWorkerDaoRoom dao_;
@@ -19,6 +22,15 @@ public class ChannelStateWorkerDao implements IChannelStateWorkerDao, IPluginDao
     public WalletData.Channel getChannelByChannelPoint(String channelPoint) {
         RoomData.Channel c = dao_.getChannelByChannelPoint(channelPoint);
         return c != null ? c.getData() : null;
+    }
+
+    @Override
+    public List<WalletData.Channel> getOpeningChannels() {
+        List<RoomData.Channel> rs = dao_.getChannels(WalletData.CHANNEL_STATE_OPENING);
+        List<WalletData.Channel> cs = new ArrayList<>();
+        for(RoomData.Channel rc: rs)
+            cs.add(rc.getData());
+        return cs;
     }
 
     @Override
@@ -43,6 +55,9 @@ public class ChannelStateWorkerDao implements IChannelStateWorkerDao, IPluginDao
 interface ChannelStateWorkerDaoRoom {
     @Query("SELECT * FROM Channel WHERE channelPoint = :channelPoint")
     RoomData.Channel getChannelByChannelPoint(String channelPoint);
+
+    @Query("SELECT * FROM Channel WHERE state = :state")
+    List<RoomData.Channel> getChannels(int state);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void updateChannel(RoomData.Channel c);

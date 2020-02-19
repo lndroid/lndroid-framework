@@ -22,6 +22,7 @@ import org.lndroid.framework.plugins.ChannelBalanceWorker;
 import org.lndroid.framework.plugins.ChannelStateWorker;
 import org.lndroid.framework.plugins.ConnectPeer;
 import org.lndroid.framework.plugins.DecodePayReq;
+import org.lndroid.framework.plugins.EstimateFee;
 import org.lndroid.framework.plugins.GetAppUser;
 import org.lndroid.framework.plugins.GetAuthRequestUser;
 import org.lndroid.framework.plugins.GetChannel;
@@ -31,13 +32,16 @@ import org.lndroid.framework.plugins.GetInvoice;
 import org.lndroid.framework.plugins.GetSendPayment;
 import org.lndroid.framework.plugins.GetTransaction;
 import org.lndroid.framework.plugins.GetUser;
+import org.lndroid.framework.plugins.GetUtxo;
 import org.lndroid.framework.plugins.GetWalletBalance;
 import org.lndroid.framework.plugins.GetWalletInfo;
 import org.lndroid.framework.plugins.InvoiceStateWorker;
+import org.lndroid.framework.plugins.ListChannels;
 import org.lndroid.framework.plugins.ListContacts;
 import org.lndroid.framework.plugins.ListInvoices;
 import org.lndroid.framework.plugins.ListPayments;
 import org.lndroid.framework.plugins.ListTransactions;
+import org.lndroid.framework.plugins.ListUtxo;
 import org.lndroid.framework.plugins.NewAddress;
 import org.lndroid.framework.plugins.NodeInfoWorker;
 import org.lndroid.framework.plugins.OpenChannel;
@@ -49,6 +53,7 @@ import org.lndroid.framework.plugins.SendPaymentWorker;
 import org.lndroid.framework.plugins.ShareContact;
 import org.lndroid.framework.plugins.SubscribeSendPayments;
 import org.lndroid.framework.plugins.TransactionStateWorker;
+import org.lndroid.framework.plugins.UtxoWorker;
 import org.lndroid.framework.plugins.WalletBalanceWorker;
 import org.lndroid.framework.plugins.WalletInfoWorker;
 
@@ -146,6 +151,7 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.OPEN_CHANNEL_WORKER, new BackgroundPlugin(new OpenChannelWorker()));
         plugins_.put(DefaultPlugins.CHANNEL_STATE_WORKER, new BackgroundPlugin(new ChannelStateWorker()));
         plugins_.put(DefaultPlugins.GET_CHANNEL, new ForegroundPlugin(new GetChannel()));
+        plugins_.put(DefaultPlugins.LIST_CHANNELS, new ForegroundPlugin(new ListChannels()));
 
         plugins_.put(DefaultPlugins.SEND_PAYMENT, new ForegroundPlugin(new SendPayment()));
         plugins_.put(DefaultPlugins.SEND_PAYMENT_WORKER, new BackgroundPlugin(new SendPaymentWorker()));
@@ -174,8 +180,9 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.GET_TRANSACTION, new ForegroundPlugin(new GetTransaction()));
         plugins_.put(DefaultPlugins.LIST_TRANSACTIONS, new ForegroundPlugin(new ListTransactions()));
 
-
-
+        plugins_.put(DefaultPlugins.UTXO_WORKER, new BackgroundPlugin(new UtxoWorker()));
+        plugins_.put(DefaultPlugins.GET_UTXO, new ForegroundPlugin(new GetUtxo()));
+        plugins_.put(DefaultPlugins.LIST_UTXO, new ForegroundPlugin(new ListUtxo()));
 
     }
 

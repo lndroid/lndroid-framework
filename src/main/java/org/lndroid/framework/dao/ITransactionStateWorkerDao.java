@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface ITransactionStateWorkerDao {
     WalletData.Transaction getTransaction(String txHash);
-    List<WalletData.Transaction> getPendingOrLostTransactions();
+    List<WalletData.Transaction> getSendingTransactions();
     void updateTransaction(WalletData.Transaction t);
 }

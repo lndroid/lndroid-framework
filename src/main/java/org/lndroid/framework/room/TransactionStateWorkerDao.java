@@ -25,9 +25,9 @@ public class TransactionStateWorkerDao implements ITransactionStateWorkerDao, IP
     }
 
     @Override
-    public List<WalletData.Transaction> getPendingOrLostTransactions() {
+    public List<WalletData.Transaction> getSendingTransactions() {
         List<RoomData.Transaction> rs = dao_.getTransactions(
-                WalletData.TRANSACTION_STATE_PENDING, WalletData.TRANSACTION_STATE_LOST);
+                WalletData.TRANSACTION_STATE_NEW, WalletData.TRANSACTION_STATE_LOST);
         List<WalletData.Transaction> txs = new ArrayList<>();
         for(RoomData.Transaction r: rs) {
             txs.add(r.getData());

@@ -110,7 +110,6 @@ public class ChannelBalanceWorker implements IPluginBackground {
 
     @Override
     public void getSubscriptions(List<String> topics) {
-        topics.add(DefaultTopics.CHANNEL_BALANCE);
         topics.add(DefaultTopics.INVOICE_STATE);
         topics.add(DefaultTopics.SEND_PAYMENT_STATE);
     }

@@ -332,6 +332,10 @@ public class WalletDataBuilders {
         Builder setCapacity(long capacity);
         Builder setLocalBalance(long localBalance);
         Builder setRemoteBalance(long remoteBalance);
+        Builder setConfirmationHeight(int confirmationHeight);
+        Builder setLimboBalance(long limboBalance);
+        Builder setMaturityHeight(int maturityHeight);
+        Builder setRecoveredBalance(long recoveredBalance);
         Builder setCommitFee(long commitFee);
         Builder setCommitWeight(long commitWeight);
         Builder setFeePerKw(long feePerKw);
@@ -586,6 +590,39 @@ public class WalletDataBuilders {
     interface EstimateFeeResponseBuilder<Builder> {
         Builder setFeeSat(long feeSat);
         Builder setFeerateSatPerByte(long feerateSatPerByte);
+    }
+
+    interface UtxoBuilder<Builder> {
+        Builder setId(long id);
+        Builder setType(int type);
+        Builder setAddress(String address);
+        Builder setAmountSat(long amountSat);
+        Builder setPkScript(String pkScript);
+        Builder setTxidHex(String txidHex);
+        Builder setOutputIndex(int outputIndex);
+        Builder setConfirmations(long confirmations);
+    }
+
+    interface ListUtxoRequestBuilder<Builder> {
+        Builder setOnlyOwn(boolean onlyOwn);
+        Builder setNoAuth(boolean noAuth);
+        Builder setEnablePaging(boolean enablePaging);
+
+        Builder setMinConfirmations(long minConfirmations);
+        Builder setMaxConfirmations(long maxConfirmations);
+        Builder setSort(String sort);
+        Builder setSortDesc(boolean sortDesc);
+    }
+
+    interface ListChannelsRequestBuilder<Builder> {
+        Builder setOnlyOwn(boolean onlyOwn);
+        Builder setNoAuth(boolean noAuth);
+        Builder setEnablePaging(boolean enablePaging);
+
+        Builder setUserId(long userId);
+        Builder setStateFilter(String stateFilter);
+        Builder setSort(String sort);
+        Builder setSortDesc(boolean sortDesc);
     }
 
 

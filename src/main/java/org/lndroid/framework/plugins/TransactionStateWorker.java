@@ -56,7 +56,7 @@ public class TransactionStateWorker implements IPluginBackground {
             // - so timestamp should be around lastTryTime
             // - amount should be same?
             // - dest addresses should be same
-            List<WalletData.Transaction> txs = dao_.getPendingOrLostTransactions();
+            List<WalletData.Transaction> txs = dao_.getSendingTransactions();
             for (WalletData.Transaction t: txs) {
                 long amount = 0;
                 if (t.addrToAmount() != null) {
@@ -89,6 +89,7 @@ public class TransactionStateWorker implements IPluginBackground {
         }
 
         LightningCodec.TransactionConverter.decode(u, b);
+        b.setState(WalletData.TRANSACTION_STATE_SENT);
         dao_.updateTransaction(b.build());
 
         engine_.onSignal(id(), DefaultTopics.TRANSACTION_STATE, null);
@@ -123,7 +124,7 @@ public class TransactionStateWorker implements IPluginBackground {
             }
         });
 
-        List<WalletData.Transaction> txs = dao_.getPendingOrLostTransactions();
+        List<WalletData.Transaction> txs = dao_.getSendingTransactions();
         if (txs == null || txs.isEmpty()) {
             synched_ = true;
             return;
@@ -150,6 +151,12 @@ public class TransactionStateWorker implements IPluginBackground {
                 // to update all known txs :(
                 for(Data.Transaction t: d.transactions)
                     onUpdate(t);
+
+                // mark all non-updated channels as 'retry'
+                List<WalletData.Transaction> txs = dao_.getSendingTransactions();
+                for(WalletData.Transaction t: txs) {
+                    dao_.updateTransaction(t.toBuilder().setState(WalletData.TRANSACTION_STATE_RETRY).build());
+                }
 
                 // now we're synched and ready to process new events
                 synched_ = true;

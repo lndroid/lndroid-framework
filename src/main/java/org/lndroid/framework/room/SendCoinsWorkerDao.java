@@ -27,8 +27,18 @@ public class SendCoinsWorkerDao implements ISendCoinsWorkerDao, IPluginDao {
     }
 
     @Override
-    public List<WalletData.Transaction> getPendingTransactions() {
-        return fromRoom(dao_.getTransactions(WalletData.TRANSACTION_STATE_PENDING));
+    public List<WalletData.Transaction> getNewTransactions() {
+        return fromRoom(dao_.getTransactions(WalletData.TRANSACTION_STATE_NEW));
+    }
+
+    @Override
+    public List<WalletData.Transaction> getSendingTransactions() {
+        return fromRoom(dao_.getTransactions(WalletData.TRANSACTION_STATE_SENDING));
+    }
+
+    @Override
+    public List<WalletData.Transaction> getRetryTransactions() {
+        return fromRoom(dao_.getTransactions(WalletData.TRANSACTION_STATE_RETRY));
     }
 
     @Override

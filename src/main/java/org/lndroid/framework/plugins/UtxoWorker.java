@@ -2,28 +2,29 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IUtxoWorkerDao;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
+import org.lndroid.framework.engine.IPluginBackground;
+import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
+import org.lndroid.framework.lnd.ILightningDao;
+import org.lndroid.framework.lnd.LightningCodec;
 import org.lndroid.lnd.daemon.ILightningCallback;
-import org.lndroid.lnd.data.Data;
 
 import java.util.List;
 
-import org.lndroid.framework.WalletData;
-import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.IWalletBalanceDao;
-import org.lndroid.framework.engine.IPluginBackground;
-import org.lndroid.framework.engine.IPluginBackgroundCallback;
-import org.lndroid.framework.lnd.ILightningDao;
-import org.lndroid.framework.lnd.LightningCodec;
+import lnrpc.Rpc;
 
-public class WalletBalanceWorker implements IPluginBackground {
+public class UtxoWorker implements IPluginBackground {
 
-    private static final String TAG = "WalletBalanceWorker";
-    private static final long UPDATE_INTERVAL = 10000; // 10 sec
+    private static final String TAG = "UtxoWorker";
+    private static final long UPDATE_INTERVAL = 60000; // 60 sec
 
+    private IPluginServer server_;
     private IPluginBackgroundCallback engine_;
-    private IWalletBalanceDao dao_;
+    private IUtxoWorkerDao dao_;
     private ILightningDao lnd_;
     private boolean updating_;
     private boolean refresh_;
@@ -31,13 +32,14 @@ public class WalletBalanceWorker implements IPluginBackground {
 
     @Override
     public String id() {
-        return DefaultPlugins.WALLET_BALANCE_WORKER;
+        return DefaultPlugins.UTXO_WORKER;
     }
 
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
+        server_ = server;
         engine_ = callback;
-        dao_ = (IWalletBalanceDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IUtxoWorkerDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 
@@ -46,9 +48,7 @@ public class WalletBalanceWorker implements IPluginBackground {
         updating_ = false;
     }
 
-    private void onUpdate(WalletData.WalletBalance b) {
-        dao_.update(b);
-        engine_.onSignal(id(), DefaultTopics.WALLET_BALANCE, null);
+    private void onUpdate(WalletData.Utxo b) {
     }
 
     @Override
@@ -73,20 +73,43 @@ public class WalletBalanceWorker implements IPluginBackground {
         // mark, to avoid sending multiple requests
         updating_ = true;
 
-        Data.WalletBalanceRequest r = new Data.WalletBalanceRequest();
-        lnd_.client().walletBalance(r, new ILightningCallback<Data.WalletBalanceResponse>() {
+        Rpc.ListUnspentRequest r = Rpc.ListUnspentRequest.newBuilder().build();
+        lnd_.client().listUnspent(r, new ILightningCallback<Rpc.ListUnspentResponse>() {
             @Override
-            public void onResponse(Data.WalletBalanceResponse r) {
-                Log.i(TAG, "wallet balance update "+r);
-                WalletData.WalletBalance.Builder b = WalletData.WalletBalance.builder();
-                LightningCodec.WalletBalanceConverter.decode(r, b);
-                onUpdate(b.build());
+            public void onResponse(Rpc.ListUnspentResponse r) {
+                Log.i(TAG, "list unspent update "+r);
+                boolean updated = false;
+                for(Rpc.Utxo u: r.getUtxosList()) {
+                    WalletData.Utxo.Builder b = WalletData.Utxo.builder();
+                    LightningCodec.UtxoConverter.decode(u, b);
+                    WalletData.Utxo existing = dao_.getByOutpoint(b.txidHex(), b.outputIndex());
+
+                    if (existing == null) {
+                        b.setId(server_.getIdGenerator().generateId(WalletData.Utxo.class));
+                    } else {
+                        // make sure ids match
+                        b.setId(existing.id());
+                    }
+
+                    // build
+                    WalletData.Utxo utxo = b.build();
+
+                    // number of confirmations might change
+                    if (existing == null || !existing.equals(utxo)) {
+                        dao_.update(utxo);
+                        updated = true;
+                    }
+                }
+
+                if (updated)
+                    engine_.onSignal(id(), DefaultTopics.UTXO_STATE, null);
+
                 reschedule();
             }
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "Failed to get wallet balance, code "+i+" err "+s);
+                Log.e(TAG, "Failed to get utxo list, code "+i+" err "+s);
                 reschedule();
             }
         });
@@ -112,3 +135,4 @@ public class WalletBalanceWorker implements IPluginBackground {
         refresh_ = true;
     }
 }
+

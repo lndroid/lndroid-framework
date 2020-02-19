@@ -207,6 +207,7 @@ final class RoomData {
     }
 
     @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"txHash"}),
     })
     @TypeConverters({
@@ -215,5 +216,13 @@ final class RoomData {
     })
     static class Transaction extends RoomEntityBase<WalletData.Transaction> {
     }
+
+    @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
+            @Index(unique = true, value = {"txidHex", "outputIndex"}),
+    })
+    static class Utxo extends RoomEntityBase<WalletData.Utxo> {
+    }
+
 
 }

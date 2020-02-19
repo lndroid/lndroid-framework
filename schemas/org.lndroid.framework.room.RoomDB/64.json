@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 63,
-    "identityHash": "ead58e18528238098fc580e284abb578",
+    "version": 64,
+    "identityHash": "b8e1bfca35a1d20f2c87884e86e8b7fc",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -98,7 +98,7 @@
       },
       {
         "tableName": "Channel",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `txId` TEXT, `authUserId` INTEGER, `description` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `minHtlcMsat` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER, `chainHashHex` TEXT, `closingTxHashHex` TEXT, `closeHeight` INTEGER, `settledBalance` INTEGER, `timeLockedBalance` INTEGER, `closeType` INTEGER, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `createTime` INTEGER, `openTime` INTEGER, `closeTime` INTEGER, `active` INTEGER, `remotePubkey` TEXT, `channelPoint` TEXT, `chanId` INTEGER, `capacity` INTEGER, `localBalance` INTEGER, `remoteBalance` INTEGER, `confirmationHeight` INTEGER, `limboBalance` INTEGER, `maturityHeight` INTEGER, `recoveredBalance` INTEGER, `closingTxid` TEXT, `commitFee` INTEGER, `commitWeight` INTEGER, `feePerKw` INTEGER, `unsettledBalance` INTEGER, `totalSatoshisSent` INTEGER, `totalSatoshisReceived` INTEGER, `numUpdates` INTEGER, `csvDelay` INTEGER, `isPrivate` INTEGER, `initiator` INTEGER, `chanStatusFlags` TEXT, `localChanReserveSat` INTEGER, `remoteChanReserveSat` INTEGER, `staticRemoteKey` INTEGER, `lifetime` INTEGER, `uptime` INTEGER, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `txId` TEXT, `authUserId` INTEGER, `description` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `minHtlcMsat` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER, `chainHashHex` TEXT, `closingTxHashHex` TEXT, `closeHeight` INTEGER, `settledBalance` INTEGER, `timeLockedBalance` INTEGER, `closeType` INTEGER, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `createTime` INTEGER, `openTime` INTEGER, `closeTime` INTEGER, `active` INTEGER, `remotePubkey` TEXT, `channelPoint` TEXT, `chanId` INTEGER, `capacity` INTEGER, `localBalance` INTEGER, `remoteBalance` INTEGER, `confirmationHeight` INTEGER, `limboBalance` INTEGER, `maturityHeight` INTEGER, `recoveredBalance` INTEGER, `commitFee` INTEGER, `commitWeight` INTEGER, `feePerKw` INTEGER, `unsettledBalance` INTEGER, `totalSatoshisSent` INTEGER, `totalSatoshisReceived` INTEGER, `numUpdates` INTEGER, `csvDelay` INTEGER, `isPrivate` INTEGER, `initiator` INTEGER, `chanStatusFlags` TEXT, `localChanReserveSat` INTEGER, `remoteChanReserveSat` INTEGER, `staticRemoteKey` INTEGER, `lifetime` INTEGER, `uptime` INTEGER, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -332,12 +332,6 @@
             "fieldPath": "data_.recoveredBalance",
             "columnName": "recoveredBalance",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.closingTxid",
-            "columnName": "closingTxid",
-            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -2165,6 +2159,14 @@
         },
         "indices": [
           {
+            "name": "index_Transaction_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Transaction_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
             "name": "index_Transaction_txHash",
             "unique": true,
             "columnNames": [
@@ -2426,6 +2428,92 @@
               "pubkey"
             ],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_User_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Utxo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `type` INTEGER, `address` TEXT, `amountSat` INTEGER, `pkScript` TEXT, `txidHex` TEXT, `outputIndex` INTEGER, `confirmations` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amountSat",
+            "columnName": "amountSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pkScript",
+            "columnName": "pkScript",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txidHex",
+            "columnName": "txidHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.outputIndex",
+            "columnName": "outputIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.confirmations",
+            "columnName": "confirmations",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Utxo_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Utxo_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Utxo_txidHex_outputIndex",
+            "unique": true,
+            "columnNames": [
+              "txidHex",
+              "outputIndex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Utxo_txidHex_outputIndex` ON `${TABLE_NAME}` (`txidHex`, `outputIndex`)"
           }
         ],
         "foreignKeys": []
@@ -3938,7 +4026,7 @@
       },
       {
         "tableName": "OpenChannelTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqdescription` TEXT, `reqnodePubkey` TEXT, `reqlocalFundingAmount` INTEGER, `reqpushSat` INTEGER, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqisPrivate` INTEGER, `reqminHtlcMsat` INTEGER, `reqremoteCsvDelay` INTEGER, `reqminConfs` INTEGER, `reqspendUnconfirmed` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `reptxId` TEXT, `repauthUserId` INTEGER, `repdescription` TEXT, `reptargetConf` INTEGER, `repsatPerByte` INTEGER, `repminHtlcMsat` INTEGER, `repminConfs` INTEGER, `repspendUnconfirmed` INTEGER, `repchainHashHex` TEXT, `repclosingTxHashHex` TEXT, `repcloseHeight` INTEGER, `repsettledBalance` INTEGER, `reptimeLockedBalance` INTEGER, `repcloseType` INTEGER, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repcreateTime` INTEGER, `repopenTime` INTEGER, `repcloseTime` INTEGER, `repactive` INTEGER, `repremotePubkey` TEXT, `repchannelPoint` TEXT, `repchanId` INTEGER, `repcapacity` INTEGER, `replocalBalance` INTEGER, `repremoteBalance` INTEGER, `repconfirmationHeight` INTEGER, `replimboBalance` INTEGER, `repmaturityHeight` INTEGER, `reprecoveredBalance` INTEGER, `repclosingTxid` TEXT, `repcommitFee` INTEGER, `repcommitWeight` INTEGER, `repfeePerKw` INTEGER, `repunsettledBalance` INTEGER, `reptotalSatoshisSent` INTEGER, `reptotalSatoshisReceived` INTEGER, `repnumUpdates` INTEGER, `repcsvDelay` INTEGER, `repisPrivate` INTEGER, `repinitiator` INTEGER, `repchanStatusFlags` TEXT, `replocalChanReserveSat` INTEGER, `repremoteChanReserveSat` INTEGER, `repstaticRemoteKey` INTEGER, `replifetime` INTEGER, `repuptime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqdescription` TEXT, `reqnodePubkey` TEXT, `reqlocalFundingAmount` INTEGER, `reqpushSat` INTEGER, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqisPrivate` INTEGER, `reqminHtlcMsat` INTEGER, `reqremoteCsvDelay` INTEGER, `reqminConfs` INTEGER, `reqspendUnconfirmed` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `reptxId` TEXT, `repauthUserId` INTEGER, `repdescription` TEXT, `reptargetConf` INTEGER, `repsatPerByte` INTEGER, `repminHtlcMsat` INTEGER, `repminConfs` INTEGER, `repspendUnconfirmed` INTEGER, `repchainHashHex` TEXT, `repclosingTxHashHex` TEXT, `repcloseHeight` INTEGER, `repsettledBalance` INTEGER, `reptimeLockedBalance` INTEGER, `repcloseType` INTEGER, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repcreateTime` INTEGER, `repopenTime` INTEGER, `repcloseTime` INTEGER, `repactive` INTEGER, `repremotePubkey` TEXT, `repchannelPoint` TEXT, `repchanId` INTEGER, `repcapacity` INTEGER, `replocalBalance` INTEGER, `repremoteBalance` INTEGER, `repconfirmationHeight` INTEGER, `replimboBalance` INTEGER, `repmaturityHeight` INTEGER, `reprecoveredBalance` INTEGER, `repcommitFee` INTEGER, `repcommitWeight` INTEGER, `repfeePerKw` INTEGER, `repunsettledBalance` INTEGER, `reptotalSatoshisSent` INTEGER, `reptotalSatoshisReceived` INTEGER, `repnumUpdates` INTEGER, `repcsvDelay` INTEGER, `repisPrivate` INTEGER, `repinitiator` INTEGER, `repchanStatusFlags` TEXT, `replocalChanReserveSat` INTEGER, `repremoteChanReserveSat` INTEGER, `repstaticRemoteKey` INTEGER, `replifetime` INTEGER, `repuptime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -4286,12 +4374,6 @@
             "fieldPath": "response.recoveredBalance",
             "columnName": "reprecoveredBalance",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.closingTxid",
-            "columnName": "repclosingTxid",
-            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -5206,7 +5288,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ead58e18528238098fc580e284abb578')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8e1bfca35a1d20f2c87884e86e8b7fc')"
     ]
   }
 }

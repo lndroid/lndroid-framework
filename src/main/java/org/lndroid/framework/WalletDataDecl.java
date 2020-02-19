@@ -731,7 +731,6 @@ public class WalletDataDecl {
         long lastTryTime();
 
         // next time we'll retry, in ms
-        // FIXME what if user changes the device time?
         long nextTryTime();
 
         // see above
@@ -806,9 +805,6 @@ public class WalletDataDecl {
         long recoveredBalance();
 
         // repeated PendingHTLC pending_htlcs = 8 [ json_name = "pending_htlcs" ];
-
-        /// The transaction id of the closing transaction
-        String closingTxid();
 
         /**
          * The amount calculated to be paid in fees for the current set of commitment
@@ -896,7 +892,19 @@ public class WalletDataDecl {
          */
         long uptime();
 
+    }
 
+    public interface ListChannelsRequest {
+        long userId();
+
+        // all, open, pending, closed
+        String stateFilter();
+
+        // sort order: id
+        @Nullable
+        String sort();
+
+        boolean sortDesc();
     }
 
     public interface OpenChannelRequest {
@@ -1580,5 +1588,41 @@ public class WalletDataDecl {
         /// The fee rate in satoshi/byte.
         long feerateSatPerByte();
     }
+
+    interface Utxo {
+        /// The type of address
+        int type();
+
+        /// The address
+        String address();
+
+        /// The value of the unspent coin in satoshis
+        long amountSat();
+
+        /// The pkscript in hex
+        String pkScript();
+
+        /// Reversed, hex-encoded string representing the transaction id.
+        String txidHex();
+
+        /// The index of the output on the transaction.
+        int outputIndex();
+
+        /// The number of confirmations for the Utxo
+        long confirmations();
+    }
+
+    public interface ListUtxoRequest {
+        long minConfirmations();
+
+        long maxConfirmations();
+
+        // sort order: amount, confirmations
+        @Nullable
+        String sort();
+
+        boolean sortDesc();
+    }
+
 
 }

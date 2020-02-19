@@ -37,7 +37,7 @@ public final class DefaultPlugins {
     public static final String OPEN_CHANNEL_WORKER = "org.lndroid.plugins.OPEN_CHANNEL_WORKER";
     public static final String GET_CHANNEL = "org.lndroid.plugins.GET_CHANNEL";
     public static final String CHANNEL_STATE_WORKER = "org.lndroid.plugins.CHANNEL_STATE_WORKER";
-    public static final String LIST_CHANNEL = "org.lndroid.plugins.LIST_CHANNEL";
+    public static final String LIST_CHANNELS = "org.lndroid.plugins.LIST_CHANNELS";
 
     public static final String LIST_PAYMENTS = "org.lndroid.plugins.LIST_PAYMENTS";
 
@@ -60,5 +60,9 @@ public final class DefaultPlugins {
     public static final String GET_TRANSACTION = "org.lndroid.plugins.GET_TRANSACTION";
     public static final String LIST_TRANSACTIONS = "org.lndroid.plugins.LIST_TRANSACTIONS";
     public static final String TRANSACTION_STATE_WORKER = "org.lndroid.plugins.TRANSACTION_STATE_WORKER";
+
+    public static final String UTXO_WORKER = "org.lndroid.plugins.UTXO_WORKER";
+    public static final String LIST_UTXO = "org.lndroid.plugins.LIST_UTXO";
+    public static final String GET_UTXO = "org.lndroid.plugins.GET_UTXO";
 
 }

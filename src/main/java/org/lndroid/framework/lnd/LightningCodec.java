@@ -16,6 +16,8 @@ import java.util.Map;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.WalletDataDecl;
 
+import lnrpc.Rpc;
+
 public class LightningCodec {
 
     public static final long TLV_MESSAGE = 34349334;
@@ -391,18 +393,6 @@ public class LightningCodec {
         }
     }
 
-    public static class ChannelCloseSummaryConverter {
-
-        public static void decode(Data.ChannelCloseSummary rep, WalletData.Channel.Builder b) {
-            b.setChainHashHex(rep.chainHash);
-            b.setClosingTxHashHex(rep.closingTxHash);
-            b.setCloseHeight(rep.closeHeight);
-            b.setSettledBalance(rep.settledBalance);
-            b.setTimeLockedBalance(rep.timeLockedBalance);
-            b.setCloseType(rep.closeType);
-        }
-    }
-
     public static class ChannelConverter {
 
         public static void decode(Data.Channel rep, WalletData.Channel.Builder b) {
@@ -551,4 +541,78 @@ public class LightningCodec {
         }
     }
 
+    public static class UtxoConverter {
+        public static void decode(lnrpc.Rpc.Utxo r, WalletData.Utxo.Builder b) {
+            b.setAddress(r.getAddress());
+            b.setType(r.getTypeValue());
+            b.setAmountSat(r.getAmountSat());
+            b.setPkScript(r.getPkScript());
+            b.setTxidHex(r.getOutpoint().getTxidStr());
+            b.setOutputIndex(r.getOutpoint().getOutputIndex());
+            b.setConfirmations(r.getConfirmations());
+        }
+    }
+
+    public static class ChannelCloseSummaryConverter {
+
+        public static void decode(Data.ChannelCloseSummary rep, WalletData.Channel.Builder b) {
+            b.setChainHashHex(rep.chainHash);
+            b.setClosingTxHashHex(rep.closingTxHash);
+            b.setCloseHeight(rep.closeHeight);
+            b.setSettledBalance(rep.settledBalance);
+            b.setTimeLockedBalance(rep.timeLockedBalance);
+            b.setCloseType(rep.closeType);
+        }
+
+        public static void decode(Rpc.ChannelCloseSummary rep, WalletData.Channel.Builder b) {
+            b.setChainHashHex(rep.getChainHash());
+            b.setClosingTxHashHex(rep.getClosingTxHash());
+            b.setCloseHeight(rep.getCloseHeight());
+            b.setSettledBalance(rep.getSettledBalance());
+            b.setTimeLockedBalance(rep.getTimeLockedBalance());
+            b.setCloseType(rep.getCloseTypeValue());
+        }
+    }
+
+    public static class PendingChannelConverter {
+
+        public static void decode(Rpc.PendingChannelsResponse.PendingChannel rep, WalletData.Channel.Builder b) {
+            b.setRemotePubkey(rep.getRemoteNodePub());
+            b.setChannelPoint(rep.getChannelPoint());
+            b.setCapacity(rep.getCapacity());
+            b.setLocalBalance(rep.getLocalBalance());
+            b.setRemoteBalance(rep.getRemoteBalance());
+            b.setLocalChanReserveSat(rep.getLocalChanReserveSat());
+            b.setRemoteChanReserveSat(rep.getRemoteChanReserveSat());
+        }
+
+        public static void decode(Rpc.PendingChannelsResponse.PendingOpenChannel rep, WalletData.Channel.Builder b) {
+            b.setConfirmationHeight(rep.getConfirmationHeight());
+            b.setCommitFee(rep.getCommitFee());
+            b.setCommitWeight(rep.getCommitWeight());
+            b.setFeePerKw(rep.getFeePerKw());
+            decode(rep.getChannel(), b);
+        }
+
+        public static void decode(Rpc.PendingChannelsResponse.ClosedChannel rep, WalletData.Channel.Builder b) {
+            b.setClosingTxHashHex(rep.getClosingTxid());
+            decode(rep.getChannel(), b);
+        }
+
+        public static void decode(Rpc.PendingChannelsResponse.ForceClosedChannel rep, WalletData.Channel.Builder b) {
+            b.setClosingTxHashHex(rep.getClosingTxid());
+            b.setLimboBalance(rep.getLimboBalance());
+            b.setMaturityHeight(rep.getMaturityHeight());
+            b.setRecoveredBalance(rep.getRecoveredBalance());
+            decode(rep.getChannel(), b);
+
+            // FIXME also pending HTLCs
+        }
+
+        public static void decode(Rpc.PendingChannelsResponse.WaitingCloseChannel rep, WalletData.Channel.Builder b) {
+            b.setLimboBalance(rep.getLimboBalance());
+            decode(rep.getChannel(), b);
+        }
+
+    }
 }

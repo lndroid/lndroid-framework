@@ -85,6 +85,7 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.OPEN_CHANNEL_WORKER, new OpenChannelWorkerDao(db_.openChannelWorkerDao()));
         pluginDaos_.put(DefaultPlugins.GET_CHANNEL, new GetChannelDao(db_.getChannelDao()));
         pluginDaos_.put(DefaultPlugins.CHANNEL_STATE_WORKER, new ChannelStateWorkerDao(db_.channelStateWorkerDao()));
+        pluginDaos_.put(DefaultPlugins.LIST_CHANNELS, new ListChannelsDao(db_.listChannelsDao()));
 
         pluginDaos_.put(DefaultPlugins.LIST_PAYMENTS, new ListPaymentsDao(db_.listPaymentsDao()));
 
@@ -118,6 +119,12 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.LIST_TRANSACTIONS,
                 new ListTransactionsDao(db_.listTransactionsDao()));
 
+        pluginDaos_.put(DefaultPlugins.UTXO_WORKER,
+                new UtxoWorkerDao(db_.utxoWorkerDao()));
+        pluginDaos_.put(DefaultPlugins.GET_UTXO,
+                new GetUtxoDao(db_.getUtxoDao()));
+        pluginDaos_.put(DefaultPlugins.LIST_UTXO,
+                new ListUtxoDao(db_.listUtxoDao()));
 
         if (cb != null) {
             cb.onOpen();

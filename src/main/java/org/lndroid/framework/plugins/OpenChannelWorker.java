@@ -28,7 +28,6 @@ public class OpenChannelWorker implements IPluginBackground {
     private IPluginBackgroundCallback engine_;
     private IOpenChannelWorkerDao dao_;
     private ILightningDao lnd_;
-    private boolean started_;
     private boolean notified_;
     private long nextWorkTime_;
 
@@ -42,6 +41,15 @@ public class OpenChannelWorker implements IPluginBackground {
         engine_ = callback;
         dao_ = (IOpenChannelWorkerDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
+
+        // NOTE: start protocol to recover in-flight state:
+        // - get all records w/ 'opening' state from db
+        // - mark as Lost, let StateWorker sync w/ lnd and
+        //   either update this channel to proper state, or set state to RETRY
+        List<WalletData.Channel> openingChannels = dao_.getOpeningChannels();
+        for (WalletData.Channel c : openingChannels) {
+            dao_.updateChannel(c.toBuilder().setState(WalletData.CHANNEL_STATE_LOST).build());
+        }
     }
 
     private void onUpdate(WalletData.Channel c) {
@@ -61,6 +69,17 @@ public class OpenChannelWorker implements IPluginBackground {
             b.setNextTryTime(System.currentTimeMillis() + TRY_INTERVAL);
             b.setState(WalletData.CHANNEL_STATE_NEW);
         }
+    }
+
+    private void onLndError(WalletData.Channel uc, String message) {
+        WalletData.Channel.Builder b = uc.toBuilder();
+        b.setErrorCode(Errors.LND_ERROR);
+        b.setErrorMessage(message);
+
+        onFailed(uc, b);
+
+        // write
+        onUpdate(b.build());
     }
 
     private void openChannel(WalletData.Channel c) {
@@ -110,14 +129,7 @@ public class OpenChannelWorker implements IPluginBackground {
             public void onError(int i, String s) {
                 Log.e(TAG, "open channel error "+i+" err "+s);
 
-                WalletData.Channel.Builder b = uc.toBuilder();
-                b.setErrorCode(Errors.LND_ERROR);
-                b.setErrorMessage(s);
-
-                onFailed(uc, b);
-
-                // write
-                onUpdate(b.build());
+                onLndError(uc, s);
             }
         });
     }
@@ -129,32 +141,16 @@ public class OpenChannelWorker implements IPluginBackground {
         if (!lnd_.isRpcReady())
             return;
 
-        if (!started_) {
-            // NOTE: start protocol to recover in-flight payments' state:
-            // - get all payments w/ 'opening' state from db
-            // - mark as 'lost'
-            List<WalletData.Channel> openingChannels = dao_.getOpeningChannels();
-            for (WalletData.Channel c : openingChannels) {
-                // mark as Lost, let StateWorker sync w/ lnd and
-                // either update this channel to proper state, or set state to RETRY
-                onUpdate(c.toBuilder().setState(WalletData.CHANNEL_STATE_LOST).build());
-            }
-
-            started_ = true;
-        }
-
         if (!notified_ && nextWorkTime_ > System.currentTimeMillis())
             return;
 
         // reset
         notified_ = false;
 
+        // move 'retry' to 'new' or 'failed'
         List<WalletData.Channel> retryChannels = dao_.getRetryChannels();
         for (WalletData.Channel c: retryChannels) {
-            // check if it's permanent or we'd want to retry
-            onFailed(c, c.toBuilder());
-            // write
-            onUpdate(c);
+            onLndError(c, "Unknown lnd error");
         }
 
         // open/retry channels

@@ -29,4 +29,6 @@ public final class DefaultTopics {
 
     public static final String NEW_TRANSACTION = "org.lndroid.topics.NEW_TRANSACTION";
     public static final String TRANSACTION_STATE = "org.lndroid.topics.TRANSACTION_STATE";
+
+    public static final String UTXO_STATE = "org.lndroid.topics.UTXO_STATE";
 }

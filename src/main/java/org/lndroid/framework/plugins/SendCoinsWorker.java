@@ -27,7 +27,6 @@ public class SendCoinsWorker implements IPluginBackground {
     private IPluginBackgroundCallback engine_;
     private ISendCoinsWorkerDao dao_;
     private ILightningDao lnd_;
-    private boolean started_;
     private boolean notified_;
     private long nextWorkTime_;
 
@@ -41,6 +40,15 @@ public class SendCoinsWorker implements IPluginBackground {
         engine_ = callback;
         dao_ = (ISendCoinsWorkerDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
+
+        // NOTE: start protocol to recover in-flight payments' state:
+        // - get all payments w/ 'opening' state from db
+        // - mark as Lost, let StateWorker sync w/ lnd and
+        //   either update this channel to proper state, or set state to RETRY
+        List<WalletData.Transaction> pending = dao_.getSendingTransactions();
+        for (WalletData.Transaction t: pending) {
+            onUpdate(t.toBuilder().setState(WalletData.TRANSACTION_STATE_LOST).build());
+        }
     }
 
     private void onUpdate(WalletData.Transaction t) {
@@ -58,7 +66,7 @@ public class SendCoinsWorker implements IPluginBackground {
             b.setState(WalletData.TRANSACTION_STATE_FAILED);
         } else {
             b.setNextTryTime(System.currentTimeMillis() + TRY_INTERVAL);
-            b.setState(WalletData.TRANSACTION_STATE_PENDING);
+            b.setState(WalletData.TRANSACTION_STATE_NEW);
         }
     }
 
@@ -179,28 +187,20 @@ public class SendCoinsWorker implements IPluginBackground {
         if (!lnd_.isRpcReady())
             return;
 
-        if (!started_) {
-            // NOTE: start protocol to recover in-flight payments' state:
-            // - get all payments w/ 'opening' state from db
-            // - mark as 'lost'
-            List<WalletData.Transaction> pending = dao_.getPendingTransactions();
-            for (WalletData.Transaction t: pending) {
-                // mark as Lost, let StateWorker sync w/ lnd and
-                // either update this channel to proper state, or set state to RETRY
-                onUpdate(t.toBuilder().setState(WalletData.TRANSACTION_STATE_LOST).build());
-            }
-
-            started_ = true;
-        }
-
         if (!notified_ && nextWorkTime_ > System.currentTimeMillis())
             return;
 
         // reset
         notified_ = false;
 
+        // check retried txs, move to pending or failed
+        List<WalletData.Transaction> retry = dao_.getRetryTransactions();
+        for (WalletData.Transaction t: retry) {
+            onLndError(t, -1, "Unknown lnd error");
+        }
+
         // exec
-        List<WalletData.Transaction> pending = dao_.getPendingTransactions();
+        List<WalletData.Transaction> pending = dao_.getSendingTransactions();
         for (WalletData.Transaction t: pending) {
             if (t.sendAll())
                 sendCoins(t);
