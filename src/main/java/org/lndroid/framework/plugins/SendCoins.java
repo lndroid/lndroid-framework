@@ -21,7 +21,7 @@ public class SendCoins extends JobBase<WalletData.SendCoinsRequest, WalletData.T
 
     @Override
     protected boolean isUserPrivileged(
-            WalletData.User user, Transaction<WalletData.SendCoinsRequest, WalletData.Transaction> tx) {
+            WalletData.User user, Transaction<WalletData.SendCoinsRequest> tx) {
         return user.isRoot();
     }
 
@@ -69,7 +69,7 @@ public class SendCoins extends JobBase<WalletData.SendCoinsRequest, WalletData.T
     }
 
     @Override
-    protected WalletData.SendCoinsRequest getData(IPluginData in) {
+    protected WalletData.SendCoinsRequest getRequestData(IPluginData in) {
         in.assignDataType(WalletData.SendCoinsRequest.class);
         try {
             return in.getData();

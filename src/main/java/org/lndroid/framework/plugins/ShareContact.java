@@ -49,7 +49,7 @@ public class ShareContact extends ActionBase<WalletData.ShareContactRequest, Wal
     }
 
     @Override
-    protected WalletData.ShareContactRequest getData(IPluginData in) {
+    protected WalletData.ShareContactRequest getRequestData(IPluginData in) {
         in.assignDataType(WalletData.ShareContactRequest.class);
         try {
             return in.getData();

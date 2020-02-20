@@ -98,7 +98,7 @@ public class PluginData {
 
         // attach codec provider to let the message
         // (de)serialize data from/to ipcData,
-        // must be set before getData or encodeData are called
+        // must be set before getRequestData or encodeData are called
         @Override
         public void assignCodecProvider(ICodecProvider cp) {
             codecProvider_ = cp;

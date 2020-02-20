@@ -7,13 +7,13 @@ import org.lndroid.framework.plugins.Transaction;
 public interface ILndActionDao<Request, Response> {
 
     // get all active txs
-    List<Transaction<Request, Response>> getTransactions();
+    List<Transaction<Request>> getTransactions();
 
     // get tx
-    Transaction<Request, Response> getTransaction(long txUserId, String txId);
+    Transaction<Request> getTransaction(long txUserId, String txId);
 
     // start tx
-    void startTransaction(Transaction<Request, Response> t);
+    void startTransaction(Transaction<Request> t);
 
     // write response to db (if required), attach response to tx, set to COMMITTED state,
     // resp.id will be initialized after this call.
@@ -26,8 +26,10 @@ public interface ILndActionDao<Request, Response> {
     void rejectTransaction(long txUserId, String txId, long txAuthUserId);
 
     // set transaction state to 'failed'
-    void failTransaction(long txUserId, String txId, String code);
+    void failTransaction(long txUserId, String txId, String code, String message);
 
     // mark as timed out, set to TX_TIMEOUT state
     void timeoutTransaction(long txUserId, String txId);
+
+    Response getResponse(long id);
 }

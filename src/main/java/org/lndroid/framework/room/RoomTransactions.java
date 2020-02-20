@@ -24,25 +24,51 @@ public class RoomTransactions {
         public long txDoneTime;
 
         @Nullable
-        public String txError; // error code
+        public String txErrorCode;
+        @Nullable
+        public String txErrorMessage;
+
+
+        public String responseClass;
+        public long responseId;
+
+
+        // current number of tries
+        public int tries;
+
+        // max number of tries
+        public int maxTries;
+
+        // deadline for retries, in ms
+        public long maxTryTime;
+
+        // last time we retried, in ms
+        public long lastTryTime;
+
+        // next time we'll retry, in ms
+        public long nextTryTime;
+
+        // see above
+        public int jobState;
+
+        // error code if state=failed
+        public String jobErrorCode;
+
+        // error message
+        public String jobErrorMessage;
+
+
     }
 
-    static class RoomTransactionBase<Request, Response> implements IRoomTransaction<Request, Response> {
+    static class RoomTransactionBase<Request> implements IRoomTransaction<Request> {
         @Embedded @NonNull
         public TransactionData txData;
         @Embedded(prefix="req")
         public Request request;
-        @Embedded(prefix="rep")
-        public Response response;
 
         @Override
         public Request getRequest() {
             return request;
-        }
-
-        @Override
-        public Response getResponse() {
-            return response;
         }
 
         @Override
@@ -56,8 +82,9 @@ public class RoomTransactions {
         }
 
         @Override
-        public void setResponse(Response r) {
-            response = r;
+        public void setResponse(Class<?> cls, long id) {
+            txData.responseId = id;
+            txData.responseClass = cls.getName();
         }
 
         @Override
@@ -67,27 +94,19 @@ public class RoomTransactions {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
-    static class AddUserTransaction extends RoomTransactionBase<WalletData.AddUserRequest, WalletData.User> {
+    static class AddUserTransaction extends RoomTransactionBase<WalletData.AddUserRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
-    static class NewAddressTransaction extends RoomTransactionBase<WalletData.NewAddressRequest, WalletData.NewAddress> {
+    static class NewAddressTransaction extends RoomTransactionBase<WalletData.NewAddressRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
-    @TypeConverters({
-            RoomConverters.DestTLVConverter.class,
-            RoomConverters.TransientRouteHintsConverter.class,
-            RoomConverters.ImmutableIntListConverter.class,
-    })
-    static class DecodePayReqTransaction extends RoomTransactionBase<String, WalletData.SendPayment> {
+    static class DecodePayReqTransaction extends RoomTransactionBase<String> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
-    @TypeConverters({
-            RoomConverters.ImmutableIntListConverter.class,
-    })
-    static class AddInvoiceTransaction extends RoomTransactionBase<WalletData.AddInvoiceRequest, WalletData.Invoice> {
+    static class AddInvoiceTransaction extends RoomTransactionBase<WalletData.AddInvoiceRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
@@ -96,11 +115,15 @@ public class RoomTransactions {
             RoomConverters.TransientRouteHintsConverter.class,
             RoomConverters.ImmutableIntListConverter.class,
     })
-    static class SendPaymentTransaction extends RoomTransactionBase<WalletData.SendPaymentRequest, WalletData.SendPayment> {
+    static class SendPaymentTransaction extends RoomTransactionBase<WalletData.SendPaymentRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
-    static class OpenChannelTransaction extends RoomTransactionBase<WalletData.OpenChannelRequest, WalletData.Channel> {
+    static class OpenChannelTransaction extends RoomTransactionBase<WalletData.OpenChannelRequest> {
+    }
+
+    @Entity(primaryKeys = {"txUserId", "txId"})
+    static class CloseChannelTransaction extends RoomTransactionBase<WalletData.CloseChannelRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
@@ -108,32 +131,32 @@ public class RoomTransactions {
             RoomConverters.TransientRouteHintsConverter.class,
             RoomConverters.ImmutableIntListConverter.class,
     })
-    static class AddContactTransaction extends RoomTransactionBase<WalletData.Contact, WalletData.Contact> {
+    static class AddContactTransaction extends RoomTransactionBase<WalletData.Contact> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
     static class AddListContactsPrivilegeTransaction
-            extends RoomTransactionBase<WalletData.ListContactsPrivilege, WalletData.ListContactsPrivilege> {
+            extends RoomTransactionBase<WalletData.ListContactsPrivilege> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
     static class AddContactPaymentsPrivilegeTransaction
-            extends RoomTransactionBase<WalletData.ContactPaymentsPrivilege, WalletData.ContactPaymentsPrivilege> {
+            extends RoomTransactionBase<WalletData.ContactPaymentsPrivilege> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
     static class ConnectPeerTransaction
-            extends RoomTransactionBase<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse> {
+            extends RoomTransactionBase<WalletData.ConnectPeerRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
     static class ShareContactTransaction
-            extends RoomTransactionBase<WalletData.ShareContactRequest, WalletData.ShareContactResponse> {
+            extends RoomTransactionBase<WalletData.ShareContactRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
     static class AddContactInvoiceTransaction
-            extends RoomTransactionBase<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse> {
+            extends RoomTransactionBase<WalletData.AddContactInvoiceRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
@@ -142,14 +165,14 @@ public class RoomTransactions {
             RoomConverters.ImmutableStringListConverter.class,
     })
     static class SendCoinsTransaction
-            extends RoomTransactionBase<WalletData.SendCoinsRequest, WalletData.Transaction> {
+            extends RoomTransactionBase<WalletData.SendCoinsRequest> {
     }
 
     @Entity(primaryKeys = {"txUserId", "txId"})
     @TypeConverters({
             RoomConverters.ImmutableStringLongMapConverter.class,
     })
-    static class EstimateFeeTransaction extends RoomTransactionBase<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> {
+    static class EstimateFeeTransaction extends RoomTransactionBase<WalletData.EstimateFeeRequest> {
     }
 
 

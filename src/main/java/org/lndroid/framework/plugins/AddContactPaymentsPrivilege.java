@@ -56,7 +56,7 @@ public class AddContactPaymentsPrivilege extends ActionBase<WalletData.ContactPa
     }
 
     @Override
-    protected WalletData.ContactPaymentsPrivilege getData(IPluginData in) {
+    protected WalletData.ContactPaymentsPrivilege getRequestData(IPluginData in) {
         in.assignDataType(WalletData.ContactPaymentsPrivilege.class);
         try {
             // FIXME validate input

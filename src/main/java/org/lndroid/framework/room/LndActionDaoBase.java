@@ -7,7 +7,7 @@ import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.Transaction;
 
-class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<Request, Response>>
+class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<Request>>
         implements ILndActionDao<Request, Response>, IPluginDao {
 
     private IRoomLndActionDao<RoomTransaction, Request, Response> dao_;
@@ -23,17 +23,16 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
         // noop
     }
 
-    private Transaction<Request, Response> fromRoom(RoomTransaction tx) {
-        Transaction<Request, Response> t = new Transaction<>();
+    private Transaction<Request> fromRoom(RoomTransaction tx) {
+        Transaction<Request> t = new Transaction<>();
         RoomConverters.TxConverter.toTx(tx.getTxData(), t);
         t.request = tx.getRequest();
-        t.response = tx.getResponse();
         return t;
     }
 
     @Override
-    public List<Transaction<Request, Response>> getTransactions() {
-        List<Transaction<Request, Response>> r = new ArrayList<>();
+    public List<Transaction<Request>> getTransactions() {
+        List<Transaction<Request>> r = new ArrayList<>();
 
         List<RoomTransaction> txs = dao_.getTransactions();
         for (RoomTransaction tx: txs) {
@@ -44,7 +43,7 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
     }
 
     @Override
-    public Transaction<Request, Response> getTransaction(long txUserId, String txId) {
+    public Transaction<Request> getTransaction(long txUserId, String txId) {
         RoomTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -53,12 +52,11 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
     }
 
     @Override
-    public void startTransaction(Transaction<Request, Response> t) {
+    public void startTransaction(Transaction<Request> t) {
         try {
             RoomTransaction tx = roomTxClass_.newInstance();
             tx.setTxData(RoomConverters.TxConverter.fromTx(t));
             tx.setRequest(t.request);
-            tx.setResponse(t.response);
             dao_.createTransaction(tx);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -81,12 +79,17 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
     }
 
     @Override
-    public void failTransaction(long txUserId, String txId, String code) {
-        dao_.failTransaction(txUserId, txId, code, Transaction.TX_STATE_ERROR, System.currentTimeMillis());
+    public void failTransaction(long txUserId, String txId, String code, String message) {
+        dao_.failTransaction(txUserId, txId, code, message, Transaction.TX_STATE_ERROR, System.currentTimeMillis());
     }
 
     @Override
     public void timeoutTransaction(long txUserId, String txId) {
         dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
+    }
+
+    @Override
+    public Response getResponse(long id) {
+        return dao_.getResponse(id);
     }
 }

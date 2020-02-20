@@ -9,5 +9,6 @@ interface IRoomActionDao<Transaction, Response> {
     void updateTransaction(Transaction tx);
     void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
     Response commitTransaction(Transaction tx, long txAuthUserId, Response user, long time);
+    Response getResponse(long id);
 }
 

@@ -9,7 +9,6 @@ import java.lang.reflect.Type;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
@@ -29,7 +28,7 @@ public class DecodePayReq extends LndActionBase<String, Data.PayReqString, Walle
     }
 
     @Override
-    protected Data.PayReqString createLndRequest(ILndActionDao<String, WalletData.SendPayment> dao, PluginContext ctx, String req) {
+    protected Data.PayReqString createLndRequest(PluginContext ctx, String req) {
         Data.PayReqString p = new Data.PayReqString();
         p.payReq = req;
         return p;
@@ -53,7 +52,7 @@ public class DecodePayReq extends LndActionBase<String, Data.PayReqString, Walle
     }
 
     @Override
-    protected boolean isUserPrivileged(WalletData.User user, Transaction<String, WalletData.SendPayment> tx) {
+    protected boolean isUserPrivileged(WalletData.User user, Transaction<String> tx) {
         return !user.isApp();
     }
 

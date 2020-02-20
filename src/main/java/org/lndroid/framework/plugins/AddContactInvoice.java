@@ -9,7 +9,6 @@ import java.lang.reflect.Type;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.room.AddContactInvoiceDao;
 
@@ -30,9 +29,10 @@ public class AddContactInvoice extends
     }
 
     @Override
-    protected Data.Invoice createLndRequest(ILndActionDao<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse> actionDao, PluginContext ctx, WalletData.AddContactInvoiceRequest req) {
+    protected Data.Invoice createLndRequest(PluginContext ctx, WalletData.AddContactInvoiceRequest req) {
 
-        AddContactInvoiceDao dao = (AddContactInvoiceDao)actionDao;
+        // FIXME this is ugly: to access the implementation instead of an interface!
+        AddContactInvoiceDao dao = (AddContactInvoiceDao)this.dao();
 
         Data.Invoice i = new Data.Invoice();
         i.value = 0; // FIXME maybe min-payment-amount?
@@ -88,7 +88,7 @@ public class AddContactInvoice extends
     }
 
     @Override
-    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse> tx) {
+    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.AddContactInvoiceRequest> tx) {
         return user.isRoot();
     }
 

@@ -20,18 +20,17 @@ public class SendCoinsDao implements IJobDao<WalletData.SendCoinsRequest, Wallet
         dao_ = dao;
     }
 
-    private Transaction<WalletData.SendCoinsRequest, WalletData.Transaction> fromRoom(
+    private Transaction<WalletData.SendCoinsRequest> fromRoom(
             RoomTransactions.SendCoinsTransaction tx) {
-        Transaction<WalletData.SendCoinsRequest, WalletData.Transaction> t = new Transaction<>();
-        RoomConverters.TxConverter.toTx(tx.txData, t);
+        Transaction<WalletData.SendCoinsRequest> t = new Transaction<>();
+        RoomConverters.TxConverter.toTx(tx.getTxData(), t);
         t.request = tx.getRequest();
-        t.response = tx.getResponse();
         return t;
     }
 
     @Override
-    public List<Transaction<WalletData.SendCoinsRequest, WalletData.Transaction>> getTransactions() {
-        List<Transaction<WalletData.SendCoinsRequest, WalletData.Transaction>> r = new ArrayList<>();
+    public List<Transaction<WalletData.SendCoinsRequest>> getTransactions() {
+        List<Transaction<WalletData.SendCoinsRequest>> r = new ArrayList<>();
 
         List<RoomTransactions.SendCoinsTransaction> txs = dao_.getTransactions();
         for (RoomTransactions.SendCoinsTransaction tx: txs) {
@@ -42,7 +41,7 @@ public class SendCoinsDao implements IJobDao<WalletData.SendCoinsRequest, Wallet
     }
 
     @Override
-    public Transaction<WalletData.SendCoinsRequest, WalletData.Transaction> getTransaction(long txUserId, String txId) {
+    public Transaction<WalletData.SendCoinsRequest> getTransaction(long txUserId, String txId) {
         RoomTransactions.SendCoinsTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -51,11 +50,10 @@ public class SendCoinsDao implements IJobDao<WalletData.SendCoinsRequest, Wallet
     }
 
     @Override
-    public void startTransaction(Transaction<WalletData.SendCoinsRequest, WalletData.Transaction> t) {
+    public void startTransaction(Transaction<WalletData.SendCoinsRequest> t) {
         RoomTransactions.SendCoinsTransaction tx = new RoomTransactions.SendCoinsTransaction();
         tx.setTxData(RoomConverters.TxConverter.fromTx(t));
         tx.setRequest(t.request);
-        tx.setResponse(t.response);
         dao_.createTransaction(tx);
     }
 
@@ -73,6 +71,11 @@ public class SendCoinsDao implements IJobDao<WalletData.SendCoinsRequest, Wallet
     @Override
     public void timeoutTransaction(long txUserId, String txId) {
         dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
+    }
+
+    @Override
+    public WalletData.Transaction getResponse(long id) {
+        return dao_.getResponse(id);
     }
 
     @Override
@@ -108,6 +111,14 @@ abstract class SendCoinsDaoRoom {
     @Insert
     public abstract void insertTransaction(RoomData.Transaction i);
 
+    @Query("SELECT * FROM 'Transaction' WHERE id = :id")
+    abstract RoomData.Transaction getResponseRoom(long id);
+
+    WalletData.Transaction getResponse(long id) {
+        RoomData.Transaction r = getResponseRoom(id);
+        return r != null ? r.getData() : null;
+    }
+
     @androidx.room.Transaction
     public WalletData.Transaction commitTransaction(
             long txUserId, String txId, long txAuthUserId, WalletData.Transaction t, long time) {
@@ -123,7 +134,7 @@ abstract class SendCoinsDaoRoom {
         RoomTransactions.SendCoinsTransaction tx = getTransaction(txUserId, txId);
 
         // update state
-        tx.setResponse(t);
+        tx.setResponse(t.getClass(), t.id());
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
         if (txAuthUserId != 0) {

@@ -26,7 +26,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
     protected abstract void signal(Response response);
     protected abstract Type getResponseType();
     protected abstract boolean isValidUser(WalletData.User user);
-    protected abstract Request getData(IPluginData in);
+    protected abstract Request getRequestData(IPluginData in);
 
     protected IPluginForegroundCallback engine() { return engine_; };
     protected IPluginServer server() { return server_; }
@@ -41,8 +41,8 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
         engine_ = engine;
 
         // restore active transactions
-        List<Transaction<Request, Response>> txs = dao_.getTransactions();
-        for(Transaction<Request, Response> tx: txs) {
+        List<Transaction<Request>> txs = dao_.getTransactions();
+        for(Transaction<Request> tx: txs) {
             PluginContext ctx = new PluginContext();
             ctx.txId = tx.txId;
             ctx.deadline = tx.deadlineTime;
@@ -97,7 +97,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
         }
 
         // recover if tx already executed
-        Transaction<Request, Response> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
+        Transaction<Request> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
         if (tx != null){
 
             // if tx exists then client is retrying,
@@ -107,8 +107,13 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
             // re-attached to this context and we should
             // inform it that auth is required
             if (tx.doneTime != 0) {
-                if (tx.response != null) {
-                    engine_.onReply(id(), ctx, tx.response, getResponseType());
+                if (tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
+                } else if (tx.responseId != 0) {
+                    Response r = dao_.getResponse(tx.responseId);
+                    if (r == null)
+                        throw new RuntimeException("Response entity not found");
+                    engine_.onReply(id(), ctx, r, getResponseType());
                     engine_.onDone(id(), ctx);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
@@ -120,7 +125,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
             return;
         }
 
-        Request req = getData(in);
+        Request req = getRequestData(in);
         if (req == null) {
             engine_.onError(id(), ctx, Errors.PLUGIN_MESSAGE, Errors.errorMessage(Errors.PLUGIN_MESSAGE));
             return;

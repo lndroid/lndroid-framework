@@ -55,7 +55,7 @@ public class AddListContactsPrivilege extends ActionBase<WalletData.ListContacts
     }
 
     @Override
-    protected WalletData.ListContactsPrivilege getData(IPluginData in) {
+    protected WalletData.ListContactsPrivilege getRequestData(IPluginData in) {
         in.assignDataType(WalletData.ListContactsPrivilege.class);
         try {
             return in.getData();

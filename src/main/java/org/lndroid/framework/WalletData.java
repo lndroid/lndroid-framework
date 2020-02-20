@@ -1007,12 +1007,14 @@ public final class WalletData {
     public static final int CHANNEL_STATE_CLOSED = 2;
     public static final int CHANNEL_STATE_FAILED = 3; // open failed
     public static final int CHANNEL_STATE_OPENING = 4; // maybe sent OpenChannel to lnd, waiting for reply
+    public static final int CHANNEL_STATE_CLOSING = 5;
     public static final int CHANNEL_STATE_PENDING_OPEN = 6; // opened, waiting tx confs
     public static final int CHANNEL_STATE_LOST = 7; // OpenWorker was interrupted and needs StateWorker to sync
     public static final int CHANNEL_STATE_RETRY = 8; // StateWorker didn't find LOST channel, OpenWorker should retry
     public static final int CHANNEL_STATE_PENDING_CLOSE = 9; // closing
     public static final int CHANNEL_STATE_PENDING_FORCE_CLOSE = 10; // force closing
     public static final int CHANNEL_STATE_WAITING_CLOSE = 11; // waiting for close tx confs
+    public static final int CHANNEL_STATE_WILL_CLOSE = 12;
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_Channel.class)
@@ -1242,6 +1244,45 @@ public final class WalletData {
                 WalletDataDecl.OpenChannelRequest,
                 WalletDataBuilders.IBuilder<OpenChannelRequest>,
                 WalletDataBuilders.OpenChannelRequestBuilder<Builder> {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_CloseChannelRequest.class)
+    public static abstract class CloseChannelRequest implements WalletDataDecl.CloseChannelRequest {
+
+        public static CloseChannelRequest create(
+                long channelId,
+                String channelPoint,
+                boolean force,
+                int targetConf,
+                long satPerByte
+        ) {
+            return builder()
+                    .setChannelId(channelId)
+                    .setChannelPoint(channelPoint)
+                    .setForce(force)
+                    .setTargetConf(targetConf)
+                    .setSatPerByte(satPerByte)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_CloseChannelRequest.Builder()
+                    .setChannelId(0)
+                    .setForce(false)
+                    .setTargetConf(0)
+                    .setSatPerByte(0)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.CloseChannelRequest,
+                WalletDataBuilders.IBuilder<CloseChannelRequest>,
+                WalletDataBuilders.CloseChannelRequestBuilder<Builder> {
         }
     }
 

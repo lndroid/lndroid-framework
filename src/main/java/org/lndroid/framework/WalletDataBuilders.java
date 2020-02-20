@@ -368,6 +368,14 @@ public class WalletDataBuilders {
         Builder setSpendUnconfirmed(boolean spendUnconfirmed);
     }
 
+    interface CloseChannelRequestBuilder<Builder> {
+        Builder setChannelId(long channelId);
+        Builder setChannelPoint(String channelPoint);
+        Builder setForce(boolean force);
+        Builder setTargetConf(int targetConf);
+        Builder setSatPerByte(long satPerByte);
+    }
+
     interface SendPaymentRequestBuilder<RouteHint, Builder> {
         Builder setPurpose(String purpose);
         Builder setInvoiceDescription(String invoiceDescription);

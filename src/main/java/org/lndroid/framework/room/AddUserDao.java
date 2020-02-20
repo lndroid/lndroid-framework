@@ -11,11 +11,8 @@ import org.lndroid.framework.WalletData;
 
 public class AddUserDao extends ActionDaoBase<WalletData.AddUserRequest, WalletData.User, RoomTransactions.AddUserTransaction> {
 
-    private AddUserDaoRoom dao_;
-
     AddUserDao(AddUserDaoRoom dao) {
         super(dao, RoomTransactions.AddUserTransaction.class);
-        dao_ = dao;
     }
 }
 
@@ -45,6 +42,15 @@ abstract class AddUserDaoRoom implements IRoomActionDao<RoomTransactions.AddUser
     @Insert
     abstract void insertUser(RoomData.User r);
 
+    @Query("SELECT * FROM User WHERE id = :id")
+    abstract RoomData.User getResponseRoom(long id);
+
+    @Override
+    public WalletData.User getResponse(long id) {
+        RoomData.User r = getResponseRoom(id);
+        return r != null ? r.getData() : null;
+    }
+
     // create user and add it to tx response and commit
     @Override @androidx.room.Transaction
     public WalletData.User commitTransaction(
@@ -57,7 +63,7 @@ abstract class AddUserDaoRoom implements IRoomActionDao<RoomTransactions.AddUser
         insertUser(ru);
 
         // set response to tx
-        tx.setResponse(user);
+        tx.setResponse(user.getClass(), user.id());
 
         // update state
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;

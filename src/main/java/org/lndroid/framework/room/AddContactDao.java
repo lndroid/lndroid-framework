@@ -53,6 +53,15 @@ abstract class AddContactDaoRoom
     @Query("SELECT * FROM Contact WHERE pubkey = :pubkey")
     abstract RoomData.Contact getContactByPubkey(String pubkey);
 
+    @Query("SELECT * FROM Contact WHERE id = :id")
+    abstract RoomData.Contact getResponseRoom(long id);
+
+    @Override
+    public WalletData.Contact getResponse(long id) {
+        RoomData.Contact r = getResponseRoom(id);
+        return r != null ? r.getData() : null;
+    }
+
     @Override @Transaction
     public WalletData.Contact commitTransaction(
             RoomTransactions.AddContactTransaction tx, long txAuthUserId, WalletData.Contact contact, long time) {
@@ -73,7 +82,7 @@ abstract class AddContactDaoRoom
         routeDao_.upsertRouteHints(RoomData.routeHintsParentId(contact), contact.routeHints());
 
         // update state
-        tx.response = contact;
+        tx.setResponse(contact.getClass(), contact.id());
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
         tx.txData.txAuthUserId = txAuthUserId;

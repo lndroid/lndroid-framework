@@ -7,13 +7,16 @@ import org.lndroid.framework.plugins.Transaction;
 public interface IActionDao<Request, Response> {
 
     // get all non-committed sessions
-    List<Transaction<Request, Response>> getTransactions();
+    List<Transaction<Request>> getTransactions();
 
     // check if specific tx exists
-    Transaction<Request, Response> getTransaction(long txUserId, String txId);
+    Transaction<Request> getTransaction(long txUserId, String txId);
+
+    // returns response entity
+    Response getResponse(long id);
 
     // start tx
-    void startTransaction(Transaction<Request, Response> t);
+    void startTransaction(Transaction<Request> t);
 
     // actually add user, return new user object w/ id set properly
     Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r);

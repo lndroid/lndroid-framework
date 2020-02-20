@@ -47,8 +47,8 @@ public class SendPayment implements IPluginForeground {
         engine_ = callback;
 
         // restore active transactions
-        List<Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment>> txs = dao_.getTransactions();
-        for(Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> tx: txs) {
+        List<Transaction<WalletData.SendPaymentRequest>> txs = dao_.getTransactions();
+        for(Transaction<WalletData.SendPaymentRequest> tx: txs) {
             PluginContext ctx = new PluginContext();
             ctx.txId = tx.txId;
             ctx.deadline = tx.deadlineTime;
@@ -155,11 +155,16 @@ public class SendPayment implements IPluginForeground {
     public void start(PluginContext ctx, IPluginData in) {
 
         // recover if tx already executed
-        Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
+        Transaction<WalletData.SendPaymentRequest> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
         if (tx != null){
             if (tx.doneTime != 0) {
-                if (tx.response != null) {
-                    engine_.onReply(id(), ctx, tx.response, WalletData.SendPayment.class);
+                if (tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
+                } else if (tx.responseId != 0) {
+                    WalletData.SendPayment r = dao_.getResponse(tx.responseId);
+                    if (r == null)
+                        throw new RuntimeException("Response entity not found");
+                    engine_.onReply(id(), ctx, r, WalletData.SendPayment.class);
                     engine_.onDone(id(), ctx);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));

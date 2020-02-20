@@ -9,7 +9,6 @@ import java.lang.reflect.Type;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
@@ -31,7 +30,7 @@ public class ConnectPeer extends
     }
 
     @Override
-    protected Data.ConnectPeerRequest createLndRequest(ILndActionDao<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse> dao, PluginContext ctx, WalletData.ConnectPeerRequest req) {
+    protected Data.ConnectPeerRequest createLndRequest(PluginContext ctx, WalletData.ConnectPeerRequest req) {
         Data.ConnectPeerRequest r = new Data.ConnectPeerRequest();
         LightningCodec.ConnectPeerCodec.encode(req, r);
         return r;
@@ -55,7 +54,7 @@ public class ConnectPeer extends
     }
 
     @Override
-    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse> tx) {
+    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.ConnectPeerRequest> tx) {
         return !user.isApp();
     }
 

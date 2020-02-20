@@ -43,9 +43,9 @@ abstract class DecodePayReqDaoRoom
 
     @Override
     @Query("UPDATE DecodePayReqTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txError = :code " +
+            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
 
     @Query("UPDATE DecodePayReqTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
@@ -65,6 +65,9 @@ abstract class DecodePayReqDaoRoom
         }
     }
 
+    @Override // not stored
+    public WalletData.SendPayment getResponse(long id) { return null; };
+
     @Transaction
     public WalletData.SendPayment commitTransaction(long txUserId, String txId, WalletData.SendPayment r, long time) {
         RoomTransactions.DecodePayReqTransaction tx = getTransaction(txUserId, txId);
@@ -72,7 +75,6 @@ abstract class DecodePayReqDaoRoom
         // NOTE: r is not written to it's own table bcs we don't store them
 
         // update state
-        tx.setResponse(r);
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
 

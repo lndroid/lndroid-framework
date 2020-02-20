@@ -45,9 +45,9 @@ abstract class EstimateFeeDaoRoom
 
     @Override
     @Query("UPDATE EstimateFeeTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txError = :code " +
+            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
 
     @Query("UPDATE EstimateFeeTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
@@ -67,6 +67,9 @@ abstract class EstimateFeeDaoRoom
         }
     }
 
+    @Override
+    public WalletData.EstimateFeeResponse getResponse(long id) { return null; };
+
     @Transaction
     public WalletData.EstimateFeeResponse commitTransaction(long txUserId, String txId, WalletData.EstimateFeeResponse r, long time) {
         RoomTransactions.EstimateFeeTransaction tx = getTransaction(txUserId, txId);
@@ -74,7 +77,6 @@ abstract class EstimateFeeDaoRoom
         // NOTE: r is not written to it's own table bcs we don't store them
 
         // update state
-        tx.setResponse(r);
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
 

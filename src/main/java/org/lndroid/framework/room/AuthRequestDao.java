@@ -80,7 +80,7 @@ class AuthRequestDao implements IAuthRequestDao, IPluginDao {
 
     @Override
     public <T> T getTransactionRequest(long userId, String txId, Class<T> cls) {
-        RoomTransactions.RoomTransactionBase<?,?> tx = null;
+        RoomTransactions.RoomTransactionBase<?> tx = null;
         if (isTxRequestClass(cls, RoomTransactions.AddUserTransaction.class))
             tx = dao_.getAddUserTransaction(userId, txId);
         else if (isTxRequestClass(cls, RoomTransactions.NewAddressTransaction.class))

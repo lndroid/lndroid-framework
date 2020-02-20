@@ -19,6 +19,7 @@ public final class DefaultTopics {
     public static final String SEND_PAYMENT_STATE = "org.lndroid.topics.SEND_PAYMENT_STATE";
 
     public static final String NEW_CHANNEL = "org.lndroid.topics.NEW_CHANNEL";
+    public static final String CLOSE_CHANNEL = "org.lndroid.topics.CLOSE_CHANNEL";
     public static final String CHANNEL_STATE = "org.lndroid.topics.CHANNEL_STATE";
     public static final String CHANNEL_ACTIVE = "org.lndroid.topics.CHANNEL_ACTIVE";
 

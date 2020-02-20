@@ -8,7 +8,7 @@ import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.Transaction;
 
-class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<Request, Response>>
+class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<Request>>
         implements IActionDao<Request, Response>, IPluginDao {
 
     private IRoomActionDao<RoomTransaction, Response> dao_;
@@ -24,17 +24,16 @@ class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<
         // noop
     }
 
-    private Transaction<Request, Response> fromRoom(RoomTransaction tx) {
-        Transaction<Request, Response> t = new Transaction<>();
+    private Transaction<Request> fromRoom(RoomTransaction tx) {
+        Transaction<Request> t = new Transaction<>();
         RoomConverters.TxConverter.toTx(tx.getTxData(), t);
         t.request = tx.getRequest();
-        t.response = tx.getResponse();
         return t;
     }
 
     @Override
-    public List<Transaction<Request, Response>> getTransactions() {
-        List<Transaction<Request, Response>> r = new ArrayList<>();
+    public List<Transaction<Request>> getTransactions() {
+        List<Transaction<Request>> r = new ArrayList<>();
 
         List<RoomTransaction> txs = dao_.getTransactions();
         for (RoomTransaction tx: txs) {
@@ -45,7 +44,7 @@ class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<
     }
 
     @Override
-    public Transaction<Request, Response> getTransaction(long txUserId, String txId) {
+    public Transaction<Request> getTransaction(long txUserId, String txId) {
         RoomTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -54,7 +53,12 @@ class ActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<
     }
 
     @Override
-    public void startTransaction(Transaction<Request, Response> t) {
+    public Response getResponse(long id) {
+        return dao_.getResponse(id);
+    }
+
+    @Override
+    public void startTransaction(Transaction<Request> t) {
         try {
             RoomTransaction tx = roomTxClass_.newInstance();
             tx.setRequest(t.request);

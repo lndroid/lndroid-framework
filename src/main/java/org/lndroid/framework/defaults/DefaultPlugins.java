@@ -38,6 +38,8 @@ public final class DefaultPlugins {
     public static final String GET_CHANNEL = "org.lndroid.plugins.GET_CHANNEL";
     public static final String CHANNEL_STATE_WORKER = "org.lndroid.plugins.CHANNEL_STATE_WORKER";
     public static final String LIST_CHANNELS = "org.lndroid.plugins.LIST_CHANNELS";
+    public static final String CLOSE_CHANNEL = "org.lndroid.plugins.CLOSE_CHANNEL";
+    public static final String CLOSE_CHANNEL_WORKER = "org.lndroid.plugins.CLOSE_CHANNEL_WORKER";
 
     public static final String LIST_PAYMENTS = "org.lndroid.plugins.LIST_PAYMENTS";
 

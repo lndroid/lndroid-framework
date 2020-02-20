@@ -48,6 +48,15 @@ abstract class AddContactPaymentsPrivilegeDaoRoom
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract void upsert(RoomData.ContactPaymentsPrivilege r);
 
+    @Query("SELECT * FROM ContactPaymentsPrivilege WHERE id = :id")
+    abstract RoomData.ContactPaymentsPrivilege getResponseRoom(long id);
+
+    @Override
+    public WalletData.ContactPaymentsPrivilege getResponse(long id) {
+        RoomData.ContactPaymentsPrivilege r = getResponseRoom(id);
+        return r != null ? r.getData() : null;
+    }
+
     // create value and add it to tx response and commit
     @Override @androidx.room.Transaction
     public WalletData.ContactPaymentsPrivilege commitTransaction(
@@ -66,7 +75,7 @@ abstract class AddContactPaymentsPrivilegeDaoRoom
         upsert(rv);
 
         // set response to tx
-        tx.setResponse(v);
+        tx.setResponse(v.getClass(), v.id());
 
         // update state
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;

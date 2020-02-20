@@ -2,7 +2,6 @@ package org.lndroid.framework.plugins;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
@@ -31,7 +30,6 @@ public class EstimateFee extends
 
     @Override
     protected Data.EstimateFeeRequest createLndRequest(
-            ILndActionDao<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> dao,
             PluginContext ctx,
             WalletData.EstimateFeeRequest req) {
         Data.EstimateFeeRequest p = new Data.EstimateFeeRequest();
@@ -59,7 +57,7 @@ public class EstimateFee extends
 
     @Override
     protected boolean isUserPrivileged(
-            WalletData.User user, Transaction<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> tx) {
+            WalletData.User user, Transaction<WalletData.EstimateFeeRequest> tx) {
 
         return !user.isApp();
     }

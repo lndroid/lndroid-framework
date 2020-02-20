@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
@@ -31,7 +30,7 @@ public class NewAddress extends
     }
 
     @Override
-    protected Data.NewAddressRequest createLndRequest(ILndActionDao<WalletData.NewAddressRequest, WalletData.NewAddress> dao, PluginContext ctx, WalletData.NewAddressRequest req) {
+    protected Data.NewAddressRequest createLndRequest(PluginContext ctx, WalletData.NewAddressRequest req) {
         Data.NewAddressRequest r = new Data.NewAddressRequest();
         LightningCodec.NewAddressCodec.encode(req, r);
         return r;
@@ -56,7 +55,7 @@ public class NewAddress extends
     }
 
     @Override
-    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.NewAddressRequest, WalletData.NewAddress> tx) {
+    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.NewAddressRequest> tx) {
         // FIXME check limits
         return user.isRoot();
     }

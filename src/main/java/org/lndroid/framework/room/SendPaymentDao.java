@@ -24,11 +24,10 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
         dao_.setRouteDao(routeDao);
     }
 
-    private Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> fromRoom(RoomTransactions.SendPaymentTransaction tx) {
-        Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> t = new Transaction<>();
+    private Transaction<WalletData.SendPaymentRequest> fromRoom(RoomTransactions.SendPaymentTransaction tx) {
+        Transaction<WalletData.SendPaymentRequest> t = new Transaction<>();
         RoomConverters.TxConverter.toTx(tx.getTxData(), t);
         t.request = tx.getRequest();
-        t.response = tx.getResponse();
         return t;
     }
 
@@ -50,8 +49,8 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     }
 
     @Override
-    public List<Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment>> getTransactions() {
-        List<Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment>> r = new ArrayList<>();
+    public List<Transaction<WalletData.SendPaymentRequest>> getTransactions() {
+        List<Transaction<WalletData.SendPaymentRequest>> r = new ArrayList<>();
 
         List<RoomTransactions.SendPaymentTransaction> txs = dao_.getTransactions();
         for (RoomTransactions.SendPaymentTransaction tx: txs) {
@@ -62,7 +61,7 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     }
 
     @Override
-    public Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> getTransaction(
+    public Transaction<WalletData.SendPaymentRequest> getTransaction(
             long txUserId, String txId) {
         RoomTransactions.SendPaymentTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
@@ -72,11 +71,10 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     }
 
     @Override
-    public void startTransaction(Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> t) {
+    public void startTransaction(Transaction<WalletData.SendPaymentRequest> t) {
         RoomTransactions.SendPaymentTransaction tx = new RoomTransactions.SendPaymentTransaction();
         tx.setTxData(RoomConverters.TxConverter.fromTx(t));
         tx.setRequest(t.request);
-        tx.setResponse(t.response);
         dao_.createTransaction(tx);
     }
 
@@ -93,6 +91,11 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     @Override
     public void timeoutTransaction(long txUserId, String txId) {
         dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
+    }
+
+    @Override
+    public WalletData.SendPayment getResponse(long id) {
+        return dao_.getResponse(id);
     }
 
     @Override
@@ -181,6 +184,18 @@ abstract class SendPaymentDaoRoom {
         return "spr:"+tx.txData.txId;
     }
 
+    @Query("SELECT * FROM SendPayment WHERE id = :id")
+    public abstract RoomData.SendPayment getResponseRoom(long id);
+
+    public WalletData.SendPayment getResponse(long id) {
+        RoomData.SendPayment r = getResponseRoom(id);
+        if (r == null)
+            return null;
+
+        return r.getData().toBuilder()
+                .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(r.getData())))
+                .build();
+    }
 
     @androidx.room.Transaction
     public void startTransaction(RoomTransactions.SendPaymentTransaction tx) {
@@ -214,7 +229,7 @@ abstract class SendPaymentDaoRoom {
         insertPayment(rp);
 
         // update state
-        tx.setResponse(sp);
+        tx.setResponse(sp.getClass(), sp.id());
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
         if (txAuthUserId != 0) {

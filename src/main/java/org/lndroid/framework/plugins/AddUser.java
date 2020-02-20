@@ -70,7 +70,7 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
     }
 
     @Override
-    protected WalletData.AddUserRequest getData(IPluginData in) {
+    protected WalletData.AddUserRequest getRequestData(IPluginData in) {
         in.assignDataType(WalletData.AddUserRequest.class);
         try {
 

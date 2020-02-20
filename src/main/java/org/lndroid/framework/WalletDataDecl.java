@@ -945,6 +945,29 @@ public class WalletDataDecl {
         boolean spendUnconfirmed();
     }
 
+    public interface CloseChannelRequest {
+
+        // either id or channelPoint must be provided
+        long channelId();
+
+        /**
+         The outpoint (txid:index) of the funding transaction. With this value, Bob
+         will be able to generate a signature for Alice's version of the commitment
+         transaction.
+         */
+        @Nullable
+        String channelPoint();
+
+        /// If true, then the channel will be closed forcibly. This means the current commitment transaction will be signed and broadcast.
+        boolean force();
+
+        /// The target number of blocks that the closure transaction should be confirmed by.
+        int targetConf();
+
+        /// A manual fee rate set in sat/byte that should be used when crafting the closure transaction.
+        long satPerByte();
+    }
+
     public interface SendPaymentRequest<RouteHint> {
 
         // internal description to be presented to the user

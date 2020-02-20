@@ -44,9 +44,9 @@ abstract class ConnectPeerDaoRoom
 
     @Override
     @Query("UPDATE ConnectPeerTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txError = :code " +
+            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
 
     @Query("UPDATE ConnectPeerTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
@@ -66,6 +66,9 @@ abstract class ConnectPeerDaoRoom
         }
     }
 
+    @Override // not stored atm
+    public WalletData.ConnectPeerResponse getResponse(long id) { return null; };
+
     @Transaction
     public WalletData.ConnectPeerResponse commitTransaction(long txUserId, String txId, WalletData.ConnectPeerResponse r, long time) {
         RoomTransactions.ConnectPeerTransaction tx = getTransaction(txUserId, txId);
@@ -73,7 +76,6 @@ abstract class ConnectPeerDaoRoom
         // NOTE: r is not written to it's own table bcs we don't store addresses
 
         // update state
-        tx.setResponse(r);
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
 

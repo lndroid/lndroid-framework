@@ -20,17 +20,16 @@ public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, Wa
         dao_ = dao;
     }
 
-    private Transaction<WalletData.OpenChannelRequest, WalletData.Channel> fromRoom(RoomTransactions.OpenChannelTransaction tx) {
-        Transaction<WalletData.OpenChannelRequest, WalletData.Channel> t = new Transaction<>();
-        RoomConverters.TxConverter.toTx(tx.txData, t);
-        t.request = tx.request;
-        t.response = tx.response;
+    private Transaction<WalletData.OpenChannelRequest> fromRoom(RoomTransactions.OpenChannelTransaction tx) {
+        Transaction<WalletData.OpenChannelRequest> t = new Transaction<>();
+        RoomConverters.TxConverter.toTx(tx.getTxData(), t);
+        t.request = tx.getRequest();
         return t;
     }
 
     @Override
-    public List<Transaction<WalletData.OpenChannelRequest, WalletData.Channel>> getTransactions() {
-        List<Transaction<WalletData.OpenChannelRequest, WalletData.Channel>> r = new ArrayList<>();
+    public List<Transaction<WalletData.OpenChannelRequest>> getTransactions() {
+        List<Transaction<WalletData.OpenChannelRequest>> r = new ArrayList<>();
 
         List<RoomTransactions.OpenChannelTransaction> txs = dao_.getTransactions();
         for (RoomTransactions.OpenChannelTransaction tx: txs) {
@@ -41,7 +40,7 @@ public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, Wa
     }
 
     @Override
-    public Transaction<WalletData.OpenChannelRequest, WalletData.Channel> getTransaction(long txUserId, String txId) {
+    public Transaction<WalletData.OpenChannelRequest> getTransaction(long txUserId, String txId) {
         RoomTransactions.OpenChannelTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
@@ -50,11 +49,10 @@ public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, Wa
     }
 
     @Override
-    public void startTransaction(Transaction<WalletData.OpenChannelRequest, WalletData.Channel> t) {
+    public void startTransaction(Transaction<WalletData.OpenChannelRequest> t) {
         RoomTransactions.OpenChannelTransaction tx = new RoomTransactions.OpenChannelTransaction();
-        tx.txData = RoomConverters.TxConverter.fromTx(t);
-        tx.request = t.request;
-        tx.response = t.response;
+        tx.setTxData(RoomConverters.TxConverter.fromTx(t));
+        tx.setRequest(t.request);
         dao_.createTransaction(tx);
     }
 
@@ -71,6 +69,11 @@ public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, Wa
     @Override
     public void timeoutTransaction(long txUserId, String txId) {
         dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
+    }
+
+    @Override
+    public WalletData.Channel getResponse(long id) {
+        return dao_.getResponse(id);
     }
 
     @Override
@@ -109,6 +112,14 @@ abstract class OpenChannelDaoRoom {
     @Query("UPDATE Channel SET channelPoint = :cp WHERE id = :id")
     abstract void setFakeChannelPoint(long id, String cp);
 
+    @Query("SELECT * FROM Channel WHERE id = :id")
+    abstract RoomData.Channel getResponseRoom(long id);
+
+    WalletData.Channel getResponse(long id) {
+        RoomData.Channel r = getResponseRoom(id);
+        return r != null ? r.getData() : null;
+    }
+
     @androidx.room.Transaction
     public WalletData.Channel commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Channel channel, long time) {
         // insert payment into it's own table
@@ -122,7 +133,7 @@ abstract class OpenChannelDaoRoom {
         RoomTransactions.OpenChannelTransaction tx = getTransaction(txUserId, txId);
 
         // update state
-        tx.setResponse(channel);
+        tx.setResponse(channel.getClass(), channel.id());
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
         if (txAuthUserId != 0) {

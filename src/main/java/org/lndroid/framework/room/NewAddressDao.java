@@ -43,9 +43,9 @@ abstract class NewAddressDaoRoom
 
     @Override
     @Query("UPDATE NewAddressTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txError = :code " +
+            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
 
     @Query("UPDATE NewAddressTransaction " +
             "SET txState = :txState, txDoneTime = :time " +
@@ -65,6 +65,9 @@ abstract class NewAddressDaoRoom
         }
     }
 
+    @Override // not stored
+    public WalletData.NewAddress getResponse(long id) { return null; };
+
     @Transaction
     public WalletData.NewAddress commitTransaction(long txUserId, String txId, WalletData.NewAddress r, long time) {
         RoomTransactions.NewAddressTransaction tx = getTransaction(txUserId, txId);
@@ -72,7 +75,6 @@ abstract class NewAddressDaoRoom
         // NOTE: r is not written to it's own table bcs we don't store addresses
 
         // update state
-        tx.setResponse(r);
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
 

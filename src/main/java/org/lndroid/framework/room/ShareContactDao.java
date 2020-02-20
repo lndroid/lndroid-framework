@@ -39,6 +39,9 @@ abstract class ShareContactDaoRoom
             "WHERE txUserId = :txUserId AND txId = :txId")
     public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
 
+    @Override // not stored!
+    public WalletData.ShareContactResponse getResponse(long id) { return null; };
+
     @Override @Transaction
     public WalletData.ShareContactResponse commitTransaction(
             RoomTransactions.ShareContactTransaction tx, long txAuthUserId, WalletData.ShareContactResponse rep, long time) {
@@ -46,7 +49,6 @@ abstract class ShareContactDaoRoom
         // we don't store this response, only attach it to the tx
 
         // update state
-        tx.response = rep;
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
         tx.txData.txAuthUserId = txAuthUserId;

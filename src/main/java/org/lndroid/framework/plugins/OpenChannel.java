@@ -20,7 +20,7 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
     }
 
     @Override
-    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.OpenChannelRequest, WalletData.Channel> tx) {
+    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.OpenChannelRequest> tx) {
         return user.isRoot();
     }
 
@@ -72,7 +72,7 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
     }
 
     @Override
-    protected WalletData.OpenChannelRequest getData(IPluginData in) {
+    protected WalletData.OpenChannelRequest getRequestData(IPluginData in) {
         in.assignDataType(WalletData.OpenChannelRequest.class);
         try {
             return in.getData();

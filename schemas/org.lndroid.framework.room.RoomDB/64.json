@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 64,
-    "identityHash": "b8e1bfca35a1d20f2c87884e86e8b7fc",
+    "identityHash": "51ae75f7cda508e1e6429eda7faee533",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -2520,7 +2520,7 @@
       },
       {
         "tableName": "AddContactInvoiceTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reppaymentRequest` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -2571,14 +2571,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "response.paymentRequest",
-            "columnName": "reppaymentRequest",
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -2595,7 +2655,7 @@
       },
       {
         "tableName": "AddContactTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `reqpubkey` TEXT, `reqname` TEXT, `reqdescription` TEXT, `requrl` TEXT, `reqrouteHints` TEXT, `reqfeatures` TEXT, `repid` INTEGER, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `reppubkey` TEXT, `repname` TEXT, `repdescription` TEXT, `repurl` TEXT, `reprouteHints` TEXT, `repfeatures` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `reqpubkey` TEXT, `reqname` TEXT, `reqdescription` TEXT, `requrl` TEXT, `reqrouteHints` TEXT, `reqfeatures` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -2646,8 +2706,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -2710,66 +2836,6 @@
             "columnName": "reqfeatures",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.pubkey",
-            "columnName": "reppubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.name",
-            "columnName": "repname",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.description",
-            "columnName": "repdescription",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.url",
-            "columnName": "repurl",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.routeHints",
-            "columnName": "reprouteHints",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.features",
-            "columnName": "repfeatures",
-            "affinity": "TEXT",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -2784,7 +2850,7 @@
       },
       {
         "tableName": "AddContactPaymentsPrivilegeTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `reqcontactId` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `repcontactId` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `reqcontactId` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -2835,8 +2901,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -2869,36 +3001,6 @@
             "columnName": "reqcontactId",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.contactId",
-            "columnName": "repcontactId",
-            "affinity": "INTEGER",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -2913,7 +3015,7 @@
       },
       {
         "tableName": "AddInvoiceTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpreimageHex` TEXT, `reqvalueSat` INTEGER, `reqdescription` TEXT, `reqdescriptionHashHex` TEXT, `reqfallbackAddr` TEXT, `reqexpiry` INTEGER, `reqpurpose` TEXT, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `reppurpose` TEXT, `repdescription` TEXT, `reppreimageHex` TEXT, `reppreimageHashHex` TEXT, `repvalueSat` INTEGER, `repcreateTime` INTEGER, `repsettleTime` INTEGER, `reppaymentRequest` TEXT, `repdescriptionHashHex` TEXT, `repexpiry` INTEGER, `repfallbackAddr` TEXT, `repcltvExpiry` INTEGER, `repisPrivate` INTEGER, `repaddIndex` INTEGER, `repsettleIndex` INTEGER, `repamountPaidMsat` INTEGER, `repstate` INTEGER, `rephtlcsCount` INTEGER, `repisKeysend` INTEGER, `repfeatures` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqpreimageHex` TEXT, `reqvalueSat` INTEGER, `reqdescription` TEXT, `reqdescriptionHashHex` TEXT, `reqfallbackAddr` TEXT, `reqexpiry` INTEGER, `reqpurpose` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -2964,8 +3066,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -3010,150 +3178,6 @@
             "columnName": "reqpurpose",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.txId",
-            "columnName": "reptxId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.purpose",
-            "columnName": "reppurpose",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.description",
-            "columnName": "repdescription",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.preimageHex",
-            "columnName": "reppreimageHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.preimageHashHex",
-            "columnName": "reppreimageHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.valueSat",
-            "columnName": "repvalueSat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.settleTime",
-            "columnName": "repsettleTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentRequest",
-            "columnName": "reppaymentRequest",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.descriptionHashHex",
-            "columnName": "repdescriptionHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.expiry",
-            "columnName": "repexpiry",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.fallbackAddr",
-            "columnName": "repfallbackAddr",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.cltvExpiry",
-            "columnName": "repcltvExpiry",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.isPrivate",
-            "columnName": "repisPrivate",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.addIndex",
-            "columnName": "repaddIndex",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.settleIndex",
-            "columnName": "repsettleIndex",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.amountPaidMsat",
-            "columnName": "repamountPaidMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.state",
-            "columnName": "repstate",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.htlcsCount",
-            "columnName": "rephtlcsCount",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.isKeysend",
-            "columnName": "repisKeysend",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.features",
-            "columnName": "repfeatures",
-            "affinity": "TEXT",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -3168,7 +3192,7 @@
       },
       {
         "tableName": "AddListContactsPrivilegeTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqid` INTEGER, `requserId` INTEGER, `reqauthUserId` INTEGER, `reqcreateTime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -3219,8 +3243,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -3247,30 +3337,6 @@
             "columnName": "reqcreateTime",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -3285,7 +3351,7 @@
       },
       {
         "tableName": "AddUserTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqrole` TEXT, `reqauthType` TEXT, `reqpassword` TEXT, `reqappPubkey` TEXT, `reqappPackageName` TEXT, `reqappLabel` TEXT, `repid` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `reprole` TEXT, `repauthType` TEXT, `repnonce` TEXT, `reppubkey` TEXT, `repappPackageName` TEXT, `repappPubkey` TEXT, `repappLabel` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqrole` TEXT, `reqauthType` TEXT, `reqpassword` TEXT, `reqappPubkey` TEXT, `reqappPackageName` TEXT, `reqappLabel` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -3336,8 +3402,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -3376,66 +3508,6 @@
             "columnName": "reqappLabel",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.role",
-            "columnName": "reprole",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authType",
-            "columnName": "repauthType",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.nonce",
-            "columnName": "repnonce",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.pubkey",
-            "columnName": "reppubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.appPackageName",
-            "columnName": "repappPackageName",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.appPubkey",
-            "columnName": "repappPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.appLabel",
-            "columnName": "repappLabel",
-            "affinity": "TEXT",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -3449,8 +3521,8 @@
         "foreignKeys": []
       },
       {
-        "tableName": "ConnectPeerTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpubkey` TEXT, `reqhost` TEXT, `reqperm` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "tableName": "CloseChannelTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqchannelId` INTEGER, `reqchannelPoint` TEXT, `reqforce` INTEGER, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -3501,8 +3573,239 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.channelId",
+            "columnName": "reqchannelId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.channelPoint",
+            "columnName": "reqchannelPoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.force",
+            "columnName": "reqforce",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.targetConf",
+            "columnName": "reqtargetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "request.satPerByte",
+            "columnName": "reqsatPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "txUserId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ConnectPeerTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqpubkey` TEXT, `reqhost` TEXT, `reqperm` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.txUserId",
+            "columnName": "txUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthUserId",
+            "columnName": "txAuthUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txState",
+            "columnName": "txState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txCreateTime",
+            "columnName": "txCreateTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDeadlineTime",
+            "columnName": "txDeadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txAuthTime",
+            "columnName": "txAuthTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txDoneTime",
+            "columnName": "txDoneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -3537,7 +3840,7 @@
       },
       {
         "tableName": "DecodePayReqTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `reppurpose` TEXT, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repinvoiceDescription` TEXT, `repinvoiceDescriptionHashHex` TEXT, `repinvoiceFallbackAddr` TEXT, `reppaymentAddrHex` TEXT, `repinvoiceTimestamp` INTEGER, `repinvoiceExpiry` INTEGER, `repdestPubkey` TEXT, `repvalueMsat` INTEGER, `reptotalValueMsat` INTEGER, `reppaymentHashHex` TEXT, `reppaymentRequest` TEXT, `repfinalCltvDelta` INTEGER, `repfeeLimitFixedMsat` INTEGER, `repfeeLimitPercent` INTEGER, `repoutgoingChanId` INTEGER, `repcltvLimit` INTEGER, `repdestCustomRecords` BLOB, `reppaymentError` TEXT, `reppaymentPreimageHex` TEXT, `reprouteHints` TEXT, `repfeatures` TEXT, `repcreateTime` INTEGER, `repsendTime` INTEGER, `repfeeMsat` INTEGER, `repcontactPubkey` TEXT, `repmessage` TEXT, `repsenderPubkey` TEXT, `repisKeysend` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -3588,255 +3891,75 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.txId",
-            "columnName": "reptxId",
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.purpose",
-            "columnName": "reppurpose",
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "response.tries",
-            "columnName": "reptries",
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
-            "fieldPath": "response.maxTries",
-            "columnName": "repmaxTries",
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
-            "fieldPath": "response.maxTryTime",
-            "columnName": "repmaxTryTime",
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
-            "fieldPath": "response.lastTryTime",
-            "columnName": "replastTryTime",
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
-            "fieldPath": "response.nextTryTime",
-            "columnName": "repnextTryTime",
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
-            "fieldPath": "response.state",
-            "columnName": "repstate",
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
-            "fieldPath": "response.errorCode",
-            "columnName": "reperrorCode",
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "response.errorMessage",
-            "columnName": "reperrorMessage",
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceDescription",
-            "columnName": "repinvoiceDescription",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceDescriptionHashHex",
-            "columnName": "repinvoiceDescriptionHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceFallbackAddr",
-            "columnName": "repinvoiceFallbackAddr",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentAddrHex",
-            "columnName": "reppaymentAddrHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceTimestamp",
-            "columnName": "repinvoiceTimestamp",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceExpiry",
-            "columnName": "repinvoiceExpiry",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.destPubkey",
-            "columnName": "repdestPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.valueMsat",
-            "columnName": "repvalueMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.totalValueMsat",
-            "columnName": "reptotalValueMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentHashHex",
-            "columnName": "reppaymentHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentRequest",
-            "columnName": "reppaymentRequest",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.finalCltvDelta",
-            "columnName": "repfinalCltvDelta",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeLimitFixedMsat",
-            "columnName": "repfeeLimitFixedMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeLimitPercent",
-            "columnName": "repfeeLimitPercent",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.outgoingChanId",
-            "columnName": "repoutgoingChanId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.cltvLimit",
-            "columnName": "repcltvLimit",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.destCustomRecords",
-            "columnName": "repdestCustomRecords",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentError",
-            "columnName": "reppaymentError",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentPreimageHex",
-            "columnName": "reppaymentPreimageHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.routeHints",
-            "columnName": "reprouteHints",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.features",
-            "columnName": "repfeatures",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.sendTime",
-            "columnName": "repsendTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeMsat",
-            "columnName": "repfeeMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.contactPubkey",
-            "columnName": "repcontactPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.message",
-            "columnName": "repmessage",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.senderPubkey",
-            "columnName": "repsenderPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.isKeysend",
-            "columnName": "repisKeysend",
-            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -3852,7 +3975,7 @@
       },
       {
         "tableName": "EstimateFeeTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqaddrToAmount` TEXT, `reqtargetConf` INTEGER, `repfeeSat` INTEGER, `repfeerateSatPerByte` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqaddrToAmount` TEXT, `reqtargetConf` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -3903,8 +4026,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -3917,18 +4106,6 @@
           {
             "fieldPath": "request.targetConf",
             "columnName": "reqtargetConf",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeSat",
-            "columnName": "repfeeSat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feerateSatPerByte",
-            "columnName": "repfeerateSatPerByte",
             "affinity": "INTEGER",
             "notNull": false
           }
@@ -3945,7 +4122,7 @@
       },
       {
         "tableName": "NewAddressTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqtype` INTEGER, `repaddress` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqtype` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -3996,8 +4173,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -4005,12 +4248,6 @@
             "fieldPath": "request.type",
             "columnName": "reqtype",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.address",
-            "columnName": "repaddress",
-            "affinity": "TEXT",
             "notNull": false
           }
         ],
@@ -4026,7 +4263,7 @@
       },
       {
         "tableName": "OpenChannelTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqdescription` TEXT, `reqnodePubkey` TEXT, `reqlocalFundingAmount` INTEGER, `reqpushSat` INTEGER, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqisPrivate` INTEGER, `reqminHtlcMsat` INTEGER, `reqremoteCsvDelay` INTEGER, `reqminConfs` INTEGER, `reqspendUnconfirmed` INTEGER, `repid` INTEGER, `repuserId` INTEGER, `reptxId` TEXT, `repauthUserId` INTEGER, `repdescription` TEXT, `reptargetConf` INTEGER, `repsatPerByte` INTEGER, `repminHtlcMsat` INTEGER, `repminConfs` INTEGER, `repspendUnconfirmed` INTEGER, `repchainHashHex` TEXT, `repclosingTxHashHex` TEXT, `repcloseHeight` INTEGER, `repsettledBalance` INTEGER, `reptimeLockedBalance` INTEGER, `repcloseType` INTEGER, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repcreateTime` INTEGER, `repopenTime` INTEGER, `repcloseTime` INTEGER, `repactive` INTEGER, `repremotePubkey` TEXT, `repchannelPoint` TEXT, `repchanId` INTEGER, `repcapacity` INTEGER, `replocalBalance` INTEGER, `repremoteBalance` INTEGER, `repconfirmationHeight` INTEGER, `replimboBalance` INTEGER, `repmaturityHeight` INTEGER, `reprecoveredBalance` INTEGER, `repcommitFee` INTEGER, `repcommitWeight` INTEGER, `repfeePerKw` INTEGER, `repunsettledBalance` INTEGER, `reptotalSatoshisSent` INTEGER, `reptotalSatoshisReceived` INTEGER, `repnumUpdates` INTEGER, `repcsvDelay` INTEGER, `repisPrivate` INTEGER, `repinitiator` INTEGER, `repchanStatusFlags` TEXT, `replocalChanReserveSat` INTEGER, `repremoteChanReserveSat` INTEGER, `repstaticRemoteKey` INTEGER, `replifetime` INTEGER, `repuptime` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqdescription` TEXT, `reqnodePubkey` TEXT, `reqlocalFundingAmount` INTEGER, `reqpushSat` INTEGER, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqisPrivate` INTEGER, `reqminHtlcMsat` INTEGER, `reqremoteCsvDelay` INTEGER, `reqminConfs` INTEGER, `reqspendUnconfirmed` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -4077,8 +4314,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -4147,330 +4450,6 @@
             "columnName": "reqspendUnconfirmed",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.txId",
-            "columnName": "reptxId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.description",
-            "columnName": "repdescription",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.targetConf",
-            "columnName": "reptargetConf",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.satPerByte",
-            "columnName": "repsatPerByte",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.minHtlcMsat",
-            "columnName": "repminHtlcMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.minConfs",
-            "columnName": "repminConfs",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.spendUnconfirmed",
-            "columnName": "repspendUnconfirmed",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.chainHashHex",
-            "columnName": "repchainHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.closingTxHashHex",
-            "columnName": "repclosingTxHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.closeHeight",
-            "columnName": "repcloseHeight",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.settledBalance",
-            "columnName": "repsettledBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.timeLockedBalance",
-            "columnName": "reptimeLockedBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.closeType",
-            "columnName": "repcloseType",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.tries",
-            "columnName": "reptries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maxTries",
-            "columnName": "repmaxTries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maxTryTime",
-            "columnName": "repmaxTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.lastTryTime",
-            "columnName": "replastTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.nextTryTime",
-            "columnName": "repnextTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.state",
-            "columnName": "repstate",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.errorCode",
-            "columnName": "reperrorCode",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.errorMessage",
-            "columnName": "reperrorMessage",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.openTime",
-            "columnName": "repopenTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.closeTime",
-            "columnName": "repcloseTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.active",
-            "columnName": "repactive",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.remotePubkey",
-            "columnName": "repremotePubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.channelPoint",
-            "columnName": "repchannelPoint",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.chanId",
-            "columnName": "repchanId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.capacity",
-            "columnName": "repcapacity",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.localBalance",
-            "columnName": "replocalBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.remoteBalance",
-            "columnName": "repremoteBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.confirmationHeight",
-            "columnName": "repconfirmationHeight",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.limboBalance",
-            "columnName": "replimboBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maturityHeight",
-            "columnName": "repmaturityHeight",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.recoveredBalance",
-            "columnName": "reprecoveredBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.commitFee",
-            "columnName": "repcommitFee",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.commitWeight",
-            "columnName": "repcommitWeight",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feePerKw",
-            "columnName": "repfeePerKw",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.unsettledBalance",
-            "columnName": "repunsettledBalance",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.totalSatoshisSent",
-            "columnName": "reptotalSatoshisSent",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.totalSatoshisReceived",
-            "columnName": "reptotalSatoshisReceived",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.numUpdates",
-            "columnName": "repnumUpdates",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.csvDelay",
-            "columnName": "repcsvDelay",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.isPrivate",
-            "columnName": "repisPrivate",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.initiator",
-            "columnName": "repinitiator",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.chanStatusFlags",
-            "columnName": "repchanStatusFlags",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.localChanReserveSat",
-            "columnName": "replocalChanReserveSat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.remoteChanReserveSat",
-            "columnName": "repremoteChanReserveSat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.staticRemoteKey",
-            "columnName": "repstaticRemoteKey",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.lifetime",
-            "columnName": "replifetime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.uptime",
-            "columnName": "repuptime",
-            "affinity": "INTEGER",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -4485,7 +4464,7 @@
       },
       {
         "tableName": "SendCoinsTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpurpose` TEXT, `reqmaxTries` INTEGER, `reqmaxTryTime` INTEGER, `reqaddrToAmount` TEXT, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqsendAll` INTEGER, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `repcreateTime` INTEGER, `repsendTime` INTEGER, `reppurpose` TEXT, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repaddrToAmount` TEXT, `reptargetConf` INTEGER, `repsatPerByte` INTEGER, `repsendAll` INTEGER, `reptxHash` TEXT, `repamount` INTEGER, `repnumConfirmations` INTEGER, `repblockHash` TEXT, `repblockHeight` INTEGER, `reptimestamp` INTEGER, `reptotalFees` INTEGER, `repdestAddresses` TEXT, `reprawTxHex` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqpurpose` TEXT, `reqmaxTries` INTEGER, `reqmaxTryTime` INTEGER, `reqaddrToAmount` TEXT, `reqtargetConf` INTEGER, `reqsatPerByte` INTEGER, `reqsendAll` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -4536,8 +4515,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -4582,174 +4627,6 @@
             "columnName": "reqsendAll",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.txId",
-            "columnName": "reptxId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.sendTime",
-            "columnName": "repsendTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.purpose",
-            "columnName": "reppurpose",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.tries",
-            "columnName": "reptries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maxTries",
-            "columnName": "repmaxTries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maxTryTime",
-            "columnName": "repmaxTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.lastTryTime",
-            "columnName": "replastTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.nextTryTime",
-            "columnName": "repnextTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.state",
-            "columnName": "repstate",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.errorCode",
-            "columnName": "reperrorCode",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.errorMessage",
-            "columnName": "reperrorMessage",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.addrToAmount",
-            "columnName": "repaddrToAmount",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.targetConf",
-            "columnName": "reptargetConf",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.satPerByte",
-            "columnName": "repsatPerByte",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.sendAll",
-            "columnName": "repsendAll",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.txHash",
-            "columnName": "reptxHash",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.amount",
-            "columnName": "repamount",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.numConfirmations",
-            "columnName": "repnumConfirmations",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.blockHash",
-            "columnName": "repblockHash",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.blockHeight",
-            "columnName": "repblockHeight",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.timestamp",
-            "columnName": "reptimestamp",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.totalFees",
-            "columnName": "reptotalFees",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.destAddresses",
-            "columnName": "repdestAddresses",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.rawTxHex",
-            "columnName": "reprawTxHex",
-            "affinity": "TEXT",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -4764,7 +4641,7 @@
       },
       {
         "tableName": "SendPaymentTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, `reqpurpose` TEXT, `reqinvoiceDescription` TEXT, `reqinvoiceDescriptionHashHex` TEXT, `reqinvoiceFallbackAddr` TEXT, `reqinvoiceTimestamp` INTEGER, `reqexpiry` INTEGER, `reqmaxTries` INTEGER, `reqdestPubkey` TEXT, `reqvalueSat` INTEGER, `reqpaymentHashHex` TEXT, `reqpaymentRequest` TEXT, `reqfinalCltvDelta` INTEGER, `reqfeeLimitFixedMsat` INTEGER, `reqfeeLimitPercent` INTEGER, `reqoutgoingChanId` INTEGER, `reqcltvLimit` INTEGER, `reqrouteHints` TEXT, `reqfeatures` TEXT, `reqcontactId` INTEGER, `reqmessage` TEXT, `reqincludeSenderPubkey` INTEGER, `reqisKeysend` INTEGER, `reqnoAuth` INTEGER, `repid` INTEGER, `reptxId` TEXT, `repuserId` INTEGER, `repauthUserId` INTEGER, `reppurpose` TEXT, `reptries` INTEGER, `repmaxTries` INTEGER, `repmaxTryTime` INTEGER, `replastTryTime` INTEGER, `repnextTryTime` INTEGER, `repstate` INTEGER, `reperrorCode` TEXT, `reperrorMessage` TEXT, `repinvoiceDescription` TEXT, `repinvoiceDescriptionHashHex` TEXT, `repinvoiceFallbackAddr` TEXT, `reppaymentAddrHex` TEXT, `repinvoiceTimestamp` INTEGER, `repinvoiceExpiry` INTEGER, `repdestPubkey` TEXT, `repvalueMsat` INTEGER, `reptotalValueMsat` INTEGER, `reppaymentHashHex` TEXT, `reppaymentRequest` TEXT, `repfinalCltvDelta` INTEGER, `repfeeLimitFixedMsat` INTEGER, `repfeeLimitPercent` INTEGER, `repoutgoingChanId` INTEGER, `repcltvLimit` INTEGER, `repdestCustomRecords` BLOB, `reppaymentError` TEXT, `reppaymentPreimageHex` TEXT, `reprouteHints` TEXT, `repfeatures` TEXT, `repcreateTime` INTEGER, `repsendTime` INTEGER, `repfeeMsat` INTEGER, `repcontactPubkey` TEXT, `repmessage` TEXT, `repsenderPubkey` TEXT, `repisKeysend` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, `reqpurpose` TEXT, `reqinvoiceDescription` TEXT, `reqinvoiceDescriptionHashHex` TEXT, `reqinvoiceFallbackAddr` TEXT, `reqinvoiceTimestamp` INTEGER, `reqexpiry` INTEGER, `reqmaxTries` INTEGER, `reqdestPubkey` TEXT, `reqvalueSat` INTEGER, `reqpaymentHashHex` TEXT, `reqpaymentRequest` TEXT, `reqfinalCltvDelta` INTEGER, `reqfeeLimitFixedMsat` INTEGER, `reqfeeLimitPercent` INTEGER, `reqoutgoingChanId` INTEGER, `reqcltvLimit` INTEGER, `reqrouteHints` TEXT, `reqfeatures` TEXT, `reqcontactId` INTEGER, `reqmessage` TEXT, `reqincludeSenderPubkey` INTEGER, `reqisKeysend` INTEGER, `reqnoAuth` INTEGER, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -4815,8 +4692,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -4957,252 +4900,6 @@
             "columnName": "reqnoAuth",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "response.id",
-            "columnName": "repid",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.txId",
-            "columnName": "reptxId",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.userId",
-            "columnName": "repuserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.authUserId",
-            "columnName": "repauthUserId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.purpose",
-            "columnName": "reppurpose",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.tries",
-            "columnName": "reptries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maxTries",
-            "columnName": "repmaxTries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.maxTryTime",
-            "columnName": "repmaxTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.lastTryTime",
-            "columnName": "replastTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.nextTryTime",
-            "columnName": "repnextTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.state",
-            "columnName": "repstate",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.errorCode",
-            "columnName": "reperrorCode",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.errorMessage",
-            "columnName": "reperrorMessage",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceDescription",
-            "columnName": "repinvoiceDescription",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceDescriptionHashHex",
-            "columnName": "repinvoiceDescriptionHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceFallbackAddr",
-            "columnName": "repinvoiceFallbackAddr",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentAddrHex",
-            "columnName": "reppaymentAddrHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceTimestamp",
-            "columnName": "repinvoiceTimestamp",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.invoiceExpiry",
-            "columnName": "repinvoiceExpiry",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.destPubkey",
-            "columnName": "repdestPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.valueMsat",
-            "columnName": "repvalueMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.totalValueMsat",
-            "columnName": "reptotalValueMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentHashHex",
-            "columnName": "reppaymentHashHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentRequest",
-            "columnName": "reppaymentRequest",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.finalCltvDelta",
-            "columnName": "repfinalCltvDelta",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeLimitFixedMsat",
-            "columnName": "repfeeLimitFixedMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeLimitPercent",
-            "columnName": "repfeeLimitPercent",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.outgoingChanId",
-            "columnName": "repoutgoingChanId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.cltvLimit",
-            "columnName": "repcltvLimit",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.destCustomRecords",
-            "columnName": "repdestCustomRecords",
-            "affinity": "BLOB",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentError",
-            "columnName": "reppaymentError",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.paymentPreimageHex",
-            "columnName": "reppaymentPreimageHex",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.routeHints",
-            "columnName": "reprouteHints",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.features",
-            "columnName": "repfeatures",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.createTime",
-            "columnName": "repcreateTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.sendTime",
-            "columnName": "repsendTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.feeMsat",
-            "columnName": "repfeeMsat",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.contactPubkey",
-            "columnName": "repcontactPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.message",
-            "columnName": "repmessage",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.senderPubkey",
-            "columnName": "repsenderPubkey",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "response.isKeysend",
-            "columnName": "repisKeysend",
-            "affinity": "INTEGER",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -5217,7 +4914,7 @@
       },
       {
         "tableName": "ShareContactTransaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txError` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`txUserId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `txAuthUserId` INTEGER NOT NULL, `txState` INTEGER NOT NULL, `txCreateTime` INTEGER NOT NULL, `txDeadlineTime` INTEGER NOT NULL, `txAuthTime` INTEGER NOT NULL, `txDoneTime` INTEGER NOT NULL, `txErrorCode` TEXT, `txErrorMessage` TEXT, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, PRIMARY KEY(`txUserId`, `txId`))",
         "fields": [
           {
             "fieldPath": "txData.txUserId",
@@ -5268,8 +4965,74 @@
             "notNull": true
           },
           {
-            "fieldPath": "txData.txError",
-            "columnName": "txError",
+            "fieldPath": "txData.txErrorCode",
+            "columnName": "txErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.txErrorMessage",
+            "columnName": "txErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -5288,7 +5051,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8e1bfca35a1d20f2c87884e86e8b7fc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '51ae75f7cda508e1e6429eda7faee533')"
     ]
   }
 }

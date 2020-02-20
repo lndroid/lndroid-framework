@@ -58,7 +58,7 @@ public class AddAppContact extends ActionBase<WalletData.Contact, WalletData.Con
     }
 
     @Override
-    protected WalletData.Contact getData(IPluginData in) {
+    protected WalletData.Contact getRequestData(IPluginData in) {
         in.assignDataType(WalletData.AddAppContactRequest.class);
         try {
             WalletData.AddAppContactRequest r = in.getData();

@@ -33,11 +33,11 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     // override these
     protected abstract int defaultTimeout();
     protected abstract int maxTimeout();
-    protected abstract LndRequest createLndRequest(ILndActionDao<Request, Response> dao, PluginContext ctx, Request req);
+    protected abstract LndRequest createLndRequest(PluginContext ctx, Request req);
     protected abstract Response createResponse(PluginContext ctx, Request req, long authUserId, LndResponse r);
     protected abstract void execute(LndRequest r, ILightningCallback<LndResponse> cb);
     protected abstract void signal(PluginContext ctx, Request req, Response rep);
-    protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request, Response> tx);
+    protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request> tx);
     protected abstract Request getData(IPluginData in);
     protected abstract Type getResponseType();
     protected Object convertResponse(Response r) { return r; };
@@ -45,6 +45,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     protected IPluginServer server() { return server_; }
     protected ILightningDao lnd() { return lnd_; }
     protected IPluginForegroundCallback engine() { return engine_; }
+    protected ILndActionDao<Request, Response> dao() { return dao_; }
 
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
@@ -54,8 +55,8 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
         server_ = server;
 
         // restore active transactions
-        List<Transaction<Request, Response>> txs = dao_.getTransactions();
-        for(Transaction<Request, Response> tx: txs) {
+        List<Transaction<Request>> txs = dao_.getTransactions();
+        for(Transaction<Request> tx: txs) {
             PluginContext ctx = new PluginContext();
             ctx.txId = tx.txId;
             ctx.deadline = tx.deadlineTime;
@@ -101,7 +102,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
 
     private void startRequest(final TxData data) {
 
-        LndRequest lndRequest = createLndRequest(dao_, data.ctx, data.request);
+        LndRequest lndRequest = createLndRequest(data.ctx, data.request);
 
         execute (lndRequest, new ILightningCallback<LndResponse>() {
             @Override
@@ -123,7 +124,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
 
             @Override
             public void onError(int i, String s) {
-                dao_.failTransaction(data.ctx.user.id(), data.ctx.txId, Errors.LND_ERROR);
+                dao_.failTransaction(data.ctx.user.id(), data.ctx.txId, Errors.LND_ERROR, s);
 
                 engine_.onError(id(), data.ctx, Errors.LND_ERROR, s);
             }
@@ -141,11 +142,16 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     @Override
     public void start(PluginContext ctx, IPluginData in) {
         // recover if tx already executed
-        Transaction<Request, Response> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
+        Transaction<Request> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
         if (tx != null){
             if (tx.doneTime != 0) {
-                if (tx.response != null) {
-                    engine_.onReply(id(), ctx, tx.response, getResponseType());
+                if (tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
+                } else if (tx.responseId != 0) {
+                    Response r = dao_.getResponse(tx.responseId);
+                    if (r == null)
+                        throw new RuntimeException("Response entity not found");
+                    engine_.onReply(id(), ctx, r, getResponseType());
                     engine_.onDone(id(), ctx);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));

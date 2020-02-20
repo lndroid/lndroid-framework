@@ -14,13 +14,13 @@ public interface ISendPaymentDao {
     boolean hasPrivilege(WalletData.SendPaymentRequest req, WalletData.User user);
 
     // get all active txs
-    List<Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment>> getTransactions();
+    List<Transaction<WalletData.SendPaymentRequest>> getTransactions();
 
     // get tx
-    Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> getTransaction(long txUserId, String txId);
+    Transaction<WalletData.SendPaymentRequest> getTransaction(long txUserId, String txId);
 
     // start tx
-    void startTransaction(Transaction<WalletData.SendPaymentRequest, WalletData.SendPayment> t);
+    void startTransaction(Transaction<WalletData.SendPaymentRequest> t);
 
     // write response to db (if required), attach response to tx, set to COMMITTED state,
     // resp.id will be initialized after this call.
@@ -31,4 +31,7 @@ public interface ISendPaymentDao {
 
     // mark as timed out, set to TX_TIMEOUT state
     void timeoutTransaction(long txUserId, String txId);
+
+    // get response entity
+    WalletData.SendPayment getResponse(long id);
 }

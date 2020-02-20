@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
-import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
@@ -31,7 +30,7 @@ public class AddInvoice extends
     }
 
     @Override
-    protected Data.Invoice createLndRequest(ILndActionDao<WalletData.AddInvoiceRequest, WalletData.Invoice> dao, PluginContext ctx, WalletData.AddInvoiceRequest req) {
+    protected Data.Invoice createLndRequest(PluginContext ctx, WalletData.AddInvoiceRequest req) {
         Data.Invoice i = new Data.Invoice();
         LightningCodec.AddInvoiceCodec.encode(req, i);
         return i;
@@ -71,7 +70,7 @@ public class AddInvoice extends
     }
 
     @Override
-    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.AddInvoiceRequest, WalletData.Invoice> tx) {
+    protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.AddInvoiceRequest> tx) {
         return user.isRoot();
     }
 

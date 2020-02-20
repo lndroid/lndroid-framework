@@ -32,6 +32,7 @@ import androidx.room.RoomDatabase;
         RoomTransactions.AddInvoiceTransaction.class,
         RoomTransactions.AddListContactsPrivilegeTransaction.class,
         RoomTransactions.AddUserTransaction.class,
+        RoomTransactions.CloseChannelTransaction.class,
         RoomTransactions.ConnectPeerTransaction.class,
         RoomTransactions.DecodePayReqTransaction.class,
         RoomTransactions.EstimateFeeTransaction.class,

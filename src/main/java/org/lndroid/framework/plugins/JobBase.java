@@ -33,7 +33,8 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     }
 
     protected IPluginServer server() { return server_; }
-    protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request, Response> tx);
+    protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request> tx);
+    protected IJobDao<Request, Response> dao() { return dao_; };
 
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
@@ -42,8 +43,8 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
         engine_ = callback;
 
         // restore active transactions
-        List<Transaction<Request, Response>> txs = dao_.getTransactions();
-        for(Transaction<Request, Response> tx: txs) {
+        List<Transaction<Request>> txs = dao_.getTransactions();
+        for(Transaction<Request> tx: txs) {
             PluginContext ctx = new PluginContext();
             ctx.txId = tx.txId;
             ctx.deadline = tx.deadlineTime;
@@ -77,7 +78,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     protected abstract boolean isValid(Request req);
     protected abstract int defaultTimeout();
     protected abstract int maxTimeout();
-    protected abstract Request getData(IPluginData in);
+    protected abstract Request getRequestData(IPluginData in);
     protected abstract Type getResponseType();
 
     private void commit(PluginContext ctx, long authUserId) {
@@ -100,11 +101,16 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     public void start(PluginContext ctx, IPluginData in) {
 
         // recover if tx already executed
-        Transaction<Request, Response> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
+        Transaction<Request> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
         if (tx != null){
             if (tx.doneTime != 0) {
-                if (tx.response != null) {
-                    engine_.onReply(id(), ctx, tx.response, getResponseType());
+                if (tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
+                } else if (tx.responseId != 0) {
+                    Response r = dao_.getResponse(tx.responseId);
+                    if (r == null)
+                        throw new RuntimeException("Response entity not found");
+                    engine_.onReply(id(), ctx, r, getResponseType());
                     engine_.onDone(id(), ctx);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
@@ -116,7 +122,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
             return;
         }
 
-        Request req = getData(in);
+        Request req = getRequestData(in);
         if (req == null) {
             engine_.onError(id(), ctx, Errors.PLUGIN_MESSAGE, Errors.errorMessage(Errors.PLUGIN_MESSAGE));
             return;

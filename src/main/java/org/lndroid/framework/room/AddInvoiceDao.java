@@ -46,9 +46,9 @@ abstract class AddInvoiceDaoRoom
 
     @Override
     @Query("UPDATE AddInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txError = :code " +
+            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
 
     @Override
     @Query("UPDATE AddInvoiceTransaction " +
@@ -73,6 +73,15 @@ abstract class AddInvoiceDaoRoom
 
     }
 
+    @Query("SELECT * FROM Invoice WHERE id = :id")
+    abstract RoomData.Invoice getResponseRoom(long id);
+
+    @Override
+    public WalletData.Invoice getResponse(long id) {
+        RoomData.Invoice r = getResponseRoom(id);
+        return r != null ? r.getData() : null;
+    }
+
     @Override @Transaction
     public WalletData.Invoice commitTransaction(long txUserId, String txId, WalletData.Invoice invoice, long time) {
 
@@ -87,7 +96,7 @@ abstract class AddInvoiceDaoRoom
         RoomTransactions.AddInvoiceTransaction tx = getTransaction(txUserId, txId);
 
         // update state
-        tx.setResponse(invoice);
+        tx.setResponse(invoice.getClass(), invoice.id());
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
 

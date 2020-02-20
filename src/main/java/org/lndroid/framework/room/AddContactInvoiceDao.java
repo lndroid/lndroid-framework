@@ -89,9 +89,9 @@ abstract class AddContactInvoiceDaoRoom
 
     @Override
     @Query("UPDATE AddContactInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txError = :code " +
+            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
             "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, int txState, long time);
+    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
 
     @Override
     @Query("UPDATE AddContactInvoiceTransaction " +
@@ -114,6 +114,9 @@ abstract class AddContactInvoiceDaoRoom
         }
     }
 
+    @Override // not stored!
+    public WalletData.AddContactInvoiceResponse getResponse(long id) { return null; }
+
     @Override @Transaction
     public WalletData.AddContactInvoiceResponse commitTransaction(
             long txUserId, String txId,
@@ -123,7 +126,6 @@ abstract class AddContactInvoiceDaoRoom
         RoomTransactions.AddContactInvoiceTransaction tx = getTransaction(txUserId, txId);
 
         // update state
-        tx.setResponse(rep);
         tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
         tx.txData.txDoneTime = time;
 

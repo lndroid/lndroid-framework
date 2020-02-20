@@ -1,10 +1,9 @@
 package org.lndroid.framework.room;
 
-interface IRoomTransaction<Request, Response> {
+interface IRoomTransaction<Request> {
     Request getRequest();
-    Response getResponse();
     RoomTransactions.TransactionData getTxData();
     void setRequest(Request r);
-    void setResponse(Response r);
+    void setResponse(Class<?> cls, long id);
     void setTxData(RoomTransactions.TransactionData t);
 }

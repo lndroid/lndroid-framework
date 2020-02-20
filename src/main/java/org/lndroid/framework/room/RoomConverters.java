@@ -28,6 +28,19 @@ final class RoomConverters {
             rt.txDeadlineTime = t.deadlineTime;
             rt.txDoneTime = t.doneTime;
             rt.txAuthTime = t.authTime;
+            rt.txErrorCode = t.errorCode;
+            rt.txErrorMessage = t.errorMessage;
+
+            rt.responseClass = t.responseClass;
+            rt.responseId = t.responseId;
+            rt.tries = t.tries;
+            rt.maxTries = t.maxTries;
+            rt.maxTryTime = t.maxTryTime;
+            rt.lastTryTime = t.lastTryTime;
+            rt.nextTryTime = t.nextTryTime;
+            rt.jobState = t.jobState;
+            rt.jobErrorCode = t.jobErrorCode;
+            rt.jobErrorMessage = t.jobErrorMessage;
             return rt;
         }
 
@@ -39,6 +52,19 @@ final class RoomConverters {
             t.authUserId = rt.txAuthUserId;
             t.authTime = rt.txAuthTime;
             t.txId = rt.txId;
+            t.errorCode = rt.txErrorCode;
+            t.errorMessage = rt.txErrorMessage;
+
+            t.responseClass = rt.responseClass;
+            t.responseId = rt.responseId;
+            t.tries = rt.tries;
+            t.maxTries = rt.maxTries;
+            t.maxTryTime = rt.maxTryTime;
+            t.lastTryTime = rt.lastTryTime;
+            t.nextTryTime = rt.nextTryTime;
+            t.jobState = rt.jobState;
+            t.jobErrorCode = rt.jobErrorCode;
+            t.jobErrorMessage = rt.jobErrorMessage;
         }
     }
 
