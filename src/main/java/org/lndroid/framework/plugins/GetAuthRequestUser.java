@@ -15,9 +15,11 @@ import org.lndroid.framework.engine.PluginContext;
 
 public class GetAuthRequestUser extends GetBase<Long> {
 
+    public interface IDao extends IAuthRequestDao{};
+
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IAuthRequestDao dao_;
+    private IDao dao_;
 
     public GetAuthRequestUser() {
         // FIXME add topic which covers creation of any auth request!
@@ -27,7 +29,7 @@ public class GetAuthRequestUser extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IAuthRequestDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

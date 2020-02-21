@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.PluginContext;
 
-// Action
 public class AddAppContact extends ActionBase<WalletData.Contact, WalletData.Contact> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IActionDao<WalletData.Contact, WalletData.Contact>{};
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 300000; // 5 min
@@ -61,10 +64,12 @@ public class AddAppContact extends ActionBase<WalletData.Contact, WalletData.Con
     protected WalletData.Contact getRequestData(IPluginData in) {
         in.assignDataType(WalletData.AddAppContactRequest.class);
         try {
+            // NOTE: we swap App-request with Contact object to
+            // allow auth UI to fill in the Contact using QR code etc
             WalletData.AddAppContactRequest r = in.getData();
             // FIXME if user provides some options we'd have to store them somewhere
 
-            // empty add request for now
+            // empty request for now
             return WalletData.Contact.builder().build();
         } catch (IOException e) {
             return null;
@@ -76,7 +81,7 @@ public class AddAppContact extends ActionBase<WalletData.Contact, WalletData.Con
 
     @Override
     public String id() {
-        return DefaultPlugins.ADD_CONTACT_APP;
+        return DefaultPlugins.ADD_APP_CONTACT;
     }
 
 }

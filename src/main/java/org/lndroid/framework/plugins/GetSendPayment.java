@@ -14,10 +14,14 @@ import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetSendPayment extends GetBase<Long> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IGetDao<WalletData.SendPayment>{};
+
     private static final String TAG = "GetSendPayment";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetDao<WalletData.SendPayment> dao_;
+    private IDao dao_;
 
     public GetSendPayment() {
         super(DefaultPlugins.GET_SEND_PAYMENT, DefaultTopics.SEND_PAYMENT_STATE);
@@ -56,6 +60,6 @@ public class GetSendPayment extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IGetDao<WalletData.SendPayment>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 }

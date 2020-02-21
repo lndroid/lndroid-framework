@@ -3,7 +3,6 @@ package org.lndroid.framework.plugins;
 import android.util.Log;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IUtxoWorkerDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginBackground;
@@ -19,12 +18,17 @@ import lnrpc.Rpc;
 
 public class UtxoWorker implements IPluginBackground {
 
+    public interface IDao {
+        WalletData.Utxo getByOutpoint(String txidHex, int outputIndex);
+        void update(WalletData.Utxo utxo);
+    }
+
     private static final String TAG = "UtxoWorker";
     private static final long UPDATE_INTERVAL = 60000; // 60 sec
 
     private IPluginServer server_;
     private IPluginBackgroundCallback engine_;
-    private IUtxoWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean updating_;
     private boolean refresh_;
@@ -39,7 +43,7 @@ public class UtxoWorker implements IPluginBackground {
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         server_ = server;
         engine_ = callback;
-        dao_ = (IUtxoWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 

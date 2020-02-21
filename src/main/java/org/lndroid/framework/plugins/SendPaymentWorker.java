@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.ISendPaymentWorkerDao;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
@@ -26,6 +25,14 @@ import org.lndroid.framework.lnd.LightningCodec;
 
 public class SendPaymentWorker implements IPluginBackground {
 
+    public interface IDao {
+        List<WalletData.SendPayment> getSendingPayments();
+        List<WalletData.SendPayment> getPendingPayments(long now);
+        WalletData.Contact getContact(String contactPubkey);
+        void updatePayment(WalletData.SendPayment p);
+        void settlePayment(WalletData.SendPayment sp, WalletData.HTLCAttempt htlc);
+    }
+
     private static final String TAG = "SendPaymentWorker";
     private static final long DEFAULT_EXPIRY = 3600000; // 1h
     private static final long TRY_INTERVAL = 60000; // 1m
@@ -33,7 +40,7 @@ public class SendPaymentWorker implements IPluginBackground {
 
     private IPluginServer server_;
     private IPluginBackgroundCallback engine_;
-    private ISendPaymentWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean starting_;
     private boolean started_;
@@ -49,7 +56,7 @@ public class SendPaymentWorker implements IPluginBackground {
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         server_ = server;
         engine_ = callback;
-        dao_ = (ISendPaymentWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 

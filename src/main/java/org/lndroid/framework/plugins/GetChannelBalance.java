@@ -14,10 +14,12 @@ import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetChannelBalance extends GetBase<Long> {
+    // Dao must implement this
+    public interface IDao extends IChannelBalanceDao {};
 
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IChannelBalanceDao dao_;
+    private IDao dao_;
 
     public GetChannelBalance() {
         super(DefaultPlugins.GET_CHANNEL_BALANCE, DefaultTopics.CHANNEL_BALANCE);
@@ -26,7 +28,7 @@ public class GetChannelBalance extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IChannelBalanceDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

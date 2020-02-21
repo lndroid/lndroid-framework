@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.ISubscribeSendPaymentsDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.SubscribeSendPayments;
 
-public class SubscribeSendPaymentsDao implements ISubscribeSendPaymentsDao, IPluginDao {
+public class SubscribeSendPaymentsDao implements SubscribeSendPayments.IDao, IPluginDao {
 
-    private SubscribeSendPaymentsDaoRoom dao_;
+    private DaoRoom dao_;
 
-    SubscribeSendPaymentsDao(SubscribeSendPaymentsDaoRoom dao) {
+    SubscribeSendPaymentsDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -45,16 +45,16 @@ public class SubscribeSendPaymentsDao implements ISubscribeSendPaymentsDao, IPlu
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface SubscribeSendPaymentsDaoRoom {
-    @Query("SELECT * FROM SendPayment WHERE id = :id")
-    RoomData.SendPayment getPayment(long id);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM SendPayment WHERE id = :id")
+        RoomData.SendPayment getPayment(long id);
 
-    @Query("SELECT * FROM SendPayment WHERE state IN(:states)")
-    List<RoomData.SendPayment> getPayments(int[] states);
+        @Query("SELECT * FROM SendPayment WHERE state IN(:states)")
+        List<RoomData.SendPayment> getPayments(int[] states);
 
-    @Query("SELECT * FROM SendPayment WHERE userId = :userId AND state IN(:states)")
-    List<RoomData.SendPayment> getPayments(int[] states, long userId);
+        @Query("SELECT * FROM SendPayment WHERE userId = :userId AND state IN(:states)")
+        List<RoomData.SendPayment> getPayments(int[] states, long userId);
+    }
 }

@@ -7,83 +7,90 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.EstimateFee;
 
 import java.util.List;
 
-public class EstimateFeeDao extends
-        LndActionDaoBase<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse, RoomTransactions.EstimateFeeTransaction> {
+public class EstimateFeeDao
+        extends LndActionDaoBase<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse>
+        implements EstimateFee.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.ESTIMATE_FEE;
 
-    EstimateFeeDao(EstimateFeeDaoRoom dao) {
-        super(dao, RoomTransactions.EstimateFeeTransaction.class);
+    EstimateFeeDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
-}
 
-@Dao
-abstract class EstimateFeeDaoRoom
-        implements IRoomLndActionDao<RoomTransactions.EstimateFeeTransaction, WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> {
+    @Dao
+    abstract static class DaoRoom
+            extends RoomLndActionDaoBase<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> {
 
-    @Query("SELECT * FROM EstimateFeeTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.EstimateFeeTransaction> getTransactions();
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract long upsertRequest(RoomTransactions.EstimateFeeRequest i);
 
-    @Query("SELECT * FROM EstimateFeeTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.EstimateFeeTransaction getTransaction(long txUserId, String txId);
+        @Query("SELECT * FROM txEstimateFeeRequest WHERE id_ = :id")
+        abstract RoomTransactions.EstimateFeeRequest getRequestRoom(long id);
 
-    @Insert
-    public abstract void createTransaction(RoomTransactions.EstimateFeeTransaction tx);
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.EstimateFeeTransaction tx);
-
-    @Query("UPDATE EstimateFeeTransaction " +
-            "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
-
-    @Query("UPDATE EstimateFeeTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Override
-    @Query("UPDATE EstimateFeeTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
-
-    @Query("UPDATE EstimateFeeTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Override @Transaction
-    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, WalletData.EstimateFeeRequest authedRequest) {
-        if (authedRequest != null) {
-            RoomTransactions.EstimateFeeTransaction tx = getTransaction(txUserId, txId);
-            tx.txData.txAuthTime = time;
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.request = authedRequest;
-            updateTransaction(tx);
-        } else {
-            confirmTransaction(txUserId, txId, txAuthUserId, time);
+        @Override
+        @Transaction
+        public WalletData.EstimateFeeResponse commitTransaction(
+                long userId, String txId, WalletData.EstimateFeeResponse r, long time) {
+            return commitTransactionImpl(userId, txId, r, time);
         }
-    }
 
-    @Override
-    public WalletData.EstimateFeeResponse getResponse(long id) { return null; };
+        @Override
+        @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.EstimateFeeRequest req) {
+            createTransactionImpl(tx, req);
+        }
 
-    @Transaction
-    public WalletData.EstimateFeeResponse commitTransaction(long txUserId, String txId, WalletData.EstimateFeeResponse r, long time) {
-        RoomTransactions.EstimateFeeTransaction tx = getTransaction(txUserId, txId);
+        @Override
+        protected long insertRequest(WalletData.EstimateFeeRequest req) {
+            // convert request to room object
+            RoomTransactions.EstimateFeeRequest r = new RoomTransactions.EstimateFeeRequest();
+            r.data = req;
 
-        // NOTE: r is not written to it's own table bcs we don't store them
+            // insert request
+            return upsertRequest(r);
+        }
 
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
+        @Override
+        protected void updateRequest(long id, WalletData.EstimateFeeRequest req) {
+            // convert request to room object
+            RoomTransactions.EstimateFeeRequest r = new RoomTransactions.EstimateFeeRequest();
+            r.id_ = id;
+            r.data = req;
 
-        // update tx
-        updateTransaction(tx);
+            // update
+            upsertRequest(r);
+        }
 
-        return r;
+        @Override
+        public WalletData.EstimateFeeRequest getRequest(long id) {
+            RoomTransactions.EstimateFeeRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Override
+        protected long insertResponse(WalletData.EstimateFeeResponse r) {
+            // not stored
+            return 0;
+        }
+
+        @Override
+        public WalletData.EstimateFeeResponse getResponse(long id) {
+            // not stored
+            return null;
+        }
+
+        @Override
+        @Transaction
+        public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
+                                       WalletData.EstimateFeeRequest authedRequest) {
+            confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
+        }
     }
 }
 

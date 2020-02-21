@@ -22,10 +22,12 @@ import lnrpc.Rpc;
 
 public class ChannelStateWorker implements IPluginBackground {
 
+    public interface IDao extends IChannelStateWorkerDao{};
+
     private static final String TAG = "ChannelStateWorker";
 
     private IPluginServer server_;
-    private IChannelStateWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private IPluginBackgroundCallback engine_;
     private boolean started_;
@@ -43,7 +45,7 @@ public class ChannelStateWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         server_ = server;
-        dao_ = (IChannelStateWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
     }

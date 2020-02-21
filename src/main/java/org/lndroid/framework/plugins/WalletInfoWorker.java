@@ -19,11 +19,13 @@ import org.lndroid.framework.lnd.LightningCodec;
 
 public class WalletInfoWorker implements IPluginBackground {
 
+    public interface IDao extends IWalletInfoDao{};
+
     private static final String TAG = "WalletInfoWorker";
     private static final long UPDATE_INTERVAL = 10000; // 10 sec
 
     private IPluginBackgroundCallback engine_;
-    private IWalletInfoDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean updating_;
     private boolean refresh_;
@@ -37,7 +39,7 @@ public class WalletInfoWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         engine_ = callback;
-        dao_ = (IWalletInfoDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 

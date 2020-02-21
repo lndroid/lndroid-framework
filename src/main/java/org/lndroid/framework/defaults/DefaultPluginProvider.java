@@ -160,7 +160,7 @@ public class DefaultPluginProvider implements IPluginProvider {
 
         plugins_.put(DefaultPlugins.LIST_PAYMENTS, new ForegroundPlugin(new ListPayments()));
 
-        plugins_.put(DefaultPlugins.ADD_CONTACT_APP, new ForegroundPlugin(new AddAppContact()));
+        plugins_.put(DefaultPlugins.ADD_APP_CONTACT, new ForegroundPlugin(new AddAppContact()));
         plugins_.put(DefaultPlugins.GET_CONTACT, new ForegroundPlugin(new GetContact()));
         plugins_.put(DefaultPlugins.LIST_CONTACTS, new ForegroundPlugin(new ListContacts()));
 

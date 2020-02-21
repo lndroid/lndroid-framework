@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.ISendPaymentDao;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
@@ -21,11 +21,24 @@ import org.lndroid.framework.lnd.LightningCodec;
 // Job
 public class SendPayment implements IPluginForeground {
 
+    public interface IDao extends IActionDao<WalletData.SendPaymentRequest, WalletData.SendPayment> {
+
+        String walletPubkey();
+
+        WalletData.Contact getContact(long contactId);
+
+        boolean hasPrivilege(WalletData.SendPaymentRequest req, WalletData.User user);
+
+        // write response to db (if required), attach response to tx, set to COMMITTED state,
+        // resp.id will be initialized after this call.
+        WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p);
+    }
+
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 300000; // 5 min
 
     private IPluginServer server_;
-    private ISendPaymentDao dao_;
+    private IDao dao_;
     private IPluginForegroundCallback engine_;
 
     public SendPayment() {
@@ -43,18 +56,18 @@ public class SendPayment implements IPluginForeground {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         server_ = server;
-        dao_ = (ISendPaymentDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         engine_ = callback;
 
         // restore active transactions
         List<Transaction<WalletData.SendPaymentRequest>> txs = dao_.getTransactions();
         for(Transaction<WalletData.SendPaymentRequest> tx: txs) {
             PluginContext ctx = new PluginContext();
-            ctx.txId = tx.txId;
-            ctx.deadline = tx.deadlineTime;
+            ctx.txId = tx.tx.txId;
+            ctx.deadline = tx.tx.deadlineTime;
 
             // invalid? skip
-            if (!engine_.onInit(id(), tx.userId, ctx))
+            if (!engine_.onInit(id(), tx.tx.userId, ctx))
                 continue;
 
             // cache request in ctx
@@ -157,11 +170,11 @@ public class SendPayment implements IPluginForeground {
         // recover if tx already executed
         Transaction<WalletData.SendPaymentRequest> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
         if (tx != null){
-            if (tx.doneTime != 0) {
-                if (tx.errorCode != null) {
-                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
-                } else if (tx.responseId != 0) {
-                    WalletData.SendPayment r = dao_.getResponse(tx.responseId);
+            if (tx.tx.doneTime != 0) {
+                if (tx.tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.tx.errorCode, tx.tx.errorMessage);
+                } else if (tx.tx.responseId != 0) {
+                    WalletData.SendPayment r = dao_.getResponse(tx.tx.responseId);
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, WalletData.SendPayment.class);
@@ -199,20 +212,20 @@ public class SendPayment implements IPluginForeground {
 
         // create tx
         tx = new Transaction<>();
-        tx.userId = ctx.user.id();
-        tx.txId = ctx.txId;
+        tx.tx.userId = ctx.user.id();
+        tx.tx.txId = ctx.txId;
         tx.request = req;
-        tx.createTime = System.currentTimeMillis();
+        tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;
         if (timeout == 0) {
             timeout = DEFAULT_TIMEOUT;
         } else if (timeout > MAX_TIMEOUT) {
             timeout = MAX_TIMEOUT;
         }
-        tx.deadlineTime = tx.createTime + timeout;
+        tx.tx.deadlineTime = tx.tx.createTime + timeout;
 
         // set ctx deadline for engine to enforce it
-        ctx.deadline = tx.deadlineTime;
+        ctx.deadline = tx.tx.deadlineTime;
 
         // cache request in ctx
         ctx.request = tx.request;

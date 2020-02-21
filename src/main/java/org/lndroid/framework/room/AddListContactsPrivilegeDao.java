@@ -4,89 +4,95 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.AddListContactsPrivilege;
 
 class AddListContactsPrivilegeDao
-        extends ActionDaoBase<WalletData.ListContactsPrivilege,
-                            WalletData.ListContactsPrivilege,
-                            RoomTransactions.AddListContactsPrivilegeTransaction>
+        extends ActionDaoBase<WalletData.ListContactsPrivilege, WalletData.ListContactsPrivilege>
+        implements AddListContactsPrivilege.IDao
 {
-    AddListContactsPrivilegeDao (AddListContactsPrivilegeDaoRoom dao) {
-        super(dao, RoomTransactions.AddListContactsPrivilegeTransaction.class);
-    }
-}
+    public static final String PLUGIN_ID = DefaultPlugins.ADD_LIST_CONTACTS_PRIVILEGE;
 
-@Dao
-abstract class AddListContactsPrivilegeDaoRoom
-        implements IRoomActionDao<RoomTransactions.AddListContactsPrivilegeTransaction, WalletData.ListContactsPrivilege> {
-
-    @Override
-    @Query("SELECT * FROM AddListContactsPrivilegeTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.AddListContactsPrivilegeTransaction> getTransactions();
-
-    @Override
-    @Query("SELECT * FROM AddListContactsPrivilegeTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddListContactsPrivilegeTransaction getTransaction(long txUserId, String txId);
-
-    @Override @Insert
-    public abstract void createTransaction(RoomTransactions.AddListContactsPrivilegeTransaction tx);
-
-    @Override @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.AddListContactsPrivilegeTransaction tx);
-
-    @Override
-    @Query("UPDATE AddListContactsPrivilegeTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Query("SELECT * FROM ListContactsPrivilege WHERE userId = :userId")
-    abstract RoomData.ListContactsPrivilege getByUserId(long userId);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract void upsert(RoomData.ListContactsPrivilege r);
-
-    @Query("SELECT * FROM ListContactsPrivilege WHERE id = :id")
-    abstract RoomData.ListContactsPrivilege getResponseRoom(long id);
-
-    @Override
-    public WalletData.ListContactsPrivilege getResponse(long id) {
-        RoomData.ListContactsPrivilege r = getResponseRoom(id);
-        return r != null ? r.getData() : null;
+    AddListContactsPrivilegeDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
 
-    // create value and add it to tx response and commit
-    @Override @androidx.room.Transaction
-    public WalletData.ListContactsPrivilege commitTransaction(
-            RoomTransactions.AddListContactsPrivilegeTransaction tx, long txAuthUserId, WalletData.ListContactsPrivilege v, long time) {
+    @Dao
+    abstract static class DaoRoom
+            extends RoomActionDaoBase<WalletData.ListContactsPrivilege, WalletData.ListContactsPrivilege> {
 
-        RoomData.ListContactsPrivilege rv = getByUserId(v.userId());
-        if (rv == null) {
-            rv = new RoomData.ListContactsPrivilege();
-        } else {
-            v = v.toBuilder().setId(rv.getData().id()).build();
+        @Override @Transaction
+        public WalletData.ListContactsPrivilege commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.ListContactsPrivilege req, long time) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, req, time);
         }
-        rv.setData(v);
 
-        // write
-        upsert(rv);
+        @Override @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.ListContactsPrivilege req){
+            createTransactionImpl(tx, req);
+        }
 
-        // set response to tx
-        tx.setResponse(v.getClass(), v.id());
+        @Insert
+        abstract long insertRequest(RoomTransactions.ListContactsPrivilege i);
 
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txAuthUserId = txAuthUserId;
-        tx.txData.txDoneTime = time;
-        tx.txData.txAuthTime = time;
+        @Override
+        protected long insertRequest(WalletData.ListContactsPrivilege req) {
+            // convert request to room object
+            RoomTransactions.ListContactsPrivilege r = new RoomTransactions.ListContactsPrivilege();
+            r.data = req;
 
-        // update tx
-        updateTransaction(tx);
+            // insert request
+            return insertRequest(r);
+        }
 
-        // value with id
-        return v;
+        @Query("SELECT * FROM ListContactsPrivilege WHERE id = :id")
+        abstract RoomData.ListContactsPrivilege getResponseRoom(long id);
+
+        @Override
+        public WalletData.ListContactsPrivilege getResponse(long id) {
+            RoomData.ListContactsPrivilege r = getResponseRoom(id);
+            return r != null ? r.getData() : null;
+        }
+
+        @Query("SELECT * FROM txListContactsPrivilege WHERE id = :id")
+        abstract RoomTransactions.ListContactsPrivilege getRequestRoom(long id);
+
+        @Override
+        public WalletData.ListContactsPrivilege getRequest(long id) {
+            RoomTransactions.ListContactsPrivilege r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Query("SELECT * FROM ListContactsPrivilege WHERE userId = :userId")
+        abstract RoomData.ListContactsPrivilege getExisting(long userId);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract void upsert(RoomData.ListContactsPrivilege r);
+
+        @Override
+        protected long insertResponse(WalletData.ListContactsPrivilege v) {
+
+            RoomData.ListContactsPrivilege rv = getExisting(v.userId());
+            if (rv == null) {
+                rv = new RoomData.ListContactsPrivilege();
+            } else {
+                // reuse existing id
+                v = v.toBuilder().setId(rv.getData().id()).build();
+            }
+
+            rv.setData(v);
+
+            // write
+            upsert(rv);
+
+            return v.id();
+        }
     }
 }
+

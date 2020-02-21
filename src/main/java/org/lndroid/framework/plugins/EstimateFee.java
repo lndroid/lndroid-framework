@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
@@ -13,7 +14,10 @@ import java.lang.reflect.Type;
 
 public class EstimateFee extends
         LndActionBase<WalletData.EstimateFeeRequest, Data.EstimateFeeRequest,
-                WalletData.EstimateFeeResponse, Data.EstimateFeeResponse> {
+                WalletData.EstimateFeeResponse, Data.EstimateFeeResponse>
+{
+    // plugin's Dao must extend this class
+    public interface IDao extends ILndActionDao<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse> {};
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 600000; // 10 min

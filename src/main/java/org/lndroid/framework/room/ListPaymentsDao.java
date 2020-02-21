@@ -20,12 +20,15 @@ import java.util.Map;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ListPayments;
 
-public class ListPaymentsDao implements
-        IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult>, IPluginDao {
-    private ListPaymentsDaoRoom dao_;
+class ListPaymentsDao implements
+        IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult>, IPluginDao,
+        ListPayments.IDao
+{
+    private DaoRoom dao_;
 
-    ListPaymentsDao(ListPaymentsDaoRoom dao) {
+    ListPaymentsDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -94,104 +97,103 @@ public class ListPaymentsDao implements
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class ListPaymentsDaoRoom {
+    @Dao
+    abstract static class DaoRoom {
 
-    @RawQuery
-    abstract long[] listPaymentIds(SupportSQLiteQuery query);
+        @RawQuery
+        abstract long[] listPaymentIds(SupportSQLiteQuery query);
 
-    @Query("SELECT * FROM Payment WHERE id_ IN(:ids)")
-    abstract List<RoomData.Payment> listPayments(List<Long> ids);
+        @Query("SELECT * FROM Payment WHERE id_ IN(:ids)")
+        abstract List<RoomData.Payment> listPayments(List<Long> ids);
 
-    @Query("SELECT id FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
-    abstract boolean hasContactPaymentsPrivilege(long userId, long contactId);
+        @Query("SELECT id FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
+        abstract boolean hasContactPaymentsPrivilege(long userId, long contactId);
 
-    @Query("SELECT pubkey FROM Contact WHERE id = :contactId")
-    abstract String getContactPubkey(long contactId);
+        @Query("SELECT pubkey FROM Contact WHERE id = :contactId")
+        abstract String getContactPubkey(long contactId);
 
-    @Query("SELECT * FROM SendPayment WHERE id_ IN(:ids)")
-    abstract List<RoomData.SendPayment> listSendPayments(List<Long> ids);
+        @Query("SELECT * FROM SendPayment WHERE id_ IN(:ids)")
+        abstract List<RoomData.SendPayment> listSendPayments(List<Long> ids);
 
-    @Query("SELECT * FROM Invoice WHERE id_ IN(:ids)")
-    abstract List<RoomData.Invoice> listInvoices(List<Long> ids);
+        @Query("SELECT * FROM Invoice WHERE id_ IN(:ids)")
+        abstract List<RoomData.Invoice> listInvoices(List<Long> ids);
 
-    @Transaction
-    WalletData.ListPaymentsResult listPayments(SupportSQLiteQuery query, WalletData.ListPage page) {
-        long[] ids = listPaymentIds(query);
+        @Transaction
+        WalletData.ListPaymentsResult listPayments(SupportSQLiteQuery query, WalletData.ListPage page) {
+            long[] ids = listPaymentIds(query);
 
-        List<Long> pageIds = new ArrayList<>();
-        final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
+            List<Long> pageIds = new ArrayList<>();
+            final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
 
-        // read items matching page ids
-        List<RoomData.Payment> items = listPayments(pageIds);
+            // read items matching page ids
+            List<RoomData.Payment> items = listPayments(pageIds);
 
-        // sort properly
-        RoomUtils.sortPage(items, pageIds);
+            // sort properly
+            RoomUtils.sortPage(items, pageIds);
 
-        // collect invoice and sendpayment ids
-        List<Long> invoiceIds = new ArrayList<>();
-        List<Long> sendPaymentIds = new ArrayList<>();
-        for(RoomData.Payment rp: items) {
-            WalletData.Payment p = rp.getData();
+            // collect invoice and sendpayment ids
+            List<Long> invoiceIds = new ArrayList<>();
+            List<Long> sendPaymentIds = new ArrayList<>();
+            for(RoomData.Payment rp: items) {
+                WalletData.Payment p = rp.getData();
 
-            switch (p.type()) {
-                case WalletData.PAYMENT_TYPE_INVOICE:
-                    invoiceIds.add(p.sourceId());
-                    break;
-                case WalletData.PAYMENT_TYPE_SENDPAYMENT:
-                    sendPaymentIds.add(p.sourceId());
-                    break;
-                default:
-                    throw new RuntimeException("Unknown payment type");
-            }
-        }
-
-        // get invoices and put to map
-        Map<Long, WalletData.Invoice> invoices = new HashMap<>();
-        for(RoomData.Invoice i: listInvoices(invoiceIds)) {
-            invoices.put(i.id_, i.getData());
-        }
-
-        // get sendpayments and put to map
-        Map<Long, WalletData.SendPayment> sendPayments = new HashMap<>();
-        for(RoomData.SendPayment p: listSendPayments(sendPaymentIds)) {
-            sendPayments.put(p.id_, p.getData());
-        }
-
-        // scan payments in sort order and attach invoice or sendpayment,
-        // then put to result list
-        ImmutableList.Builder<WalletData.Payment> builder = ImmutableList.builder();
-        for(RoomData.Payment rp: items) {
-            WalletData.Payment p = rp.getData();
-
-            switch (p.type()) {
-                case WalletData.PAYMENT_TYPE_INVOICE:
-                    ImmutableMap.Builder<Long,WalletData.Invoice> ib = ImmutableMap.builder();
-                    ib.put(p.sourceId(), invoices.get(p.sourceId()));
-                    // FIXME attach InvoiceHTLCs too!
-                    p = p.toBuilder().setInvoices(ib.build()).build();
-                    break;
-                case WalletData.PAYMENT_TYPE_SENDPAYMENT:
-                    ImmutableMap.Builder<Long,WalletData.SendPayment> spb = ImmutableMap.builder();
-                    spb.put(p.sourceId(), sendPayments.get(p.sourceId()));
-                    // FIXME attach HTLCAttempts too!
-                    p = p.toBuilder().setSendPayments(spb.build()).build();
-                    break;
-                default:
-                    throw new RuntimeException("Unknown payment type");
+                switch (p.type()) {
+                    case WalletData.PAYMENT_TYPE_INVOICE:
+                        invoiceIds.add(p.sourceId());
+                        break;
+                    case WalletData.PAYMENT_TYPE_SENDPAYMENT:
+                        sendPaymentIds.add(p.sourceId());
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown payment type");
+                }
             }
 
-            builder.add(p);
-        }
+            // get invoices and put to map
+            Map<Long, WalletData.Invoice> invoices = new HashMap<>();
+            for(RoomData.Invoice i: listInvoices(invoiceIds)) {
+                invoices.put(i.id_, i.getData());
+            }
 
-        // prepare list result
-        return WalletData.ListPaymentsResult.builder()
-                .setCount(ids.length)
-                .setPosition(fromPos)
-                .setItems(builder.build())
-                .build();
+            // get sendpayments and put to map
+            Map<Long, WalletData.SendPayment> sendPayments = new HashMap<>();
+            for(RoomData.SendPayment p: listSendPayments(sendPaymentIds)) {
+                sendPayments.put(p.id_, p.getData());
+            }
+
+            // scan payments in sort order and attach invoice or sendpayment,
+            // then put to result list
+            ImmutableList.Builder<WalletData.Payment> builder = ImmutableList.builder();
+            for(RoomData.Payment rp: items) {
+                WalletData.Payment p = rp.getData();
+
+                switch (p.type()) {
+                    case WalletData.PAYMENT_TYPE_INVOICE:
+                        ImmutableMap.Builder<Long,WalletData.Invoice> ib = ImmutableMap.builder();
+                        ib.put(p.sourceId(), invoices.get(p.sourceId()));
+                        // FIXME attach InvoiceHTLCs too!
+                        p = p.toBuilder().setInvoices(ib.build()).build();
+                        break;
+                    case WalletData.PAYMENT_TYPE_SENDPAYMENT:
+                        ImmutableMap.Builder<Long,WalletData.SendPayment> spb = ImmutableMap.builder();
+                        spb.put(p.sourceId(), sendPayments.get(p.sourceId()));
+                        // FIXME attach HTLCAttempts too!
+                        p = p.toBuilder().setSendPayments(spb.build()).build();
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown payment type");
+                }
+
+                builder.add(p);
+            }
+
+            // prepare list result
+            return WalletData.ListPaymentsResult.builder()
+                    .setCount(ids.length)
+                    .setPosition(fromPos)
+                    .setItems(builder.build())
+                    .build();
+        }
     }
 }
-

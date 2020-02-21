@@ -4,11 +4,16 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.PluginContext;
 
-public class AddContactPaymentsPrivilege extends ActionBase<WalletData.ContactPaymentsPrivilege, WalletData.ContactPaymentsPrivilege> {
+public class AddContactPaymentsPrivilege
+        extends ActionBase<WalletData.ContactPaymentsPrivilege, WalletData.ContactPaymentsPrivilege>
+{
+    // plugin's Dao must extend this class
+    public interface IDao extends IActionDao<WalletData.ContactPaymentsPrivilege, WalletData.ContactPaymentsPrivilege> {};
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 300000; // 5 min

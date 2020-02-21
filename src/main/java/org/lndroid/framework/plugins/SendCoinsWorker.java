@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.Errors;
-import org.lndroid.framework.dao.ISendCoinsWorkerDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginBackground;
@@ -19,13 +18,20 @@ import java.util.List;
 
 public class SendCoinsWorker implements IPluginBackground {
 
+    public interface IDao {
+        List<WalletData.Transaction> getNewTransactions();
+        List<WalletData.Transaction> getSendingTransactions();
+        List<WalletData.Transaction> getRetryTransactions();
+        void updateTransaction(WalletData.Transaction t);
+    }
+
     private static final String TAG = "SendCoinsWorker";
     private static final long DEFAULT_EXPIRY = 3600000; // 1h
     private static final long TRY_INTERVAL = 60000; // 1m
     private static final long WORK_INTERVAL = 10000; // 10sec
 
     private IPluginBackgroundCallback engine_;
-    private ISendCoinsWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean notified_;
     private long nextWorkTime_;
@@ -38,7 +44,7 @@ public class SendCoinsWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         engine_ = callback;
-        dao_ = (ISendCoinsWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
 
         // NOTE: start protocol to recover in-flight payments' state:

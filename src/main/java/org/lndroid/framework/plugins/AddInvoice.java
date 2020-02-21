@@ -1,5 +1,6 @@
 package org.lndroid.framework.plugins;
 
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
@@ -14,7 +15,10 @@ import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
 public class AddInvoice extends
-        LndActionBase<WalletData.AddInvoiceRequest, Data.Invoice, WalletData.Invoice, Data.AddInvoiceResponse> {
+        LndActionBase<WalletData.AddInvoiceRequest, Data.Invoice, WalletData.Invoice, Data.AddInvoiceResponse>
+{
+    // plugin's Dao must extend this class
+    public interface IDao extends ILndActionDao<WalletData.AddInvoiceRequest, WalletData.Invoice> {};
 
     private static int DEFAULT_TIMEOUT = 30000; // 30 sec
     private static int MAX_TIMEOUT = 300000; // 5 min

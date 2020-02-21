@@ -16,5 +16,6 @@ public interface IDBDaoProvider {
     IAuthDao getAuthDao();
     IAuthRequestDao getAuthRequestDao();
     IRawQueryDao getRawQueryDao();
+    ITransactionDao getTxDao();
     IPluginDao getPluginDao(String pluginId);
 }

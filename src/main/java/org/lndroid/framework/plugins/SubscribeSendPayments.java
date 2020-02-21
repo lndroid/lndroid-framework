@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.ISubscribeSendPaymentsDao;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
@@ -17,10 +16,15 @@ import org.lndroid.framework.common.PluginData;
 
 public class SubscribeSendPayments implements IPluginForeground {
 
+    public interface IDao {
+        WalletData.SendPayment getPayment(long id);
+        List<WalletData.SendPayment> getActivePayments(long userId);
+    }
+
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
     private IPluginForegroundCallback engine_;
-    private ISubscribeSendPaymentsDao dao_;
+    private IDao dao_;
 
     @Override
     public String id() {
@@ -30,7 +34,7 @@ public class SubscribeSendPayments implements IPluginForeground {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         engine_ = callback;
-        dao_ = (ISubscribeSendPaymentsDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

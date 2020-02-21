@@ -6,14 +6,14 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IUtxoWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.UtxoWorker;
 
-public class UtxoWorkerDao implements IUtxoWorkerDao, IPluginDao {
+public class UtxoWorkerDao implements UtxoWorker.IDao, IPluginDao {
 
-    private Room dao_;
+    private DaoRoom dao_;
 
-    UtxoWorkerDao(Room dao) {
+    UtxoWorkerDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -36,7 +36,7 @@ public class UtxoWorkerDao implements IUtxoWorkerDao, IPluginDao {
     }
 
     @Dao
-    interface Room {
+    interface DaoRoom {
         @Query("SELECT * FROM Utxo WHERE txidHex = :txidHex AND outputIndex = :outputIndex")
         RoomData.Utxo getByOutpoint(String txidHex, int outputIndex);
 

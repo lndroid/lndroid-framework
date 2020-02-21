@@ -16,5 +16,4 @@ public interface IAuthRequestDao {
     // bg requests are not persistent
     void deleteBackgroundRequests();
     List<WalletData.AuthRequest> getBackgroundRequests();
-    <T> T getTransactionRequest(long userId, String txId, Class<T> cls);
 }

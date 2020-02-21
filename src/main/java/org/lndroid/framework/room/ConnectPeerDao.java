@@ -9,79 +9,90 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.ConnectPeer;
 
-public class ConnectPeerDao extends LndActionDaoBase<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse,
-        RoomTransactions.ConnectPeerTransaction> {
+public class ConnectPeerDao
+        extends LndActionDaoBase<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse>
+        implements ConnectPeer.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.CONNECT_PEER;
 
-    ConnectPeerDao(ConnectPeerDaoRoom dao) {
-        super(dao, RoomTransactions.ConnectPeerTransaction.class);
+    ConnectPeerDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
-}
 
-@Dao
-abstract class ConnectPeerDaoRoom
-        implements IRoomLndActionDao<RoomTransactions.ConnectPeerTransaction, WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse> {
-    @Query("SELECT * FROM ConnectPeerTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.ConnectPeerTransaction> getTransactions();
+    @Dao
+    abstract static class DaoRoom
+            extends RoomLndActionDaoBase<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse>
+    {
 
-    @Query("SELECT * FROM ConnectPeerTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.ConnectPeerTransaction getTransaction(long txUserId, String txId);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract long upsertRequest(RoomTransactions.ConnectPeerRequest i);
 
-    @Insert
-    public abstract void createTransaction(RoomTransactions.ConnectPeerTransaction tx);
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.ConnectPeerTransaction tx);
+        @Query("SELECT * FROM txConnectPeerRequest WHERE id_ = :id")
+        abstract RoomTransactions.ConnectPeerRequest getRequestRoom(long id);
 
-    @Query("UPDATE ConnectPeerTransaction " +
-            "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
+        @Override
+        @Transaction
+        public WalletData.ConnectPeerResponse commitTransaction(
+                long userId, String txId, WalletData.ConnectPeerResponse r, long time) {
+            return commitTransactionImpl(userId, txId, r, time);
+        }
 
-    @Query("UPDATE ConnectPeerTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
+        @Override
+        @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.ConnectPeerRequest req) {
+            createTransactionImpl(tx, req);
+        }
 
-    @Override
-    @Query("UPDATE ConnectPeerTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
+        @Override
+        protected long insertRequest(WalletData.ConnectPeerRequest req) {
+            // convert request to room object
+            RoomTransactions.ConnectPeerRequest r = new RoomTransactions.ConnectPeerRequest();
+            r.data = req;
 
-    @Query("UPDATE ConnectPeerTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
+            // insert request
+            return upsertRequest(r);
+        }
 
-    @Override @Transaction
-    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, WalletData.ConnectPeerRequest authedRequest) {
-        if (authedRequest != null) {
-            RoomTransactions.ConnectPeerTransaction tx = getTransaction(txUserId, txId);
-            tx.txData.txAuthTime = time;
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.request = authedRequest;
-            updateTransaction(tx);
-        } else {
-            confirmTransaction(txUserId, txId, txAuthUserId, time);
+        @Override
+        protected void updateRequest(long id, WalletData.ConnectPeerRequest req) {
+            // convert request to room object
+            RoomTransactions.ConnectPeerRequest r = new RoomTransactions.ConnectPeerRequest();
+            r.id_ = id;
+            r.data = req;
+
+            // update
+            upsertRequest(r);
+        }
+
+        @Override
+        public WalletData.ConnectPeerRequest getRequest(long id) {
+            RoomTransactions.ConnectPeerRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Override
+        protected long insertResponse(WalletData.ConnectPeerResponse r) {
+            // not stored
+            return 0;
+        }
+
+        @Override
+        public WalletData.ConnectPeerResponse getResponse(long id) {
+            // not stored
+            return null;
+        }
+
+        @Override
+        @Transaction
+        public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
+                                       WalletData.ConnectPeerRequest authedRequest) {
+            confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
         }
     }
 
-    @Override // not stored atm
-    public WalletData.ConnectPeerResponse getResponse(long id) { return null; };
-
-    @Transaction
-    public WalletData.ConnectPeerResponse commitTransaction(long txUserId, String txId, WalletData.ConnectPeerResponse r, long time) {
-        RoomTransactions.ConnectPeerTransaction tx = getTransaction(txUserId, txId);
-
-        // NOTE: r is not written to it's own table bcs we don't store addresses
-
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
-
-        // update tx
-        updateTransaction(tx);
-
-        return r;
-    }
 }
+

@@ -3,19 +3,18 @@ package org.lndroid.framework.room;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.Transaction;
 
-class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransaction<Request>>
+class LndActionDaoBase<Request, Response>
         implements ILndActionDao<Request, Response>, IPluginDao {
 
-    private IRoomLndActionDao<RoomTransaction, Request, Response> dao_;
-    private Class<RoomTransaction> roomTxClass_;
+    private RoomLndActionDaoBase<Request, Response> dao_;
 
-    LndActionDaoBase(IRoomLndActionDao<RoomTransaction, Request, Response> dao, Class<RoomTransaction> c) {
+    LndActionDaoBase(RoomLndActionDaoBase<Request, Response> dao) {
         dao_ = dao;
-        roomTxClass_ = c;
     }
 
     @Override
@@ -23,10 +22,11 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
         // noop
     }
 
-    private Transaction<Request> fromRoom(RoomTransaction tx) {
+    private Transaction<Request> fromRoom(RoomTransactions.RoomTransaction tx) {
         Transaction<Request> t = new Transaction<>();
-        RoomConverters.TxConverter.toTx(tx.getTxData(), t);
-        t.request = tx.getRequest();
+        t.tx = tx.txData;
+        t.job = tx.jobData;
+        t.request = dao_.getRequest(tx.txData.requestId);
         return t;
     }
 
@@ -34,8 +34,8 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
     public List<Transaction<Request>> getTransactions() {
         List<Transaction<Request>> r = new ArrayList<>();
 
-        List<RoomTransaction> txs = dao_.getTransactions();
-        for (RoomTransaction tx: txs) {
+        List<RoomTransactions.RoomTransaction> txs = dao_.getTransactions();
+        for (RoomTransactions.RoomTransaction tx: txs) {
             r.add(fromRoom(tx));
         }
 
@@ -44,7 +44,7 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
 
     @Override
     public Transaction<Request> getTransaction(long txUserId, String txId) {
-        RoomTransaction tx = dao_.getTransaction(txUserId, txId);
+        RoomTransactions.RoomTransaction tx = dao_.getTransaction(txUserId, txId);
         if (tx == null)
             return null;
 
@@ -54,10 +54,10 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
     @Override
     public void startTransaction(Transaction<Request> t) {
         try {
-            RoomTransaction tx = roomTxClass_.newInstance();
-            tx.setTxData(RoomConverters.TxConverter.fromTx(t));
-            tx.setRequest(t.request);
-            dao_.createTransaction(tx);
+            RoomTransactions.RoomTransaction tx = new RoomTransactions.RoomTransaction();
+            tx.txData = t.tx;
+            tx.jobData = t.job;
+            dao_.createTransaction(tx, t.request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -75,17 +75,19 @@ class LndActionDaoBase<Request, Response, RoomTransaction extends IRoomTransacti
 
     @Override
     public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
-        dao_.rejectTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
+        dao_.rejectTransaction(txUserId, txId, txAuthUserId, System.currentTimeMillis());
     }
 
     @Override
     public void failTransaction(long txUserId, String txId, String code, String message) {
-        dao_.failTransaction(txUserId, txId, code, message, Transaction.TX_STATE_ERROR, System.currentTimeMillis());
+        dao_.failTransaction(txUserId, txId, Transaction.TX_STATE_ERROR, System.currentTimeMillis(),
+                code, message);
     }
 
     @Override
     public void timeoutTransaction(long txUserId, String txId) {
-        dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
+        dao_.failTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis(),
+                Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
     }
 
     @Override

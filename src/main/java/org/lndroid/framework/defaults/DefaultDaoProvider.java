@@ -5,6 +5,7 @@ import android.util.Log;
 import org.lndroid.framework.common.PluginUtils;
 import org.lndroid.framework.dao.IDBDaoProvider;
 import org.lndroid.framework.dao.IRawQueryDao;
+import org.lndroid.framework.dao.ITransactionDao;
 import org.lndroid.framework.engine.IDaoConfig;
 import org.lndroid.framework.engine.IKeyStore;
 import org.lndroid.framework.WalletData;
@@ -380,6 +381,11 @@ public class DefaultDaoProvider implements IDaoProvider {
     @Override
     public IRawQueryDao getRawQueryDao() {
         return roomDaos_.getRawQueryDao();
+    }
+
+    @Override
+    public ITransactionDao getTxDao() {
+        return roomDaos_.getTxDao();
     }
 
     @Override

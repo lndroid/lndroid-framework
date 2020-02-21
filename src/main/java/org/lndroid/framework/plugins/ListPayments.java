@@ -11,11 +11,12 @@ import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
-import org.lndroid.framework.room.ListPaymentsDao;
 
 public class ListPayments extends ListBase<WalletData.ListPaymentsRequest, WalletData.Payment> {
 
-    private IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult> dao_;
+    public interface IDao extends IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult>{};
+
+    private IDao dao_;
 
     public ListPayments() {
         super(DefaultPlugins.LIST_PAYMENTS);
@@ -45,7 +46,7 @@ public class ListPayments extends ListBase<WalletData.ListPaymentsRequest, Walle
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IListDao<WalletData.ListPaymentsRequest, WalletData.ListPaymentsResult>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

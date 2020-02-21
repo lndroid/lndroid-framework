@@ -9,78 +9,87 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.NewAddress;
 
-class NewAddressDao extends LndActionDaoBase<WalletData.NewAddressRequest, WalletData.NewAddress, RoomTransactions.NewAddressTransaction> {
+class NewAddressDao
+        extends LndActionDaoBase<WalletData.NewAddressRequest, WalletData.NewAddress>
+        implements NewAddress.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.NEW_ADDRESS;
 
-    NewAddressDao(NewAddressDaoRoom dao) {
-        super(dao, RoomTransactions.NewAddressTransaction.class);
+    NewAddressDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
-}
 
-@Dao
-abstract class NewAddressDaoRoom
-        implements IRoomLndActionDao<RoomTransactions.NewAddressTransaction, WalletData.NewAddressRequest, WalletData.NewAddress> {
-    @Query("SELECT * FROM NewAddressTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.NewAddressTransaction> getTransactions();
+    @Dao
+    abstract static class DaoRoom
+            extends RoomLndActionDaoBase<WalletData.NewAddressRequest, WalletData.NewAddress>
+    {
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract long upsertRequest(RoomTransactions.NewAddressRequest i);
 
-    @Query("SELECT * FROM NewAddressTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.NewAddressTransaction getTransaction(long txUserId, String txId);
+        @Query("SELECT * FROM txNewAddressRequest WHERE id_ = :id")
+        abstract RoomTransactions.NewAddressRequest getRequestRoom(long id);
 
-    @Insert
-    public abstract void createTransaction(RoomTransactions.NewAddressTransaction tx);
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.NewAddressTransaction tx);
-
-    @Query("UPDATE NewAddressTransaction " +
-            "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
-
-    @Query("UPDATE NewAddressTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Override
-    @Query("UPDATE NewAddressTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
-
-    @Query("UPDATE NewAddressTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Override @Transaction
-    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, WalletData.NewAddressRequest authedRequest) {
-        if (authedRequest != null) {
-            RoomTransactions.NewAddressTransaction tx = getTransaction(txUserId, txId);
-            tx.txData.txAuthTime = time;
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.request = authedRequest;
-            updateTransaction(tx);
-        } else {
-            confirmTransaction(txUserId, txId, txAuthUserId, time);
+        @Override
+        @Transaction
+        public WalletData.NewAddress commitTransaction(
+                long userId, String txId, WalletData.NewAddress r, long time) {
+            return commitTransactionImpl(userId, txId, r, time);
         }
-    }
 
-    @Override // not stored
-    public WalletData.NewAddress getResponse(long id) { return null; };
+        @Override
+        @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.NewAddressRequest req) {
+            createTransactionImpl(tx, req);
+        }
 
-    @Transaction
-    public WalletData.NewAddress commitTransaction(long txUserId, String txId, WalletData.NewAddress r, long time) {
-        RoomTransactions.NewAddressTransaction tx = getTransaction(txUserId, txId);
+        @Override
+        protected long insertRequest(WalletData.NewAddressRequest req) {
+            // convert request to room object
+            RoomTransactions.NewAddressRequest r = new RoomTransactions.NewAddressRequest();
+            r.data = req;
 
-        // NOTE: r is not written to it's own table bcs we don't store addresses
+            // insert request
+            return upsertRequest(r);
+        }
 
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
+        @Override
+        protected void updateRequest(long id, WalletData.NewAddressRequest req) {
+            // convert request to room object
+            RoomTransactions.NewAddressRequest r = new RoomTransactions.NewAddressRequest();
+            r.id_ = id;
+            r.data = req;
 
-        // update tx
-        updateTransaction(tx);
+            // update
+            upsertRequest(r);
+        }
 
-        return r;
+        @Override
+        public WalletData.NewAddressRequest getRequest(long id) {
+            RoomTransactions.NewAddressRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Override
+        protected long insertResponse(WalletData.NewAddress r) {
+            // not stored
+            return 0;
+        }
+
+        @Override
+        public WalletData.NewAddress getResponse(long id) {
+            // not stored
+            return null;
+        }
+
+        @Override
+        @Transaction
+        public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
+                                       WalletData.NewAddressRequest authedRequest) {
+            confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
+        }
     }
 }

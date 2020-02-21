@@ -8,12 +8,18 @@ import androidx.room.RoomWarnings;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IAuthDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetAppUser;
+import org.lndroid.framework.plugins.GetUser;
 
-class AuthDao implements IAuthDao, IPluginDao {
+class AuthDao implements
+        IAuthDao, IPluginDao,
+        GetUser.IDao,
+        GetAppUser.IDao
+{
 
-    private AuthDaoRoom dao_;
+    private DaoRoom dao_;
 
-    AuthDao(AuthDaoRoom dao) {
+    AuthDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -49,17 +55,18 @@ class AuthDao implements IAuthDao, IPluginDao {
                 .setCreateTime(0)
                 .build();
     }
-}
 
-@Dao
-interface AuthDaoRoom {
-    @Query("SELECT * FROM User WHERE id = :id")
-    RoomData.User get(long id);
-    @Query("SELECT * FROM User WHERE appPubkey = :pk")
-    RoomData.User getByAppPubkey(String pk);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM User WHERE id = :id")
+        RoomData.User get(long id);
+        @Query("SELECT * FROM User WHERE appPubkey = :pk")
+        RoomData.User getByAppPubkey(String pk);
 
-    @Query("SELECT id_, id, authUserId, createTime, authType, nonce, pubkey FROM User WHERE id = :id")
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    RoomData.User getAuthInfo(long id);
+        @Query("SELECT id_, id, authUserId, createTime, authType, nonce, pubkey FROM User WHERE id = :id")
+        @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+        RoomData.User getAuthInfo(long id);
+    }
+
 }
 

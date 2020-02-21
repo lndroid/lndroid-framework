@@ -26,85 +26,87 @@ import androidx.room.RoomDatabase;
         RoomData.WalletInfo.class,
         RoomData.User.class,
         RoomData.Utxo.class,
-        RoomTransactions.AddContactInvoiceTransaction.class,
-        RoomTransactions.AddContactTransaction.class,
-        RoomTransactions.AddContactPaymentsPrivilegeTransaction.class,
-        RoomTransactions.AddInvoiceTransaction.class,
-        RoomTransactions.AddListContactsPrivilegeTransaction.class,
-        RoomTransactions.AddUserTransaction.class,
-        RoomTransactions.CloseChannelTransaction.class,
-        RoomTransactions.ConnectPeerTransaction.class,
-        RoomTransactions.DecodePayReqTransaction.class,
-        RoomTransactions.EstimateFeeTransaction.class,
-        RoomTransactions.NewAddressTransaction.class,
-        RoomTransactions.OpenChannelTransaction.class,
-        RoomTransactions.SendCoinsTransaction.class,
-        RoomTransactions.SendPaymentTransaction.class,
-        RoomTransactions.ShareContactTransaction.class,
+        RoomTransactions.RoomTransaction.class,
+        RoomTransactions.Contact.class,
+        RoomTransactions.AddContactInvoiceRequest.class,
+        RoomTransactions.AddInvoiceRequest.class,
+        RoomTransactions.AddUserRequest.class,
+        RoomTransactions.CloseChannelRequest.class,
+        RoomTransactions.ConnectPeerRequest.class,
+        RoomTransactions.ContactPaymentsPrivilege.class,
+        RoomTransactions.EstimateFeeRequest.class,
+        RoomTransactions.ListContactsPrivilege.class,
+        RoomTransactions.NewAddressRequest.class,
+        RoomTransactions.OpenChannelRequest.class,
+        RoomTransactions.PayReqString.class,
+        RoomTransactions.SendCoinsRequest.class,
+        RoomTransactions.SendPaymentRequest.class,
+        RoomTransactions.ShareContactRequest.class,
 })
 abstract class RoomDB extends RoomDatabase {
 
-    abstract RawQueryDaoRoom rawQueryDao();
+    abstract RawQueryDao.DaoRoom rawQueryDao();
+    abstract RoomTransactions.TransactionDao txDao();
 
-    abstract AuthDaoRoom authDao();
+    abstract AuthDao.DaoRoom authDao();
 
-    abstract AuthRequestDaoRoom authRequestDao();
+    abstract AuthRequestDao.DaoRoom authRequestDao();
 
-    abstract AddUserDaoRoom userAddDao();
+    abstract AddUserDao.DaoRoom userAddDao();
 
-    abstract WalletBalanceDaoRoom walletBalanceDao();
+    abstract WalletBalanceDao.DaoRoom walletBalanceDao();
 
-    abstract WalletInfoDaoRoom walletInfoDao();
+    abstract WalletInfoDao.DaoRoom walletInfoDao();
 
-    abstract ChannelBalanceDaoRoom channelBalanceDao();
+    abstract ChannelBalanceDao.DaoRoom channelBalanceDao();
 
-    abstract NewAddressDaoRoom newAddressDao();
+    abstract NewAddressDao.DaoRoom newAddressDao();
 
-    abstract ConnectPeerDaoRoom connectPeerDao();
+    abstract ConnectPeerDao.DaoRoom connectPeerDao();
 
-    abstract DecodePayReqDaoRoom decodePayReqDao();
-    abstract EstimateFeeDaoRoom estimateFeeDao();
+    abstract DecodePayReqDao.DaoRoom decodePayReqDao();
+    abstract EstimateFeeDao.DaoRoom estimateFeeDao();
 
-    abstract AddInvoiceDaoRoom addInvoiceDao();
-    abstract InvoiceStateWorkerDaoRoom invoiceStateWorkerDao();
-    abstract ListInvoicesDaoRoom listInvoicesDao();
-    abstract GetInvoiceDaoRoom getInvoiceDao();
+    abstract AddInvoiceDao.DaoRoom addInvoiceDao();
+    abstract InvoiceStateWorkerDao.DaoRoom invoiceStateWorkerDao();
+    abstract ListInvoicesDao.DaoRoom listInvoicesDao();
+    abstract GetInvoiceDao.DaoRoom getInvoiceDao();
 
-    abstract OpenChannelDaoRoom openChannelDao();
-    abstract OpenChannelWorkerDaoRoom openChannelWorkerDao();
-    abstract GetChannelDaoRoom getChannelDao();
-    abstract ChannelStateWorkerDaoRoom channelStateWorkerDao();
-    abstract ListChannelsDao.Room listChannelsDao();
+    abstract OpenChannelDao.DaoRoom openChannelDao();
+    abstract OpenChannelWorkerDao.DaoRoom openChannelWorkerDao();
+    abstract GetChannelDao.DaoRoom getChannelDao();
+    abstract ChannelStateWorkerDao.DaoRoom channelStateWorkerDao();
+    abstract ListChannelsDao.DaoRoom listChannelsDao();
 
-    abstract SendPaymentDaoRoom sendPaymentDao();
-    abstract SendPaymentWorkerDaoRoom sendPaymentWorkerDao();
-    abstract GetSendPaymentDaoRoom getSendPaymentDao();
-    abstract SubscribeSendPaymentsDaoRoom subscribeSendPaymentsDao();
+    abstract SendPaymentDao.DaoRoom sendPaymentDao();
+    abstract SendPaymentWorkerDao.DaoRoom sendPaymentWorkerDao();
+    abstract GetSendPaymentDao.DaoRoom getSendPaymentDao();
+    abstract SubscribeSendPaymentsDao.DaoRoom subscribeSendPaymentsDao();
 
-    abstract ListPaymentsDaoRoom listPaymentsDao();
+    abstract ListPaymentsDao.DaoRoom listPaymentsDao();
 
-    abstract AddContactDaoRoom addContactDao();
-    abstract GetContactDaoRoom getContactDao();
-    abstract ListContactsDaoRoom listContactsDao();
+    abstract AddAppContactDao.DaoRoom addContactDao();
+    abstract GetContactDao.DaoRoom getContactDao();
+    abstract ListContactsDao.DaoRoom listContactsDao();
 
-    abstract AddListContactsPrivilegeDaoRoom addListContactsPrivilegeDao();
+    abstract AddListContactsPrivilegeDao.DaoRoom addListContactsPrivilegeDao();
 
-    abstract AddContactPaymentsPrivilegeDaoRoom addContactPaymentsPrivilegeDao();
+    abstract AddContactPaymentsPrivilegeDao.DaoRoom addContactPaymentsPrivilegeDao();
 
-    abstract ShareContactDaoRoom shareContactDao();
-    abstract AddContactInvoiceDaoRoom addContactInvoiceDao();
+    abstract ShareContactDao.DaoRoom shareContactDao();
+    abstract AddContactInvoiceDao.DaoRoom addContactInvoiceDao();
 
     abstract RouteHintsDaoRoom routeHintsDao();
 
-    abstract NodeInfoDaoRoom nodeInfoDao();
+    abstract NodeInfoDao.DaoRoom nodeInfoDao();
 
-    abstract SendCoinsDaoRoom sendCoinsDao();
-    abstract SendCoinsWorkerDaoRoom sendCoinsWorkerDao();
-    abstract TransactionStateWorkerDaoRoom transactionStateWorkerDao();
-    abstract GetTransactionDaoRoom getTransactionDao();
-    abstract ListTransactionsDaoRoom listTransactionsDao();
+    abstract SendCoinsDao.DaoRoom sendCoinsDao();
+    abstract SendCoinsWorkerDao.DaoRoom sendCoinsWorkerDao();
+    abstract TransactionStateWorkerDao.DaoRoom transactionStateWorkerDao();
+    abstract GetTransactionDao.DaoRoom getTransactionDao();
+    abstract ListTransactionsDao.DaoRoom listTransactionsDao();
 
-    abstract UtxoWorkerDao.Room utxoWorkerDao();
-    abstract GetUtxoDao.Room getUtxoDao();
-    abstract ListUtxoDao.Room listUtxoDao();
+    abstract UtxoWorkerDao.DaoRoom utxoWorkerDao();
+    abstract GetUtxoDao.DaoRoom getUtxoDao();
+    abstract ListUtxoDao.DaoRoom listUtxoDao();
 }

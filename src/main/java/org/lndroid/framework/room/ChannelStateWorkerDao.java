@@ -8,15 +8,19 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IChannelStateWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ChannelStateWorker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChannelStateWorkerDao implements IChannelStateWorkerDao, IPluginDao {
+public class ChannelStateWorkerDao implements
+        IChannelStateWorkerDao, IPluginDao,
+        ChannelStateWorker.IDao
+{
 
-    private ChannelStateWorkerDaoRoom dao_;
+    private DaoRoom dao_;
 
-    ChannelStateWorkerDao(ChannelStateWorkerDaoRoom dao) { dao_ = dao; }
+    ChannelStateWorkerDao(DaoRoom dao) { dao_ = dao; }
 
     @Override
     public WalletData.Channel getChannelByChannelPoint(String channelPoint) {
@@ -49,19 +53,21 @@ public class ChannelStateWorkerDao implements IChannelStateWorkerDao, IPluginDao
     public void init() {
         // noop
     }
+
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM Channel WHERE channelPoint = :channelPoint")
+        RoomData.Channel getChannelByChannelPoint(String channelPoint);
+
+        @Query("SELECT * FROM Channel WHERE state = :state")
+        List<RoomData.Channel> getChannels(int state);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void updateChannel(RoomData.Channel c);
+
+        @Query("UPDATE Channel SET active = :active WHERE channelPoint = :channelPoint")
+        void setChannelActive(String channelPoint, boolean active);
+    }
+
 }
 
-@Dao
-interface ChannelStateWorkerDaoRoom {
-    @Query("SELECT * FROM Channel WHERE channelPoint = :channelPoint")
-    RoomData.Channel getChannelByChannelPoint(String channelPoint);
-
-    @Query("SELECT * FROM Channel WHERE state = :state")
-    List<RoomData.Channel> getChannels(int state);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void updateChannel(RoomData.Channel c);
-
-    @Query("UPDATE Channel SET active = :active WHERE channelPoint = :channelPoint")
-    void setChannelActive(String channelPoint, boolean active);
-}

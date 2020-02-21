@@ -14,17 +14,28 @@ import java.util.Map;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.IInvoiceStateWorkerDao;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.lnd.ILightningDao;
 import org.lndroid.framework.lnd.LightningCodec;
 
 public class InvoiceStateWorker implements IPluginBackground {
+
+    public interface IDao {
+        WalletData.Invoice getInvoiceByHash(String hashHex);
+        List<WalletData.InvoiceHTLC> getInvoiceHTLCs(long invoiceId);
+        List<WalletData.Payment> getInvoicePayments(long invoiceId);
+        long getMaxAddIndex();
+        long getMaxSettleIndex();
+        void updateInvoiceState(WalletData.Invoice invoice,
+                                List<WalletData.InvoiceHTLC> htlcs,
+                                List<WalletData.Payment> payments);
+    }
+
     private static final String TAG = "InvoiceStateWorker";
 
     private IPluginServer server_;
-    private IInvoiceStateWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private IPluginBackgroundCallback engine_;
     private boolean started_;
@@ -37,7 +48,7 @@ public class InvoiceStateWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         server_ = server;
-        dao_ = (IInvoiceStateWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
     }

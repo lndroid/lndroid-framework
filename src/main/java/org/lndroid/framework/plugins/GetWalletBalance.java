@@ -15,9 +15,12 @@ import org.lndroid.framework.engine.PluginContext;
 
 public class GetWalletBalance extends GetBase<Long> {
 
+    // plugin's Dao must implement this
+    public interface IDao extends IWalletBalanceDao {};
+
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IWalletBalanceDao dao_;
+    private IDao dao_;
 
     public GetWalletBalance() {
         super(DefaultPlugins.GET_WALLET_BALANCE, DefaultTopics.WALLET_BALANCE);
@@ -26,7 +29,7 @@ public class GetWalletBalance extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IWalletBalanceDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

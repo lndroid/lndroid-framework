@@ -6,12 +6,15 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetUtxo;
 
-public class GetUtxoDao implements IGetDao<WalletData.Utxo>, IPluginDao {
+public class GetUtxoDao implements
+        IGetDao<WalletData.Utxo>, IPluginDao,
+        GetUtxo.IDao
+{
+    private DaoRoom dao_;
 
-    private Room dao_;
-
-    GetUtxoDao(Room dao) {
+    GetUtxoDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -27,7 +30,7 @@ public class GetUtxoDao implements IGetDao<WalletData.Utxo>, IPluginDao {
     }
 
     @Dao
-    interface Room {
+    interface DaoRoom {
         @Query("SELECT * FROM Utxo WHERE id = :id")
         RoomData.Utxo get(long id);
     }

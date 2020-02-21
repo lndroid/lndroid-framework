@@ -14,10 +14,14 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class GetUtxo extends GetBase<Long> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IGetDao<WalletData.Utxo>{};
+
     private static final String TAG = "GetUtxo";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetDao<WalletData.Utxo> dao_;
+    private IDao dao_;
 
     public GetUtxo() {
         super(DefaultPlugins.GET_UTXO, DefaultTopics.UTXO_STATE);
@@ -58,6 +62,6 @@ public class GetUtxo extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IGetDao<WalletData.Utxo>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 }

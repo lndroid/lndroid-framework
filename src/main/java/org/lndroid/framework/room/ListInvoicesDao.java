@@ -17,13 +17,15 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ListInvoices;
 
-public class ListInvoicesDao implements
-        IListDao<WalletData.ListInvoicesRequest, WalletData.ListInvoicesResult>, IPluginDao {
+class ListInvoicesDao implements
+        IListDao<WalletData.ListInvoicesRequest, WalletData.ListInvoicesResult>, IPluginDao,
+        ListInvoices.IDao
+{
+    private DaoRoom dao_;
 
-    private ListInvoicesDaoRoom dao_;
-
-    ListInvoicesDao(ListInvoicesDaoRoom dao) {
+    ListInvoicesDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -96,40 +98,41 @@ public class ListInvoicesDao implements
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class ListInvoicesDaoRoom {
+    @Dao
+    abstract static class DaoRoom {
 
-    @RawQuery
-    abstract long[] listInvoiceIds(SupportSQLiteQuery query);
+        @RawQuery
+        abstract long[] listInvoiceIds(SupportSQLiteQuery query);
 
-    @Query("SELECT * FROM Invoice WHERE id_ IN(:ids)")
-    abstract List<RoomData.Invoice> listInvoices(List<Long> ids);
+        @Query("SELECT * FROM Invoice WHERE id_ IN(:ids)")
+        abstract List<RoomData.Invoice> listInvoices(List<Long> ids);
 
-    @Transaction
-    WalletData.ListInvoicesResult listInvoices(SupportSQLiteQuery query, WalletData.ListPage page) {
-        long[] ids = listInvoiceIds(query);
+        @Transaction
+        WalletData.ListInvoicesResult listInvoices(SupportSQLiteQuery query, WalletData.ListPage page) {
+            long[] ids = listInvoiceIds(query);
 
-        List<Long> pageIds = new ArrayList<>();
-        final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
+            List<Long> pageIds = new ArrayList<>();
+            final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
 
-        // read matching page ids
-        List<RoomData.Invoice> items = listInvoices(pageIds);
+            // read matching page ids
+            List<RoomData.Invoice> items = listInvoices(pageIds);
 
-        // sort
-        RoomUtils.sortPage(items, pageIds);
+            // sort
+            RoomUtils.sortPage(items, pageIds);
 
-        // prepare list result
-        ImmutableList.Builder<WalletData.Invoice> builder = ImmutableList.builder();
-        for(RoomData.Invoice in: items)
-            builder.add(in.getData());
+            // prepare list result
+            ImmutableList.Builder<WalletData.Invoice> builder = ImmutableList.builder();
+            for(RoomData.Invoice in: items)
+                builder.add(in.getData());
 
-        return WalletData.ListInvoicesResult.builder()
-                .setCount(ids.length)
-                .setPosition(fromPos)
-                .setItems(builder.build())
-                .build();
+            return WalletData.ListInvoicesResult.builder()
+                    .setCount(ids.length)
+                    .setPosition(fromPos)
+                    .setItems(builder.build())
+                    .build();
+        }
     }
-}
 
+
+}

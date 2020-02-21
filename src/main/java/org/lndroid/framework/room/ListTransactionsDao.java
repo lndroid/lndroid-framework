@@ -12,16 +12,19 @@ import com.google.common.collect.ImmutableList;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ListTransactions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListTransactionsDao implements
-        IListDao<WalletData.ListTransactionsRequest, WalletData.ListTransactionsResult>, IPluginDao {
+class ListTransactionsDao implements
+        IListDao<WalletData.ListTransactionsRequest, WalletData.ListTransactionsResult>, IPluginDao,
+        ListTransactions.IDao
+{
 
-    private ListTransactionsDaoRoom dao_;
+    private DaoRoom dao_;
 
-    ListTransactionsDao(ListTransactionsDaoRoom dao) {
+    ListTransactionsDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -65,42 +68,39 @@ public class ListTransactionsDao implements
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class ListTransactionsDaoRoom {
+    @Dao
+    abstract static class DaoRoom {
 
-    @RawQuery
-    abstract long[] listIds(SupportSQLiteQuery query);
+        @RawQuery
+        abstract long[] listIds(SupportSQLiteQuery query);
 
-    @Query("SELECT * FROM 'Transaction' WHERE id_ IN(:ids)")
-    abstract List<RoomData.Transaction> list(List<Long> ids);
+        @Query("SELECT * FROM 'Transaction' WHERE id_ IN(:ids)")
+        abstract List<RoomData.Transaction> list(List<Long> ids);
 
-    @Transaction
-    WalletData.ListTransactionsResult list(SupportSQLiteQuery query, WalletData.ListPage page) {
-        long[] ids = listIds(query);
+        @Transaction
+        WalletData.ListTransactionsResult list(SupportSQLiteQuery query, WalletData.ListPage page) {
+            long[] ids = listIds(query);
 
-        List<Long> pageIds = new ArrayList<>();
-        final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
+            List<Long> pageIds = new ArrayList<>();
+            final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
 
-        // read matching page ids
-        List<RoomData.Transaction> items = list(pageIds);
+            // read matching page ids
+            List<RoomData.Transaction> items = list(pageIds);
 
-        // sort
-        RoomUtils.sortPage(items, pageIds);
+            // sort
+            RoomUtils.sortPage(items, pageIds);
 
-        // prepare list result
-        ImmutableList.Builder<WalletData.Transaction> builder = ImmutableList.builder();
-        for(RoomData.Transaction t: items)
-            builder.add(t.getData());
+            // prepare list result
+            ImmutableList.Builder<WalletData.Transaction> builder = ImmutableList.builder();
+            for(RoomData.Transaction t: items)
+                builder.add(t.getData());
 
-        return WalletData.ListTransactionsResult.builder()
-                .setCount(ids.length)
-                .setPosition(fromPos)
-                .setItems(builder.build())
-                .build();
+            return WalletData.ListTransactionsResult.builder()
+                    .setCount(ids.length)
+                    .setPosition(fromPos)
+                    .setItems(builder.build())
+                    .build();
+        }
     }
 }
-
-
-

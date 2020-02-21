@@ -2,33 +2,27 @@ package org.lndroid.framework.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.ISendPaymentDao;
-import org.lndroid.framework.engine.IPluginDao;
-import org.lndroid.framework.plugins.Transaction;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.SendPayment;
 
-public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
-    private SendPaymentDaoRoom dao_;
+public class SendPaymentDao
+        extends ActionDaoBase<WalletData.SendPaymentRequest, WalletData.SendPayment>
+        implements SendPayment.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.SEND_PAYMENT;
 
-    SendPaymentDao(SendPaymentDaoRoom dao, RouteHintsDaoRoom routeDao) {
+    private DaoRoom dao_;
+
+    SendPaymentDao(DaoRoom dao, RoomTransactions.TransactionDao txDao, RouteHintsDaoRoom routeDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
+        dao.routeDao = routeDao;
         dao_ = dao;
-        dao_.setRouteDao(routeDao);
-    }
-
-    private Transaction<WalletData.SendPaymentRequest> fromRoom(RoomTransactions.SendPaymentTransaction tx) {
-        Transaction<WalletData.SendPaymentRequest> t = new Transaction<>();
-        RoomConverters.TxConverter.toTx(tx.getTxData(), t);
-        t.request = tx.getRequest();
-        return t;
     }
 
     @Override
@@ -49,197 +43,149 @@ public class SendPaymentDao implements ISendPaymentDao, IPluginDao {
     }
 
     @Override
-    public List<Transaction<WalletData.SendPaymentRequest>> getTransactions() {
-        List<Transaction<WalletData.SendPaymentRequest>> r = new ArrayList<>();
-
-        List<RoomTransactions.SendPaymentTransaction> txs = dao_.getTransactions();
-        for (RoomTransactions.SendPaymentTransaction tx: txs) {
-            r.add(fromRoom(tx));
-        }
-
-        return r;
-    }
-
-    @Override
-    public Transaction<WalletData.SendPaymentRequest> getTransaction(
-            long txUserId, String txId) {
-        RoomTransactions.SendPaymentTransaction tx = dao_.getTransaction(txUserId, txId);
-        if (tx == null)
-            return null;
-
-        return fromRoom(tx);
-    }
-
-    @Override
-    public void startTransaction(Transaction<WalletData.SendPaymentRequest> t) {
-        RoomTransactions.SendPaymentTransaction tx = new RoomTransactions.SendPaymentTransaction();
-        tx.setTxData(RoomConverters.TxConverter.fromTx(t));
-        tx.setRequest(t.request);
-        dao_.createTransaction(tx);
-    }
-
-    @Override
     public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p) {
         return dao_.commitTransaction(txUserId, txId, txAuthUserId, p, System.currentTimeMillis());
     }
 
     @Override
-    public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
-        dao_.rejectTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
+    public WalletData.SendPayment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.SendPayment p) {
+        throw new RuntimeException("Unsupported method");
     }
 
-    @Override
-    public void timeoutTransaction(long txUserId, String txId) {
-        dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
-    }
+    @Dao
+    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.SendPaymentRequest, WalletData.SendPayment>{
 
-    @Override
-    public WalletData.SendPayment getResponse(long id) {
-        return dao_.getResponse(id);
-    }
+        RouteHintsDaoRoom routeDao;
 
-    @Override
-    public void init() {
-        // noop
-    }
-}
+        @Query("SELECT identityPubkey FROM WalletInfo LIMIT 1")
+        public abstract String walletPubkey();
 
-@Dao
-abstract class SendPaymentDaoRoom {
+        @Query("SELECT * FROM Contact WHERE id = :id")
+        public abstract RoomData.Contact getContactRoom(long id);
 
-    private RouteHintsDaoRoom routeDao_;
+        public WalletData.Contact getContact(long contactId) {
+            RoomData.Contact rc = getContactRoom(contactId);
+            if (rc == null)
+                return null;
 
-    void setRouteDao(RouteHintsDaoRoom routeDao) {
-        routeDao_ = routeDao;
-    }
-
-    @Query("SELECT identityPubkey FROM WalletInfo LIMIT 1")
-    public abstract String walletPubkey();
-
-    @Query("SELECT * FROM Contact WHERE id = :id")
-    public abstract RoomData.Contact getContactRoom(long id);
-
-    public WalletData.Contact getContact(long contactId) {
-        RoomData.Contact rc = getContactRoom(contactId);
-        if (rc == null)
-            return null;
-
-        return rc.getData().toBuilder()
-                .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
-                .build();
-    }
-
-    @Query("SELECT id FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
-    abstract boolean hasContactPaymentsPrivilege(long userId, long contactId);
-
-    @Query("SELECT * FROM SendPaymentTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.SendPaymentTransaction> getTransactionsRoom();
-
-    @Query("SELECT * FROM SendPaymentTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.SendPaymentTransaction getTransactionRoom(long txUserId, String txId);
-
-    @Insert
-    public abstract void createTransaction(RoomTransactions.SendPaymentTransaction tx);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.SendPaymentTransaction tx);
-
-    @Query("UPDATE SendPaymentTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Query("UPDATE SendPaymentTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Insert
-    public abstract void insertSendPayment(RoomData.SendPayment i);
-
-    @Insert
-    public abstract long insertPayment(RoomData.Payment p);
-
-    void readRouteHints(RoomTransactions.SendPaymentTransaction tx) {
-        ImmutableList<WalletData.RouteHint> routeHints = routeDao_.getRouteHints(routeHintsParentId(tx));
-        tx.request = tx.request.toBuilder().setRouteHints(routeHints).build();
-    }
-
-    @androidx.room.Transaction
-    public List<RoomTransactions.SendPaymentTransaction> getTransactions() {
-        List<RoomTransactions.SendPaymentTransaction> txs = getTransactionsRoom();
-        for (RoomTransactions.SendPaymentTransaction tx: txs)
-            readRouteHints(tx);
-        return txs;
-    }
-
-    public RoomTransactions.SendPaymentTransaction getTransaction(long txUserId, String txId) {
-        RoomTransactions.SendPaymentTransaction tx = getTransactionRoom(txUserId, txId);
-        if (tx != null)
-            readRouteHints(tx);
-        return tx;
-    }
-
-    static String routeHintsParentId(RoomTransactions.SendPaymentTransaction tx) {
-        return "spr:"+tx.txData.txId;
-    }
-
-    @Query("SELECT * FROM SendPayment WHERE id = :id")
-    public abstract RoomData.SendPayment getResponseRoom(long id);
-
-    public WalletData.SendPayment getResponse(long id) {
-        RoomData.SendPayment r = getResponseRoom(id);
-        if (r == null)
-            return null;
-
-        return r.getData().toBuilder()
-                .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(r.getData())))
-                .build();
-    }
-
-    @androidx.room.Transaction
-    public void startTransaction(RoomTransactions.SendPaymentTransaction tx) {
-        createTransaction(tx);
-
-        // write route hints
-        routeDao_.upsertRouteHints(routeHintsParentId(tx), tx.request.routeHints());
-    }
-
-    @androidx.room.Transaction
-    public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId,
-                                                WalletData.Payment payment, long time) {
-
-        // get tx
-        RoomTransactions.SendPaymentTransaction tx = getTransaction(txUserId, txId);
-
-        // get sendpayment to be written
-        WalletData.SendPayment sp = payment.sendPayments().get(payment.sourceId());
-
-        // insert sendpayment
-        RoomData.SendPayment rsp = new RoomData.SendPayment();
-        rsp.setData(sp);
-        insertSendPayment(rsp);
-
-        // write route hints
-        routeDao_.upsertRouteHints(RoomData.routeHintsParentId(sp), sp.routeHints());
-
-        // insert payment
-        RoomData.Payment rp = new RoomData.Payment();
-        rp.setData(payment);
-        insertPayment(rp);
-
-        // update state
-        tx.setResponse(sp.getClass(), sp.id());
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
-        if (txAuthUserId != 0) {
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.txData.txAuthTime = time;
+            return rc.getData().toBuilder()
+                    .setRouteHints(routeDao.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
+                    .build();
         }
 
-        // write tx
-        updateTransaction(tx);
+        @Query("SELECT id FROM ContactPaymentsPrivilege WHERE userId = :userId AND contactId = :contactId")
+        abstract boolean hasContactPaymentsPrivilege(long userId, long contactId);
 
-        return payment;
+
+        @Override @androidx.room.Transaction
+        public WalletData.SendPayment commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.SendPayment r, long time) {
+            throw new RuntimeException("Unsupported method");
+        }
+
+        @Override @androidx.room.Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.SendPaymentRequest req){
+            createTransactionImpl(tx, req);
+        }
+
+        private String routeHintsRequestParentId(long id) {
+            return "SendPaymentRequest:"+id;
+        }
+
+        @Insert
+        abstract long insertRequest(RoomTransactions.SendPaymentRequest i);
+
+        @Override
+        protected long insertRequest(WalletData.SendPaymentRequest req) {
+            // convert request to room object
+            RoomTransactions.SendPaymentRequest r = new RoomTransactions.SendPaymentRequest();
+            r.data = req;
+
+            // insert request
+            final long id = insertRequest(r);
+
+            // write route hints
+            routeDao.upsertRouteHints(routeHintsRequestParentId(id), req.routeHints());
+
+            return id;
+        }
+
+        WalletData.SendPaymentRequest addRouteHintsRequest(long id, WalletData.SendPaymentRequest c) {
+            ImmutableList<WalletData.RouteHint> routeHints = routeDao.getRouteHints(
+                    routeHintsRequestParentId(id));
+            return c.toBuilder().setRouteHints(routeHints).build();
+        }
+
+        WalletData.SendPayment addRouteHintsResponse(WalletData.SendPayment c) {
+            ImmutableList<WalletData.RouteHint> routeHints = routeDao.getRouteHints(
+                    RoomData.routeHintsParentId(c));
+            return c.toBuilder().setRouteHints(routeHints).build();
+        }
+
+        @Query("SELECT * FROM txSendPaymentRequest WHERE id_ = :id")
+        abstract RoomTransactions.SendPaymentRequest getRequestRoom(long id);
+
+        @Override
+        public WalletData.SendPaymentRequest getRequest(long id) {
+            RoomTransactions.SendPaymentRequest r = getRequestRoom(id);
+            if (r == null)
+                return null;
+
+            return addRouteHintsRequest(id, r.data);
+        }
+
+        @Query("SELECT * FROM SendPayment WHERE id = :id")
+        abstract RoomData.SendPayment getResponseRoom(long id);
+
+        @Override
+        public WalletData.SendPayment getResponse(long id) {
+            RoomData.SendPayment r = getResponseRoom(id);
+            if (r == null)
+                return null;
+
+            return addRouteHintsResponse(r.getData());
+        }
+
+        @Insert
+        public abstract void insertSendPayment(RoomData.SendPayment i);
+
+        @Insert
+        public abstract long insertPayment(RoomData.Payment p);
+
+        @Override
+        protected long insertResponse(WalletData.SendPayment v) {
+            RoomData.SendPayment r = new RoomData.SendPayment();
+            r.setData(v);
+            insertSendPayment(r);
+            return v.id();
+        }
+
+        @androidx.room.Transaction
+        public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId,
+                                                    WalletData.Payment payment, long time) {
+
+            // get sendpayment to be written
+            WalletData.SendPayment sp = payment.sendPayments().get(payment.sourceId());
+
+            // insert sendpayment
+            insertResponse(sp);
+
+            // write route hints
+            routeDao.upsertRouteHints(RoomData.routeHintsParentId(sp), sp.routeHints());
+
+            // insert payment
+            RoomData.Payment rp = new RoomData.Payment();
+            rp.setData(payment);
+            insertPayment(rp);
+
+            // update tx state: confirm and commit
+            txDao().confirmTransaction(PLUGIN_ID, txUserId, txId, txAuthUserId, time);
+            txDao().commitTransaction(PLUGIN_ID, txUserId, txId,
+                    org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED,
+                    time, sp.getClass().getName(), sp.id());
+
+            return payment;
+        }
+
     }
 }

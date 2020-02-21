@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IInvoiceStateWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.InvoiceStateWorker;
 
-class InvoiceStateWorkerDao implements IInvoiceStateWorkerDao, IPluginDao {
-    private InvoiceStateWorkerDaoRoom dao_;
+class InvoiceStateWorkerDao implements InvoiceStateWorker.IDao, IPluginDao {
 
-    InvoiceStateWorkerDao(InvoiceStateWorkerDaoRoom dao) {
+    private DaoRoom dao_;
+
+    InvoiceStateWorkerDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -82,42 +83,43 @@ class InvoiceStateWorkerDao implements IInvoiceStateWorkerDao, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class InvoiceStateWorkerDaoRoom {
-    @Query("SELECT * FROM Invoice WHERE preimageHashHex = :hashHex")
-    abstract RoomData.Invoice getInvoiceByHash(String hashHex);
+    @Dao
+    abstract static class DaoRoom {
+        @Query("SELECT * FROM Invoice WHERE preimageHashHex = :hashHex")
+        abstract RoomData.Invoice getInvoiceByHash(String hashHex);
 
-    @Query("SELECT * FROM InvoiceHTLC WHERE invoiceId = :invoiceId")
-    abstract List<RoomData.InvoiceHTLC> getInvoiceHTLCs(long invoiceId);
+        @Query("SELECT * FROM InvoiceHTLC WHERE invoiceId = :invoiceId")
+        abstract List<RoomData.InvoiceHTLC> getInvoiceHTLCs(long invoiceId);
 
-    @Query("SELECT * FROM Payment WHERE type = :type AND sourceId = :invoiceId")
-    abstract List<RoomData.Payment> getInvoicePayments(int type, long invoiceId);
+        @Query("SELECT * FROM Payment WHERE type = :type AND sourceId = :invoiceId")
+        abstract List<RoomData.Payment> getInvoicePayments(int type, long invoiceId);
 
-    // FIXME these two won't work if we recover our wallet from backup
-    //  and thus would have an empty lnd instance?
-    @Query("SELECT MAX(addIndex) FROM Invoice")
-    abstract long getMaxAddIndex();
+        // FIXME these two won't work if we recover our wallet from backup
+        //  and thus would have an empty lnd instance?
+        @Query("SELECT MAX(addIndex) FROM Invoice")
+        abstract long getMaxAddIndex();
 
-    @Query("SELECT MAX(settleIndex) FROM Invoice")
-    abstract long getMaxSettleIndex();
+        @Query("SELECT MAX(settleIndex) FROM Invoice")
+        abstract long getMaxSettleIndex();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract void upsertInvoice(RoomData.Invoice i);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract void upsertInvoice(RoomData.Invoice i);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract void upsertInvoiceHTLCs(List<RoomData.InvoiceHTLC> htlcs);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract void upsertInvoiceHTLCs(List<RoomData.InvoiceHTLC> htlcs);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract void upsertPayments(List<RoomData.Payment> ps);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract void upsertPayments(List<RoomData.Payment> ps);
 
-    @Transaction
-    void updateInvoiceState(RoomData.Invoice i,
-                            List<RoomData.InvoiceHTLC> htlcs,
-                            List<RoomData.Payment> payments) {
-        upsertInvoice(i);
-        upsertInvoiceHTLCs(htlcs);
-        upsertPayments(payments);
+        @Transaction
+        void updateInvoiceState(RoomData.Invoice i,
+                                List<RoomData.InvoiceHTLC> htlcs,
+                                List<RoomData.Payment> payments) {
+            upsertInvoice(i);
+            upsertInvoiceHTLCs(htlcs);
+            upsertPayments(payments);
+        }
     }
+
 }

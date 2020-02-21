@@ -33,6 +33,6 @@ public interface IAuthClient {
     void getAuthRequest(long id, IResponseCallback<WalletData.AuthRequest> cb);
 
     // get auth tx request, used by auth activities
-    <T> void getTransactionRequest(long userId, String txId, Class<T> cls, IResponseCallback<T> cb);
+    <T> void getTransactionRequest(String pluginId, long userId, String txId, IResponseCallback<T> cb);
 
 }

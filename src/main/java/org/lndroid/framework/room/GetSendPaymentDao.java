@@ -6,12 +6,15 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetSendPayment;
 
-public class GetSendPaymentDao implements IGetDao<WalletData.SendPayment>, IPluginDao {
+public class GetSendPaymentDao implements
+        IGetDao<WalletData.SendPayment>, IPluginDao,
+        GetSendPayment.IDao
+{
+    private DaoRoom dao_;
 
-    private GetSendPaymentDaoRoom dao_;
-
-    GetSendPaymentDao(GetSendPaymentDaoRoom dao) {
+    GetSendPaymentDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -25,10 +28,10 @@ public class GetSendPaymentDao implements IGetDao<WalletData.SendPayment>, IPlug
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface GetSendPaymentDaoRoom {
-    @Query("SELECT * FROM SendPayment WHERE id = :id")
-    RoomData.SendPayment get(long id);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM SendPayment WHERE id = :id")
+        RoomData.SendPayment get(long id);
+    }
 }

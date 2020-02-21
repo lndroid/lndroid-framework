@@ -6,12 +6,15 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetInvoice;
 
-public class GetInvoiceDao implements IGetDao<WalletData.Invoice>, IPluginDao {
+public class GetInvoiceDao implements
+        IGetDao<WalletData.Invoice>, IPluginDao,
+        GetInvoice.IDao
+{
+    private DaoRoom dao_;
 
-    private GetInvoiceDaoRoom dao_;
-
-    GetInvoiceDao(GetInvoiceDaoRoom dao) {
+    GetInvoiceDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -25,10 +28,10 @@ public class GetInvoiceDao implements IGetDao<WalletData.Invoice>, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface GetInvoiceDaoRoom {
-    @Query("SELECT * FROM Invoice WHERE id = :id")
-    RoomData.Invoice get(long id);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM Invoice WHERE id = :id")
+        RoomData.Invoice get(long id);
+    }
 }

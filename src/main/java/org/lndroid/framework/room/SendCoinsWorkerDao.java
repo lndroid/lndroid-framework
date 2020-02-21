@@ -6,16 +6,16 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.ISendCoinsWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.SendCoinsWorker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SendCoinsWorkerDao implements ISendCoinsWorkerDao, IPluginDao {
-    private SendCoinsWorkerDaoRoom dao_;
+public class SendCoinsWorkerDao implements SendCoinsWorker.IDao, IPluginDao {
+    private DaoRoom dao_;
 
-    SendCoinsWorkerDao(SendCoinsWorkerDaoRoom dao) {
+    SendCoinsWorkerDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -52,13 +52,14 @@ public class SendCoinsWorkerDao implements ISendCoinsWorkerDao, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface SendCoinsWorkerDaoRoom {
-    @Query("SELECT * FROM 'Transaction' WHERE state = :state")
-    List<RoomData.Transaction> getTransactions(int state);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM 'Transaction' WHERE state = :state")
+        List<RoomData.Transaction> getTransactions(int state);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void updateTransaction(RoomData.Transaction c);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void updateTransaction(RoomData.Transaction c);
+    }
+
 }

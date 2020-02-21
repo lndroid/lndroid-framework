@@ -14,10 +14,14 @@ import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetChannel extends GetBase<Long> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IGetDao<WalletData.Channel>{};
+
     private static final String TAG = "GetChannel";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetDao<WalletData.Channel> dao_;
+    private IDao dao_;
 
     public GetChannel() {
         super(DefaultPlugins.GET_CHANNEL, DefaultTopics.CHANNEL_STATE);
@@ -57,6 +61,6 @@ public class GetChannel extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IGetDao<WalletData.Channel>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 }

@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IOpenChannelWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.OpenChannelWorker;
 
-public class OpenChannelWorkerDao implements IOpenChannelWorkerDao, IPluginDao {
-    private OpenChannelWorkerDaoRoom dao_;
+public class OpenChannelWorkerDao implements OpenChannelWorker.IDao, IPluginDao {
 
-    OpenChannelWorkerDao(OpenChannelWorkerDaoRoom dao) {
+    private DaoRoom dao_;
+
+    OpenChannelWorkerDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -52,13 +53,15 @@ public class OpenChannelWorkerDao implements IOpenChannelWorkerDao, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface OpenChannelWorkerDaoRoom {
-    @Query("SELECT * FROM Channel WHERE state = :state")
-    List<RoomData.Channel> getChannels(int state);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void updateChannel(RoomData.Channel c);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM Channel WHERE state = :state")
+        List<RoomData.Channel> getChannels(int state);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void updateChannel(RoomData.Channel c);
+    }
+
 }

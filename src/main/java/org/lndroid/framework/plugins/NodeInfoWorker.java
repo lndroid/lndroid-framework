@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.INodeInfoDao;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.lnd.ILightningDao;
@@ -20,11 +19,18 @@ import org.lndroid.framework.lnd.LightningCodec;
 
 public class NodeInfoWorker implements IPluginBackground {
 
+    public interface IDao {
+
+        String getWalletPubkey();
+        void updateNode(WalletData.LightningNode node);
+        void updateChannels(List<WalletData.ChannelEdge> channels);
+    }
+
     private static final String TAG = "NodeInfoWorker";
     private static final long UPDATE_INTERVAL = 10000; // 10 sec
 
     private IPluginBackgroundCallback engine_;
-    private INodeInfoDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean updating_;
     private boolean refresh_;
@@ -38,7 +44,7 @@ public class NodeInfoWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         engine_ = callback;
-        dao_ = (INodeInfoDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 

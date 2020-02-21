@@ -3,7 +3,6 @@ package org.lndroid.framework.plugins;
 import android.util.Log;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.ITransactionStateWorkerDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginBackground;
@@ -19,10 +18,16 @@ import java.util.List;
 
 public class TransactionStateWorker implements IPluginBackground {
 
+    public interface IDao {
+        WalletData.Transaction getTransaction(String txHash);
+        List<WalletData.Transaction> getSendingTransactions();
+        void updateTransaction(WalletData.Transaction t);
+    }
+
     private static final String TAG = "TransactionStateWorker";
 
     private IPluginServer server_;
-    private ITransactionStateWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private IPluginBackgroundCallback engine_;
     private boolean started_;
@@ -37,7 +42,7 @@ public class TransactionStateWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         server_ = server;
-        dao_ = (ITransactionStateWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
     }

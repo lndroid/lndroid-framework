@@ -15,13 +15,15 @@ import java.util.List;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ListContacts;
 
-public class ListContactsDao implements
-        IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult>, IPluginDao {
+class ListContactsDao implements
+        IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult>, IPluginDao,
+        ListContacts.IDao
+{
+    private DaoRoom dao_;
 
-    private ListContactsDaoRoom dao_;
-
-    ListContactsDao(ListContactsDaoRoom dao) {
+    ListContactsDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -65,49 +67,50 @@ public class ListContactsDao implements
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class ListContactsDaoRoom {
+    @Dao
+    abstract static class DaoRoom {
 
-    @RawQuery
-    abstract long[] listContactIds(SupportSQLiteQuery query);
+        @RawQuery
+        abstract long[] listContactIds(SupportSQLiteQuery query);
 
-    @Query("SELECT * FROM Contact WHERE id_ IN(:ids)")
-    abstract List<RoomData.Contact> listContacts(List<Long> ids);
+        @Query("SELECT * FROM Contact WHERE id_ IN(:ids)")
+        abstract List<RoomData.Contact> listContacts(List<Long> ids);
 
-    @Query("SELECT id FROM ListContactsPrivilege WHERE userId = :userId")
-    abstract boolean hasListContactsPrivilege(long userId);
+        @Query("SELECT id FROM ListContactsPrivilege WHERE userId = :userId")
+        abstract boolean hasListContactsPrivilege(long userId);
 
-    @Transaction
-    WalletData.ListContactsResult listContacts(SupportSQLiteQuery query, WalletData.ListPage page, boolean clearPubkey) {
-        long[] ids = listContactIds(query);
+        @Transaction
+        WalletData.ListContactsResult listContacts(SupportSQLiteQuery query, WalletData.ListPage page, boolean clearPubkey) {
+            long[] ids = listContactIds(query);
 
-        List<Long> pageIds = new ArrayList<>();
-        final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
+            List<Long> pageIds = new ArrayList<>();
+            final int fromPos = RoomUtils.preparePageIds(ids, page, pageIds);
 
-        // read matching page ids
-        List<RoomData.Contact> items = listContacts(pageIds);
+            // read matching page ids
+            List<RoomData.Contact> items = listContacts(pageIds);
 
-        // sort
-        RoomUtils.sortPage(items, pageIds);
+            // sort
+            RoomUtils.sortPage(items, pageIds);
 
-        // prepare list result
-        ImmutableList.Builder<WalletData.Contact> builder = ImmutableList.builder();
-        for(RoomData.Contact in: items) {
-            if (clearPubkey) {
-                builder.add(in.getData().toBuilder().setPubkey(null).build());
-            } else {
-                builder.add(in.getData());
+            // prepare list result
+            ImmutableList.Builder<WalletData.Contact> builder = ImmutableList.builder();
+            for(RoomData.Contact in: items) {
+                if (clearPubkey) {
+                    builder.add(in.getData().toBuilder().setPubkey(null).build());
+                } else {
+                    builder.add(in.getData());
+                }
             }
-        }
 
-        return WalletData.ListContactsResult.builder()
-                .setCount(ids.length)
-                .setPosition(fromPos)
-                .setItems(builder.build())
-                .build();
+            return WalletData.ListContactsResult.builder()
+                    .setCount(ids.length)
+                    .setPosition(fromPos)
+                    .setItems(builder.build())
+                    .build();
+        }
     }
+
 }
 
 

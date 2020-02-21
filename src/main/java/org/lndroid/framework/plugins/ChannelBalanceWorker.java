@@ -19,6 +19,9 @@ import org.lndroid.framework.lnd.LightningCodec;
 
 public class ChannelBalanceWorker implements IPluginBackground {
 
+    // Dao must implement this
+    public interface IDao extends IChannelBalanceDao {};
+
     private static final String TAG = "ChannelBalanceWorker";
     private static final long UPDATE_INTERVAL = 10000; // 10 sec
 
@@ -28,7 +31,7 @@ public class ChannelBalanceWorker implements IPluginBackground {
     private static final long SYNC_DELAY = 1000;
 
     private IPluginBackgroundCallback engine_;
-    private IChannelBalanceDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean updating_;
     private boolean refresh_;
@@ -42,7 +45,7 @@ public class ChannelBalanceWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         engine_ = callback;
-        dao_ = (IChannelBalanceDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 

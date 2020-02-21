@@ -14,10 +14,14 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class GetTransaction extends GetBase<Long> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IGetDao<WalletData.Transaction>{};
+
     private static final String TAG = "GetTransaction";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetDao<WalletData.Transaction> dao_;
+    private IDao dao_;
 
     public GetTransaction() {
         super(DefaultPlugins.GET_TRANSACTION, DefaultTopics.TRANSACTION_STATE);
@@ -26,7 +30,7 @@ public class GetTransaction extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IGetDao<WalletData.Transaction>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

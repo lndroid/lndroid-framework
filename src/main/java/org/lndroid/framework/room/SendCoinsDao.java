@@ -7,144 +7,79 @@ import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IJobDao;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.SendCoins;
 import org.lndroid.framework.plugins.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SendCoinsDao implements IJobDao<WalletData.SendCoinsRequest, WalletData.Transaction>, IPluginDao {
-    private SendCoinsDaoRoom dao_;
+public class SendCoinsDao
+        extends ActionDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>
+        implements SendCoins.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.SEND_COINS;
 
-    SendCoinsDao(SendCoinsDaoRoom dao) {
-        dao_ = dao;
+    SendCoinsDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
 
-    private Transaction<WalletData.SendCoinsRequest> fromRoom(
-            RoomTransactions.SendCoinsTransaction tx) {
-        Transaction<WalletData.SendCoinsRequest> t = new Transaction<>();
-        RoomConverters.TxConverter.toTx(tx.getTxData(), t);
-        t.request = tx.getRequest();
-        return t;
-    }
+    @Dao
+    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>{
 
-    @Override
-    public List<Transaction<WalletData.SendCoinsRequest>> getTransactions() {
-        List<Transaction<WalletData.SendCoinsRequest>> r = new ArrayList<>();
-
-        List<RoomTransactions.SendCoinsTransaction> txs = dao_.getTransactions();
-        for (RoomTransactions.SendCoinsTransaction tx: txs) {
-            r.add(fromRoom(tx));
+        @Override @androidx.room.Transaction
+        public WalletData.Transaction commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.Transaction r, long time) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, r, time);
         }
 
-        return r;
-    }
-
-    @Override
-    public Transaction<WalletData.SendCoinsRequest> getTransaction(long txUserId, String txId) {
-        RoomTransactions.SendCoinsTransaction tx = dao_.getTransaction(txUserId, txId);
-        if (tx == null)
-            return null;
-
-        return fromRoom(tx);
-    }
-
-    @Override
-    public void startTransaction(Transaction<WalletData.SendCoinsRequest> t) {
-        RoomTransactions.SendCoinsTransaction tx = new RoomTransactions.SendCoinsTransaction();
-        tx.setTxData(RoomConverters.TxConverter.fromTx(t));
-        tx.setRequest(t.request);
-        dao_.createTransaction(tx);
-    }
-
-    @Override
-    public WalletData.Transaction commitTransaction(
-            long txUserId, String txId, long txAuthUserId, WalletData.Transaction r) {
-        return dao_.commitTransaction(txUserId, txId, txAuthUserId, r, System.currentTimeMillis());
-    }
-
-    @Override
-    public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
-        dao_.rejectTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
-    }
-
-    @Override
-    public void timeoutTransaction(long txUserId, String txId) {
-        dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
-    }
-
-    @Override
-    public WalletData.Transaction getResponse(long id) {
-        return dao_.getResponse(id);
-    }
-
-    @Override
-    public void init() {
-        // noop
-    }
-}
-
-@Dao
-abstract class SendCoinsDaoRoom {
-    @Query("SELECT * FROM SendCoinsTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.SendCoinsTransaction> getTransactions();
-
-    @Query("SELECT * FROM SendCoinsTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.SendCoinsTransaction getTransaction(long txUserId, String txId);
-
-    @Insert
-    public abstract void createTransaction(RoomTransactions.SendCoinsTransaction tx);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.SendCoinsTransaction tx);
-
-    @Query("UPDATE SendCoinsTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Query("UPDATE SendCoinsTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Insert
-    public abstract void insertTransaction(RoomData.Transaction i);
-
-    @Query("SELECT * FROM 'Transaction' WHERE id = :id")
-    abstract RoomData.Transaction getResponseRoom(long id);
-
-    WalletData.Transaction getResponse(long id) {
-        RoomData.Transaction r = getResponseRoom(id);
-        return r != null ? r.getData() : null;
-    }
-
-    @androidx.room.Transaction
-    public WalletData.Transaction commitTransaction(
-            long txUserId, String txId, long txAuthUserId, WalletData.Transaction t, long time) {
-
-
-        // insert response
-        RoomData.Transaction p = new RoomData.Transaction();
-        p.setData(t);
-
-        insertTransaction(p);
-
-        // get tx
-        RoomTransactions.SendCoinsTransaction tx = getTransaction(txUserId, txId);
-
-        // update state
-        tx.setResponse(t.getClass(), t.id());
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
-        if (txAuthUserId != 0) {
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.txData.txAuthTime = time;
+        @Override @androidx.room.Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.SendCoinsRequest req){
+            createTransactionImpl(tx, req);
         }
 
-        // write tx
-        updateTransaction(tx);
+        @Insert
+        abstract long insertRequest(RoomTransactions.SendCoinsRequest i);
 
-        return t;
+        @Override
+        protected long insertRequest(WalletData.SendCoinsRequest req) {
+            // convert request to room object
+            RoomTransactions.SendCoinsRequest r = new RoomTransactions.SendCoinsRequest();
+            r.data = req;
+
+            // insert request
+            return insertRequest(r);
+        }
+
+        @Query("SELECT * FROM 'Transaction' WHERE id = :id")
+        abstract RoomData.Transaction getResponseRoom(long id);
+
+        @Override
+        public WalletData.Transaction getResponse(long id) {
+            RoomData.Transaction r = getResponseRoom(id);
+            return r != null ? r.getData() : null;
+        }
+
+        @Query("SELECT * FROM txSendCoinsRequest WHERE id_ = :id")
+        abstract RoomTransactions.SendCoinsRequest getRequestRoom(long id);
+
+        @Override
+        public WalletData.SendCoinsRequest getRequest(long id) {
+            RoomTransactions.SendCoinsRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Insert
+        public abstract void insertResponseRoom(RoomData.Transaction i);
+
+        @Override
+        protected long insertResponse(WalletData.Transaction v) {
+            RoomData.Transaction r = new RoomData.Transaction();
+            r.setData(v);
+            insertResponseRoom(r);
+            return v.id();
+        }
     }
 }

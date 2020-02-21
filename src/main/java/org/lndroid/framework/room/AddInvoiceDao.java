@@ -9,100 +9,96 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.AddInvoice;
 
-class AddInvoiceDao extends LndActionDaoBase<WalletData.AddInvoiceRequest, WalletData.Invoice, RoomTransactions.AddInvoiceTransaction> {
+class AddInvoiceDao
+        extends LndActionDaoBase<WalletData.AddInvoiceRequest, WalletData.Invoice>
+        implements AddInvoice.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.ADD_INVOICE;
 
-    AddInvoiceDao(AddInvoiceDaoRoom dao) {
-        super(dao, RoomTransactions.AddInvoiceTransaction.class);
+    AddInvoiceDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
-}
 
-@Dao
-abstract class AddInvoiceDaoRoom
-        implements IRoomLndActionDao<RoomTransactions.AddInvoiceTransaction, WalletData.AddInvoiceRequest, WalletData.Invoice>{
+    @Dao
+    abstract static class DaoRoom
+            extends RoomLndActionDaoBase<WalletData.AddInvoiceRequest, WalletData.Invoice>
+    {
+        @Insert
+        public abstract long insertResponseRoom(RoomData.Invoice i);
 
-    @Override @Query("SELECT * FROM AddInvoiceTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.AddInvoiceTransaction> getTransactions();
+        @Query("SELECT * FROM Invoice WHERE id = :id")
+        public abstract RoomData.Invoice getResponseRoom(long id);
 
-    @Override @Query("SELECT * FROM AddInvoiceTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddInvoiceTransaction getTransaction(long txUserId, String txId);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract long upsertRequest(RoomTransactions.AddInvoiceRequest i);
 
-    @Override @Insert
-    public abstract void createTransaction(RoomTransactions.AddInvoiceTransaction tx);
+        @Query("SELECT * FROM txAddInvoiceRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddInvoiceRequest getRequestRoom(long id);
 
-    @Override @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.AddInvoiceTransaction tx);
-
-    @Query("UPDATE AddInvoiceTransaction " +
-            "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
-
-    @Override
-    @Query("UPDATE AddInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Override
-    @Query("UPDATE AddInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
-
-    @Override
-    @Query("UPDATE AddInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Insert
-    public abstract void insertInvoice(RoomData.Invoice i);
-
-    @Override @Transaction
-    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, WalletData.AddInvoiceRequest authedRequest) {
-        if (authedRequest != null) {
-            RoomTransactions.AddInvoiceTransaction tx = getTransaction(txUserId, txId);
-            tx.txData.txAuthTime = time;
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.request = authedRequest;
-            updateTransaction(tx);
-        } else {
-            confirmTransaction(txUserId, txId, txAuthUserId, time);
+        @Override
+        @Transaction
+        public WalletData.Invoice commitTransaction(
+                long userId, String txId, WalletData.Invoice r, long time) {
+            return commitTransactionImpl(userId, txId, r, time);
         }
 
-    }
+        @Override
+        @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.AddInvoiceRequest req) {
+            createTransactionImpl(tx, req);
+        }
 
-    @Query("SELECT * FROM Invoice WHERE id = :id")
-    abstract RoomData.Invoice getResponseRoom(long id);
+        @Override
+        protected long insertRequest(WalletData.AddInvoiceRequest req) {
+            // convert request to room object
+            RoomTransactions.AddInvoiceRequest r = new RoomTransactions.AddInvoiceRequest();
+            r.data = req;
 
-    @Override
-    public WalletData.Invoice getResponse(long id) {
-        RoomData.Invoice r = getResponseRoom(id);
-        return r != null ? r.getData() : null;
-    }
+            // insert request
+            return upsertRequest(r);
+        }
 
-    @Override @Transaction
-    public WalletData.Invoice commitTransaction(long txUserId, String txId, WalletData.Invoice invoice, long time) {
+        @Override
+        protected void updateRequest(long id, WalletData.AddInvoiceRequest req) {
+            // convert request to room object
+            RoomTransactions.AddInvoiceRequest r = new RoomTransactions.AddInvoiceRequest();
+            r.id_ = id;
+            r.data = req;
 
-        // insert invoice into it's own table
-        RoomData.Invoice ri = new RoomData.Invoice();
-        ri.setData(invoice);
+            // update
+            upsertRequest(r);
+        }
 
-        // insert
-        insertInvoice(ri);
+        @Override
+        public WalletData.AddInvoiceRequest getRequest(long id) {
+            RoomTransactions.AddInvoiceRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
 
-        // get tx
-        RoomTransactions.AddInvoiceTransaction tx = getTransaction(txUserId, txId);
+        @Override
+        protected long insertResponse(WalletData.Invoice r) {
+            RoomData.Invoice ri = new RoomData.Invoice();
+            ri.setData(r);
 
-        // update state
-        tx.setResponse(invoice.getClass(), invoice.id());
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
+            // insert
+            return insertResponseRoom(ri);
+        }
 
-        // write tx
-        updateTransaction(tx);
+        @Override
+        public WalletData.Invoice getResponse(long id) {
+            RoomData.Invoice r = getResponseRoom(id);
+            return r != null ? r.getData() : null;
+        }
 
-        return invoice;
+        @Override
+        @Transaction
+        public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
+                                       WalletData.AddInvoiceRequest authedRequest) {
+            confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
+        }
     }
 }

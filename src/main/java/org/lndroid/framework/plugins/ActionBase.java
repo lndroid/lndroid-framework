@@ -44,12 +44,12 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
         List<Transaction<Request>> txs = dao_.getTransactions();
         for(Transaction<Request> tx: txs) {
             PluginContext ctx = new PluginContext();
-            ctx.txId = tx.txId;
-            ctx.deadline = tx.deadlineTime;
+            ctx.txId = tx.tx.txId;
+            ctx.deadline = tx.tx.deadlineTime;
             ctx.request = tx.request;
 
             // invalid? skip
-            if (!engine_.onInit(id(), tx.userId, ctx))
+            if (!engine_.onInit(id(), tx.tx.userId, ctx))
                 continue;
 
             // recover tx state
@@ -106,11 +106,11 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
             // (waiting for auth), in which case client has
             // re-attached to this context and we should
             // inform it that auth is required
-            if (tx.doneTime != 0) {
-                if (tx.errorCode != null) {
-                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
-                } else if (tx.responseId != 0) {
-                    Response r = dao_.getResponse(tx.responseId);
+            if (tx.tx.doneTime != 0) {
+                if (tx.tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.tx.errorCode, tx.tx.errorMessage);
+                } else if (tx.tx.responseId != 0) {
+                    Response r = dao_.getResponse(tx.tx.responseId);
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, getResponseType());
@@ -133,20 +133,21 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
 
         // create tx
         tx = new Transaction<>();
-        tx.userId = ctx.user.id();
-        tx.txId = ctx.txId;
+        tx.tx = new Transaction.TransactionData();
+        tx.tx.userId = ctx.user.id();
+        tx.tx.txId = ctx.txId;
         tx.request = req;
-        tx.createTime = System.currentTimeMillis();
+        tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;
         if (timeout == 0) {
             timeout = defaultTimeout();
         } else if (timeout > maxTimeout()) {
             timeout = maxTimeout();
         }
-        tx.deadlineTime = tx.createTime + timeout;
+        tx.tx.deadlineTime = tx.tx.createTime + timeout;
 
         // set ctx deadline for engine to enforce it
-        ctx.deadline = tx.deadlineTime;
+        ctx.deadline = tx.tx.deadlineTime;
         ctx.request = tx.request;
 
         // store tx to be able to restore it

@@ -6,11 +6,16 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetChannel;
 
-public class GetChannelDao implements IGetDao<WalletData.Channel>, IPluginDao {
-    private GetChannelDaoRoom dao_;
+public class GetChannelDao implements
+        IGetDao<WalletData.Channel>, IPluginDao,
+        GetChannel.IDao
+{
 
-    GetChannelDao(GetChannelDaoRoom dao) {
+    private DaoRoom dao_;
+
+    GetChannelDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -31,10 +36,10 @@ public class GetChannelDao implements IGetDao<WalletData.Channel>, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface GetChannelDaoRoom {
-    @Query("SELECT * FROM Channel WHERE id = :id")
-    RoomData.Channel get(long id);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM Channel WHERE id = :id")
+        RoomData.Channel get(long id);
+    }
 }

@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.ISendPaymentWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.SendPaymentWorker;
 
-public class SendPaymentWorkerDao implements ISendPaymentWorkerDao, IPluginDao {
-    private SendPaymentWorkerDaoRoom dao_;
+public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao {
+    private DaoRoom dao_;
 
-    SendPaymentWorkerDao(SendPaymentWorkerDaoRoom dao, RouteHintsDaoRoom routeDao) {
+    SendPaymentWorkerDao(DaoRoom dao, RouteHintsDaoRoom routeDao) {
         dao_ = dao;
         dao_.setRouteDao(routeDao);
     }
@@ -56,78 +56,79 @@ public class SendPaymentWorkerDao implements ISendPaymentWorkerDao, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class SendPaymentWorkerDaoRoom {
+    @Dao
+    abstract static class DaoRoom {
 
-    private RouteHintsDaoRoom routeDao_;
+        private RouteHintsDaoRoom routeDao_;
 
-    void setRouteDao(RouteHintsDaoRoom routeDao) {
-        routeDao_ = routeDao;
-    }
-
-    @Query("SELECT * FROM Contact WHERE pubkey = :pubkey")
-    public abstract RoomData.Contact getContactRoom(String pubkey);
-
-    public WalletData.Contact getContact(String contactPubkey) {
-        RoomData.Contact rc = getContactRoom(contactPubkey);
-        if (rc == null)
-            return null;
-
-        return rc.getData().toBuilder()
-                .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
-                .build();
-    }
-
-    @Query("SELECT * FROM SendPayment WHERE state = :state")
-    abstract List<RoomData.SendPayment> getPaymentsRoom(int state);
-
-    @Query("SELECT * FROM SendPayment WHERE state = :state and nextTryTime <= :now")
-    abstract List<RoomData.SendPayment> getRetryPaymentsRoom(int state, long now);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract void updateSendPayment(RoomData.SendPayment p);
-
-    @Query("UPDATE Payment SET peerPubkey = :peerPubkey, sourceHTLCId = :htlcId WHERE type = :type AND sourceId = :sourceId")
-    abstract void setPaymentData(int type, long sourceId, String peerPubkey, long htlcId);
-
-    @Insert
-    abstract void insertHTLC(RoomData.HTLCAttempt htlc);
-
-    private List<WalletData.SendPayment> fromRoom(List<RoomData.SendPayment> rsps) {
-        List<WalletData.SendPayment> sps = new ArrayList<>();
-        for (RoomData.SendPayment r: rsps) {
-            WalletData.SendPayment sp = r.getData();
-            sps.add (sp.toBuilder()
-                    .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(sp)))
-                    .build());
+        void setRouteDao(RouteHintsDaoRoom routeDao) {
+            routeDao_ = routeDao;
         }
-        return sps;
+
+        @Query("SELECT * FROM Contact WHERE pubkey = :pubkey")
+        public abstract RoomData.Contact getContactRoom(String pubkey);
+
+        public WalletData.Contact getContact(String contactPubkey) {
+            RoomData.Contact rc = getContactRoom(contactPubkey);
+            if (rc == null)
+                return null;
+
+            return rc.getData().toBuilder()
+                    .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
+                    .build();
+        }
+
+        @Query("SELECT * FROM SendPayment WHERE state = :state")
+        abstract List<RoomData.SendPayment> getPaymentsRoom(int state);
+
+        @Query("SELECT * FROM SendPayment WHERE state = :state and nextTryTime <= :now")
+        abstract List<RoomData.SendPayment> getRetryPaymentsRoom(int state, long now);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract void updateSendPayment(RoomData.SendPayment p);
+
+        @Query("UPDATE Payment SET peerPubkey = :peerPubkey, sourceHTLCId = :htlcId WHERE type = :type AND sourceId = :sourceId")
+        abstract void setPaymentData(int type, long sourceId, String peerPubkey, long htlcId);
+
+        @Insert
+        abstract void insertHTLC(RoomData.HTLCAttempt htlc);
+
+        private List<WalletData.SendPayment> fromRoom(List<RoomData.SendPayment> rsps) {
+            List<WalletData.SendPayment> sps = new ArrayList<>();
+            for (RoomData.SendPayment r: rsps) {
+                WalletData.SendPayment sp = r.getData();
+                sps.add (sp.toBuilder()
+                        .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(sp)))
+                        .build());
+            }
+            return sps;
+        }
+
+        @Transaction
+        public List<WalletData.SendPayment> getPayments(int state) {
+            return fromRoom(getPaymentsRoom(state));
+        }
+
+        @Transaction
+        public List<WalletData.SendPayment> getRetryPayments(int state, long now) {
+            return fromRoom(getRetryPaymentsRoom(state, now));
+        }
+
+        @Transaction
+        public void updatePayment(RoomData.SendPayment sp) {
+            updateSendPayment(sp);
+            setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(), sp.getData().destPubkey(), 0L);
+        }
+
+        @Transaction
+        public void settlePayment(RoomData.SendPayment sp, RoomData.HTLCAttempt htlc) {
+            updateSendPayment(sp);
+            insertHTLC(htlc);
+            setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(),
+                    sp.getData().destPubkey(), htlc.getData().id());
+        }
     }
 
-    @Transaction
-    public List<WalletData.SendPayment> getPayments(int state) {
-        return fromRoom(getPaymentsRoom(state));
-    }
 
-    @Transaction
-    public List<WalletData.SendPayment> getRetryPayments(int state, long now) {
-        return fromRoom(getRetryPaymentsRoom(state, now));
-    }
-
-    @Transaction
-    public void updatePayment(RoomData.SendPayment sp) {
-        updateSendPayment(sp);
-        setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(), sp.getData().destPubkey(), 0L);
-    }
-
-    @Transaction
-    public void settlePayment(RoomData.SendPayment sp, RoomData.HTLCAttempt htlc) {
-        updateSendPayment(sp);
-        insertHTLC(htlc);
-        setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(),
-                sp.getData().destPubkey(), htlc.getData().id());
-    }
 }
-

@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.IOpenChannelWorkerDao;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
@@ -20,13 +19,20 @@ import org.lndroid.framework.lnd.LightningCodec;
 
 public class OpenChannelWorker implements IPluginBackground {
 
+    public interface IDao {
+        List<WalletData.Channel> getOpeningChannels();
+        List<WalletData.Channel> getRetryChannels();
+        List<WalletData.Channel> getNewChannels();
+        void updateChannel(WalletData.Channel c);
+    }
+
     private static final String TAG = "OpenChannelWorker";
     private static final long DEFAULT_EXPIRY = 3600000; // 1h
     private static final long TRY_INTERVAL = 60000; // 1m
     private static final long WORK_INTERVAL = 10000; // 10sec
 
     private IPluginBackgroundCallback engine_;
-    private IOpenChannelWorkerDao dao_;
+    private IDao dao_;
     private ILightningDao lnd_;
     private boolean notified_;
     private long nextWorkTime_;
@@ -39,7 +45,7 @@ public class OpenChannelWorker implements IPluginBackground {
     @Override
     public void init(IPluginServer server, IPluginBackgroundCallback callback) {
         engine_ = callback;
-        dao_ = (IOpenChannelWorkerDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
 
         // NOTE: start protocol to recover in-flight state:

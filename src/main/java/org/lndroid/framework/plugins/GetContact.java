@@ -14,10 +14,14 @@ import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetContact extends GetBase<Long> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IGetDao<WalletData.Contact>{};
+
     private static final String TAG = "GetContact";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetDao<WalletData.Contact> dao_;
+    private IDao dao_;
 
     public GetContact() {
         super(DefaultPlugins.GET_CONTACT, DefaultTopics.CONTACT_STATE);
@@ -58,6 +62,6 @@ public class GetContact extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IGetDao<WalletData.Contact>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 }

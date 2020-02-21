@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.PluginContext;
 
 public class ShareContact extends ActionBase<WalletData.ShareContactRequest, WalletData.ShareContactResponse> {
+
+    // plugin's Dao must extend this class
+    public interface IDao extends IActionDao<WalletData.ShareContactRequest, WalletData.ShareContactResponse> {};
 
     private static int DEFAULT_TIMEOUT = 120000; // 2 min
     private static int MAX_TIMEOUT = 600000; // 10 min

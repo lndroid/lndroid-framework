@@ -14,9 +14,13 @@ import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
 
 public class GetInvoice extends GetBase<Long> {
+
+    // plugin's Dao must implement this
+    public interface IDao extends IGetDao<WalletData.Invoice>{};
+
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IGetDao<WalletData.Invoice> dao_;
+    private IDao dao_;
 
     public GetInvoice() {
         super(DefaultPlugins.GET_INVOICE, DefaultTopics.INVOICE_STATE);
@@ -25,7 +29,7 @@ public class GetInvoice extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IGetDao<WalletData.Invoice>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

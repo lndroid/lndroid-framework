@@ -14,7 +14,9 @@ import java.util.List;
 
 public class ListChannels extends ListBase<WalletData.ListChannelsRequest, WalletData.Channel> {
 
-    private IListDao<WalletData.ListChannelsRequest, WalletData.ListChannelsResult> dao_;
+    public interface IDao extends IListDao<WalletData.ListChannelsRequest, WalletData.ListChannelsResult>{};
+
+    private IDao dao_;
 
     public ListChannels() {
         super(DefaultPlugins.LIST_CHANNELS);
@@ -49,8 +51,7 @@ public class ListChannels extends ListBase<WalletData.ListChannelsRequest, Walle
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IListDao<WalletData.ListChannelsRequest, WalletData.ListChannelsResult>)
-                server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao)server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

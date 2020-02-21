@@ -58,21 +58,21 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
         List<Transaction<Request>> txs = dao_.getTransactions();
         for(Transaction<Request> tx: txs) {
             PluginContext ctx = new PluginContext();
-            ctx.txId = tx.txId;
-            ctx.deadline = tx.deadlineTime;
+            ctx.txId = tx.tx.txId;
+            ctx.deadline = tx.tx.deadlineTime;
             // skip invalid txs
-            if (!engine_.onInit(id(), tx.userId, ctx))
+            if (!engine_.onInit(id(), tx.tx.userId, ctx))
                 continue;
 
             TxData data = new TxData();
             data.ctx = ctx;
             data.request = tx.request;
-            data.authUserId = tx.authUserId;
+            data.authUserId = tx.tx.authUserId;
 
             // store data in context
             ctx.request = data;
 
-            if (tx.authUserId != 0) {
+            if (tx.tx.authUserId != 0) {
                 // - tx not executed, authed
                 scheduleRequest(data);
             } else if (ctx.authRequest != null) {
@@ -144,11 +144,11 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
         // recover if tx already executed
         Transaction<Request> tx = dao_.getTransaction(ctx.user.id(), ctx.txId);
         if (tx != null){
-            if (tx.doneTime != 0) {
-                if (tx.errorCode != null) {
-                    engine_.onError(id(), ctx, tx.errorCode, "Transaction failed");
-                } else if (tx.responseId != 0) {
-                    Response r = dao_.getResponse(tx.responseId);
+            if (tx.tx.doneTime != 0) {
+                if (tx.tx.errorCode != null) {
+                    engine_.onError(id(), ctx, tx.tx.errorCode, "Transaction failed");
+                } else if (tx.tx.responseId != 0) {
+                    Response r = dao_.getResponse(tx.tx.responseId);
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, getResponseType());
@@ -176,23 +176,24 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
 
         // create tx
         tx = new Transaction<>();
-        tx.userId = ctx.user.id();
-        tx.txId = ctx.txId;
+        tx.tx = new Transaction.TransactionData();
+        tx.tx.userId = ctx.user.id();
+        tx.tx.txId = ctx.txId;
         tx.request = data.request;
-        tx.createTime = System.currentTimeMillis();
+        tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;
         if (timeout == 0) {
             timeout = defaultTimeout();
         } else if (timeout > maxTimeout()) {
             timeout = maxTimeout();
         }
-        tx.deadlineTime = tx.createTime + timeout;
+        tx.tx.deadlineTime = tx.tx.createTime + timeout;
 
         // store tx to be able to restore it
         dao_.startTransaction(tx);
 
         // set deadline for engine
-        ctx.deadline = tx.deadlineTime;
+        ctx.deadline = tx.tx.deadlineTime;
 
         // store tx data in context for reuse
         ctx.request = data;

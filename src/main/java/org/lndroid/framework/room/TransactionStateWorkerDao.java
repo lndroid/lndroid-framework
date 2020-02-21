@@ -6,17 +6,17 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.ITransactionStateWorkerDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.TransactionStateWorker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionStateWorkerDao implements ITransactionStateWorkerDao, IPluginDao {
+public class TransactionStateWorkerDao implements TransactionStateWorker.IDao, IPluginDao {
 
-    private TransactionStateWorkerDaoRoom dao_;
+    private DaoRoom dao_;
 
-    TransactionStateWorkerDao(TransactionStateWorkerDaoRoom dao) { dao_ = dao; }
+    TransactionStateWorkerDao(DaoRoom dao) { dao_ = dao; }
 
     @Override
     public WalletData.Transaction getTransaction(String txHash) {
@@ -46,16 +46,16 @@ public class TransactionStateWorkerDao implements ITransactionStateWorkerDao, IP
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface TransactionStateWorkerDaoRoom {
-    @Query("SELECT * FROM 'Transaction' WHERE txHash = :txHash")
-    RoomData.Transaction getTransaction(String txHash);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM 'Transaction' WHERE txHash = :txHash")
+        RoomData.Transaction getTransaction(String txHash);
 
-    @Query("SELECT * FROM 'Transaction' WHERE state = :state1 OR state = :state2")
-    List<RoomData.Transaction> getTransactions(int state1, int state2);
+        @Query("SELECT * FROM 'Transaction' WHERE state = :state1 OR state = :state2")
+        List<RoomData.Transaction> getTransactions(int state1, int state2);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void updateTransaction(RoomData.Transaction c);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void updateTransaction(RoomData.Transaction c);
+    }
 }

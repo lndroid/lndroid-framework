@@ -12,16 +12,18 @@ import com.google.common.collect.ImmutableList;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ListChannels;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListChannelsDao implements
-        IListDao<WalletData.ListChannelsRequest, WalletData.ListChannelsResult>, IPluginDao {
+class ListChannelsDao implements
+        IListDao<WalletData.ListChannelsRequest, WalletData.ListChannelsResult>, IPluginDao,
+        ListChannels.IDao
+{
+    private DaoRoom dao_;
 
-    private Room dao_;
-
-    ListChannelsDao(Room dao) {
+    ListChannelsDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -73,7 +75,7 @@ public class ListChannelsDao implements
     }
 
     @Dao
-    static abstract class Room {
+    static abstract class DaoRoom {
 
         @RawQuery
         abstract long[] listIds(SupportSQLiteQuery query);

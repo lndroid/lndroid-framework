@@ -26,8 +26,6 @@ import org.lndroid.framework.common.ICodecProvider;
 import org.lndroid.framework.common.ISigner;
 import org.lndroid.framework.common.PluginData;
 import org.lndroid.framework.common.PluginUtils;
-import org.lndroid.framework.dao.IAuthDao;
-import org.lndroid.framework.dao.IAuthRequestDao;
 import org.lndroid.framework.plugins.Transaction;
 
 class PluginServer extends Handler implements IPluginServer, IPluginForegroundCallback, IPluginBackgroundCallback {
@@ -52,8 +50,6 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     private IAuthComponentProvider authComponentProvider_;
     private IKeyStore keyStore_;
     private IIdGenerator idGenerator_;
-    private IAuthDao authDao_;
-    private IAuthRequestDao authRequestDao_;
     private Map<Long,Integer> authRequestHistory_ = new HashMap<>();
     private List<AuthSub> authRequestSubscribers_ = new ArrayList<>();
     private List<AuthSub> walletStateSubscribers_ = new ArrayList<>();
@@ -282,11 +278,9 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
 
         Log.i(TAG, "starting");
 
-        authDao_ = daoProvider_.getAuthDao();
-        authRequestDao_ = daoProvider_.getAuthRequestDao();
-
-        authDao_.init();
-        authRequestDao_.init();
+        daoProvider_.getAuthDao().init();
+        daoProvider_.getAuthRequestDao().init();
+        daoProvider_.getTxDao().init();
         daoProvider_.getRawQueryDao();
         for(String pluginId: pluginProvider_.getPluginIds()) {
             daoProvider_.getPluginDao(pluginId).init();
@@ -296,7 +290,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         idGenerator_.init();
 
         // clean up bg requests, bg plugins should re-generate them
-        authRequestDao_.deleteBackgroundRequests();
+        daoProvider_.getAuthRequestDao().deleteBackgroundRequests();
 
         // init all plugins
         pluginProvider_.init();
@@ -552,8 +546,8 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         IPluginForeground p = getPluginForeground(pm.pluginId());
 
         WalletData.User user = ipc
-                ? authDao_.getByAppPubkey(pm.userIdentity().appPubkey())
-                : authDao_.get(pm.userIdentity().userId());
+                ? daoProvider_.getAuthDao().getByAppPubkey(pm.userIdentity().appPubkey())
+                : daoProvider_.getAuthDao().get(pm.userIdentity().userId());
         if (user == null) {
             sendTxError(pm, ipc, Errors.UNKNOWN_CALLER, msg.replyTo);
             return;
@@ -762,7 +756,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     private void onGetUserAuthTypeRequest(AuthData.AuthMessage pm, Messenger client) {
-        WalletData.User u = authDao_.getAuthInfo(pm.userId());
+        WalletData.User u = daoProvider_.getAuthDao().getAuthInfo(pm.userId());
         AuthData.AuthMessage m = AuthData.AuthMessage.builder()
                 .setId(pm.id())
                 .setType(pm.type())
@@ -773,7 +767,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     private void onGetAuthRequest(AuthData.AuthMessage pm, Messenger client) {
-        WalletData.AuthRequest ar = authRequestDao_.get(pm.authId());
+        WalletData.AuthRequest ar = daoProvider_.getAuthRequestDao().get(pm.authId());
         if (ar == null) {
             Log.e(TAG, "unknown auth request "+pm.authId());
             replyAuthError(pm, Errors.AUTH_INPUT, client);
@@ -784,7 +778,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     private void onGetAuthTxRequest(AuthData.AuthMessage src, Messenger client) {
-        Object o = authRequestDao_.getTransactionRequest(src.userId(), src.txId(), (Class<?>)src.data());
+        Object o = daoProvider_.getTxDao().getTransactionRequest(src.pluginId(), src.userId(), src.txId());
         if (o == null) {
             Log.e(TAG, "unknown auth request transaction u "+src.userId()+" tx "+src.txId());
             replyAuthError(src, Errors.AUTH_INPUT, client);
@@ -818,7 +812,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         }
 
         // authForeground is only supported for Root/User roles, thus appUid is not used
-        WalletData.User user = authDao_.get(pm.userId());
+        WalletData.User user = daoProvider_.getAuthDao().get(pm.userId());
         if (user == null) {
             replyAuthError(pm, Errors.UNKNOWN_CALLER, client);
             return;
@@ -829,7 +823,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             return;
         }
 
-        WalletData.AuthRequest ar = authRequestDao_.get(pm.authId());
+        WalletData.AuthRequest ar = daoProvider_.getAuthRequestDao().get(pm.authId());
         if (ar == null) {
             Log.e(TAG, "unknown auth request "+pm.authId());
             Integer state = authRequestHistory_.get(pm.authId());
@@ -871,7 +865,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             return;
 
         // notify new client about all active auth requests
-        for(WalletData.AuthRequest ar: authRequestDao_.getBackgroundRequests()) {
+        for(WalletData.AuthRequest ar: daoProvider_.getAuthRequestDao().getBackgroundRequests()) {
             boolean ok = replyAuthRequest(client, pm.id(), ar);
             if (!ok) {
                 authRequestSubscribers_.remove(authRequestSubscribers_.size() - 1);
@@ -1020,7 +1014,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         sendTxReply(ctx.ctx, pm);
 
         // drop auth request, it's done now
-        authRequestDao_.delete(ar.id());
+        daoProvider_.getAuthRequestDao().delete(ar.id());
 
         // remember
         authRequestHistory_.put(ar.id(), r.authorized()
@@ -1095,7 +1089,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         Log.i(TAG, "onInit plugin "+pluginId+" user "+userId+" tx "+pc.txId);
         Caller c = callers_.get(userId);
         if (c == null) {
-            WalletData.User user = authDao_.get(userId);
+            WalletData.User user = daoProvider_.getAuthDao().get(userId);
             if (user == null)
                 return false;
 
@@ -1110,7 +1104,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         }
 
         pc.user = c.user;
-        pc.authRequest = authRequestDao_.get(pc.user.id(), pc.txId);
+        pc.authRequest = daoProvider_.getAuthRequestDao().get(pc.user.id(), pc.txId);
 
         Context ctx = new Context();
         ctx.ctx = pc;
@@ -1151,7 +1145,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
             authComponentProvider_.assignAuthComponent(b);
 
             // store the request, w/ assigned id
-            ctx.authRequest = authRequestDao_.insert(b.build());
+            ctx.authRequest = daoProvider_.getAuthRequestDao().insert(b.build());
         }
 
         PluginData.PluginMessage pm = PluginData.PluginMessage.builder()
@@ -1177,7 +1171,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 .build();
 
         // returned object has assigned 'id'
-        ar = authRequestDao_.insert(ar);
+        ar = daoProvider_.getAuthRequestDao().insert(ar);
 
         // notify later, to let plugin attach additional
         // data to this auth request id before clients discover it
@@ -1192,7 +1186,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         ctxs.contexts.remove(ctx.txId);
 
         if (ctx.authRequest != null) {
-            authRequestDao_.delete(ctx.authRequest.id());
+            daoProvider_.getAuthRequestDao().delete(ctx.authRequest.id());
 
             // remember
             authRequestHistory_.put(ctx.authRequest.id(), Transaction.TX_STATE_TIMEDOUT);

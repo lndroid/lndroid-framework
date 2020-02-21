@@ -1,179 +1,246 @@
 package org.lndroid.framework.room;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.room.Dao;
 import androidx.room.Embedded;
 import androidx.room.Entity;
+import androidx.room.Index;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.PrimaryKey;
+import androidx.room.Query;
 import androidx.room.TypeConverters;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.ITransactionDao;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.Transaction;
+
+import java.util.List;
 
 public class RoomTransactions {
 
-    // to be embedded to all transactions
-    static class TransactionData {
-        public long txUserId;
-        @NonNull
-        public String txId;
-
-        public long txAuthUserId;
-        public int txState; // plugins.Transaction.STATES
-        public long txCreateTime;
-        public long txDeadlineTime;
-        public long txAuthTime;
-        public long txDoneTime;
-
-        @Nullable
-        public String txErrorCode;
-        @Nullable
-        public String txErrorMessage;
-
-
-        public String responseClass;
-        public long responseId;
-
-
-        // current number of tries
-        public int tries;
-
-        // max number of tries
-        public int maxTries;
-
-        // deadline for retries, in ms
-        public long maxTryTime;
-
-        // last time we retried, in ms
-        public long lastTryTime;
-
-        // next time we'll retry, in ms
-        public long nextTryTime;
-
-        // see above
-        public int jobState;
-
-        // error code if state=failed
-        public String jobErrorCode;
-
-        // error message
-        public String jobErrorMessage;
-
-
-    }
-
-    static class RoomTransactionBase<Request> implements IRoomTransaction<Request> {
+    @Entity(
+            primaryKeys = {"pluginId", "userId", "txId"},
+            indices = {
+                @Index({"pluginId", "state"}),
+            }
+    )
+    static class RoomTransaction {
         @Embedded @NonNull
-        public TransactionData txData;
-        @Embedded(prefix="req")
-        public Request request;
+        public Transaction.TransactionData txData;
+        @Embedded @NonNull
+        public Transaction.JobData jobData;
 
-        @Override
-        public Request getRequest() {
-            return request;
-        }
-
-        @Override
-        public TransactionData getTxData() {
-            return txData;
-        }
-
-        @Override
-        public void setRequest(Request r) {
-            request = r;
-        }
-
-        @Override
         public void setResponse(Class<?> cls, long id) {
             txData.responseId = id;
             txData.responseClass = cls.getName();
         }
-
-        @Override
-        public void setTxData(TransactionData t) {
-            txData = t;
-        }
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class AddUserTransaction extends RoomTransactionBase<WalletData.AddUserRequest> {
+    static class TransactionRequestBase<Request> {
+        @PrimaryKey(autoGenerate = true)
+        long id_;
+        @Embedded
+        Request data;
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class NewAddressTransaction extends RoomTransactionBase<WalletData.NewAddressRequest> {
+    @Entity(tableName = "txAddUserRequest")
+    static class AddUserRequest extends TransactionRequestBase<WalletData.AddUserRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class DecodePayReqTransaction extends RoomTransactionBase<String> {
+    @Entity(tableName = "txContact")
+    @TypeConverters({
+            RoomConverters.TransientRouteHintsConverter.class,
+            RoomConverters.ImmutableIntListConverter.class,
+    })
+    static class Contact extends TransactionRequestBase<WalletData.Contact> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class AddInvoiceTransaction extends RoomTransactionBase<WalletData.AddInvoiceRequest> {
+    @Entity(tableName = "txNewAddressRequest")
+    static class NewAddressRequest extends TransactionRequestBase<WalletData.NewAddressRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
+    @Entity(tableName = "txPayReqString")
+    static class PayReqString extends TransactionRequestBase<String> {
+    }
+
+    @Entity(tableName = "txAddInvoiceRequest")
+    static class AddInvoiceRequest extends TransactionRequestBase<WalletData.AddInvoiceRequest> {
+    }
+
+    @Entity(tableName = "txSendPaymentRequest")
     @TypeConverters({
             RoomConverters.DestTLVConverter.class,
             RoomConverters.TransientRouteHintsConverter.class,
             RoomConverters.ImmutableIntListConverter.class,
     })
-    static class SendPaymentTransaction extends RoomTransactionBase<WalletData.SendPaymentRequest> {
+    static class SendPaymentRequest extends TransactionRequestBase<WalletData.SendPaymentRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class OpenChannelTransaction extends RoomTransactionBase<WalletData.OpenChannelRequest> {
+    @Entity(tableName = "txOpenChannelRequest")
+    static class OpenChannelRequest extends TransactionRequestBase<WalletData.OpenChannelRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class CloseChannelTransaction extends RoomTransactionBase<WalletData.CloseChannelRequest> {
+    @Entity(tableName = "txCloseChannelRequest")
+    static class CloseChannelRequest extends TransactionRequestBase<WalletData.CloseChannelRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    @TypeConverters({
-            RoomConverters.TransientRouteHintsConverter.class,
-            RoomConverters.ImmutableIntListConverter.class,
-    })
-    static class AddContactTransaction extends RoomTransactionBase<WalletData.Contact> {
+    @Entity(tableName = "txListContactsPrivilege")
+    static class ListContactsPrivilege extends TransactionRequestBase<WalletData.ListContactsPrivilege> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class AddListContactsPrivilegeTransaction
-            extends RoomTransactionBase<WalletData.ListContactsPrivilege> {
+    @Entity(tableName = "txContactPaymentsPrivilege")
+    static class ContactPaymentsPrivilege extends TransactionRequestBase<WalletData.ContactPaymentsPrivilege> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class AddContactPaymentsPrivilegeTransaction
-            extends RoomTransactionBase<WalletData.ContactPaymentsPrivilege> {
+    @Entity(tableName = "txConnectPeerRequest")
+    static class ConnectPeerRequest extends TransactionRequestBase<WalletData.ConnectPeerRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class ConnectPeerTransaction
-            extends RoomTransactionBase<WalletData.ConnectPeerRequest> {
+    @Entity(tableName = "txShareContactRequest")
+    static class ShareContactRequest extends TransactionRequestBase<WalletData.ShareContactRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class ShareContactTransaction
-            extends RoomTransactionBase<WalletData.ShareContactRequest> {
+    @Entity(tableName = "txAddContactInvoiceRequest")
+    static class AddContactInvoiceRequest extends TransactionRequestBase<WalletData.AddContactInvoiceRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
-    static class AddContactInvoiceTransaction
-            extends RoomTransactionBase<WalletData.AddContactInvoiceRequest> {
-    }
-
-    @Entity(primaryKeys = {"txUserId", "txId"})
+    @Entity(tableName = "txSendCoinsRequest")
     @TypeConverters({
             RoomConverters.ImmutableStringLongMapConverter.class,
             RoomConverters.ImmutableStringListConverter.class,
     })
-    static class SendCoinsTransaction
-            extends RoomTransactionBase<WalletData.SendCoinsRequest> {
+    static class SendCoinsRequest extends TransactionRequestBase<WalletData.SendCoinsRequest> {
     }
 
-    @Entity(primaryKeys = {"txUserId", "txId"})
+    @Entity(tableName = "txEstimateFeeRequest")
     @TypeConverters({
             RoomConverters.ImmutableStringLongMapConverter.class,
     })
-    static class EstimateFeeTransaction extends RoomTransactionBase<WalletData.EstimateFeeRequest> {
+    static class EstimateFeeRequest extends TransactionRequestBase<WalletData.EstimateFeeRequest> {
     }
 
+    @Dao
+    abstract static class TransactionDao implements ITransactionDao {
+        @Override
+        public void init() {}
+
+        @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId AND state = 0")
+        public abstract List<RoomTransaction> getTransactions(String pluginId);
+
+        @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract RoomTransactions.RoomTransaction getTransaction(String pluginId, long userId, String txId);
+
+        @Query("SELECT requestId FROM RoomTransaction WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract long getTransactionRequestId(String pluginId, long userId, String txId);
+
+        @Insert
+        public abstract void createTransaction(RoomTransaction tx);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        public abstract void updateTransaction(RoomTransaction tx);
+
+        @Query("UPDATE RoomTransaction " +
+                "SET authTime = :time, authUserId = :authUserId " +
+                "WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract void confirmTransaction(String pluginId, long userId, String txId,
+                                                long authUserId, long time);
+
+        @Query("UPDATE RoomTransaction " +
+                "SET state = :state, doneTime = :time, authTime = :time, authUserId = :authUserId " +
+                "WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract void rejectTransaction(String pluginId, long userId, String txId,
+                                               long authUserId, int state, long time);
+
+        @Query("UPDATE RoomTransaction " +
+                "SET state = :state, doneTime = :time, errorCode = :errorCode, errorMessage = :errorMessage " +
+                "WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract void failTransaction(String pluginId, long userId, String txId,
+                                             int state, long time, String errorCode, String errorMessage);
+
+        @Query("UPDATE RoomTransaction " +
+                "SET state = :state, doneTime = :time, " +
+                "    responseClass = :responseClass, responseId = :responseId "+
+                "WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract void commitTransaction(
+                String pluginId, long userId, String txId,
+                int state, long time,
+                String responseClass, long responseId);
+
+        @Override
+        public <T> T getTransactionRequest(String pluginId, long userId, String txId) {
+            if (pluginId == null)
+                return null;
+
+            RoomTransaction tx = getTransaction(pluginId, userId, txId);
+            if (tx == null || tx.txData.requestId == 0)
+                return null;
+
+            final long id = tx.txData.requestId;
+
+            Object r = null;
+            if (pluginId.equals(DefaultPlugins.ADD_USER))
+                r = getAddUserRequest(id);
+            else if (pluginId.equals(DefaultPlugins.NEW_ADDRESS))
+                r = getNewAddressRequest(id);
+            else if (pluginId.equals(DefaultPlugins.DECODE_PAYREQ))
+                r = getDecodePayReqRequest(id);
+            else if (pluginId.equals(DefaultPlugins.ADD_INVOICE))
+                r = getAddInvoiceRequest(id);
+            else if (pluginId.equals(DefaultPlugins.SEND_PAYMENT))
+                r = getSendPaymentRequest(id);
+            else if (pluginId.equals(DefaultPlugins.OPEN_CHANNEL))
+                r = getOpenChannelRequest(id);
+            else if (pluginId.equals(DefaultPlugins.ADD_APP_CONTACT))
+                r = getAddAppContactRequest(id);
+            else if (pluginId.equals(DefaultPlugins.ADD_LIST_CONTACTS_PRIVILEGE))
+                r = getAddListContactsPrivilegeRequest(id);
+            else if (pluginId.equals(DefaultPlugins.ADD_CONTACT_PAYMENTS_PRIVILEGE))
+                r = getAddContactPaymentsPrivilegeRequest(id);
+            else if (pluginId.equals(DefaultPlugins.CONNECT_PEER))
+                r = getConnectPeerRequest(id);
+            else if (pluginId.equals(DefaultPlugins.SHARE_CONTACT))
+                r = getShareContactRequest(id);
+            else if (pluginId.equals(DefaultPlugins.ADD_CONTACT_INVOICE))
+                r = getAddContactInvoiceRequest(id);
+
+            if (r == null)
+                return null;
+
+            if (!r.getClass().getName().equals(tx.txData.requestClass))
+                return null;
+
+            return (T)r;
+        }
+
+        @Query("SELECT * FROM txAddUserRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddUserRequest getAddUserRequest(long id);
+        @Query("SELECT * FROM txNewAddressRequest WHERE id_ = :id")
+        abstract RoomTransactions.NewAddressRequest getNewAddressRequest(long id);
+        @Query("SELECT * FROM txPayReqString WHERE id_ = :id")
+        abstract RoomTransactions.PayReqString getDecodePayReqRequest(long id);
+        @Query("SELECT * FROM txAddInvoiceRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddInvoiceRequest getAddInvoiceRequest(long id);
+        @Query("SELECT * FROM txSendPaymentRequest WHERE id_ = :id")
+        abstract RoomTransactions.SendPaymentRequest getSendPaymentRequest(long id);
+        @Query("SELECT * FROM txOpenChannelRequest WHERE id_ = :id")
+        abstract RoomTransactions.OpenChannelRequest getOpenChannelRequest(long id);
+        @Query("SELECT * FROM txContact WHERE id_ = :id")
+        abstract RoomTransactions.Contact getAddAppContactRequest(long id);
+        @Query("SELECT * FROM txListContactsPrivilege WHERE id_ = :id")
+        abstract RoomTransactions.ListContactsPrivilege getAddListContactsPrivilegeRequest(long id);
+        @Query("SELECT * FROM txContactPaymentsPrivilege WHERE id_ = :id")
+        abstract RoomTransactions.ContactPaymentsPrivilege getAddContactPaymentsPrivilegeRequest(long id);
+        @Query("SELECT * FROM txConnectPeerRequest WHERE id_ = :id")
+        abstract RoomTransactions.ConnectPeerRequest getConnectPeerRequest(long id);
+        @Query("SELECT * FROM txShareContactRequest WHERE id_ = :id")
+        abstract RoomTransactions.ShareContactRequest getShareContactRequest(long id);
+        @Query("SELECT * FROM txAddContactInvoiceRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddContactInvoiceRequest getAddContactInvoiceRequest(long id);
+
+
+
+    }
 
 }

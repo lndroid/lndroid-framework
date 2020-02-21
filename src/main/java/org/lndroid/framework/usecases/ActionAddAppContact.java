@@ -11,7 +11,7 @@ import org.lndroid.framework.common.IPluginData;
 public class ActionAddAppContact extends ActionUseCaseBase<WalletData.AddAppContactRequest, WalletData.Contact> {
 
     public ActionAddAppContact(IPluginClient client) {
-        super(DefaultPlugins.ADD_CONTACT_APP, client, "ActionAddAppContact");
+        super(DefaultPlugins.ADD_APP_CONTACT, client, "ActionAddAppContact");
     }
 
     @Override

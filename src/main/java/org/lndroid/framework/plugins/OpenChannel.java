@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
@@ -11,6 +12,8 @@ import org.lndroid.framework.engine.PluginContext;
 import org.lndroid.framework.lnd.LightningCodec;
 
 public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletData.Channel> {
+
+    public interface IDao extends IJobDao<WalletData.OpenChannelRequest, WalletData.Channel> {};
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 300000; // 5 min

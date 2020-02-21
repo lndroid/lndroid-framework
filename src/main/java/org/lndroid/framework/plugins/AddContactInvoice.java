@@ -1,5 +1,6 @@
 package org.lndroid.framework.plugins;
 
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -10,10 +11,15 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.PluginContext;
-import org.lndroid.framework.room.AddContactInvoiceDao;
 
 public class AddContactInvoice extends
-        LndActionBase<WalletData.AddContactInvoiceRequest, Data.Invoice, WalletData.AddContactInvoiceResponse, Data.AddInvoiceResponse> {
+        LndActionBase<WalletData.AddContactInvoiceRequest, Data.Invoice,
+                WalletData.AddContactInvoiceResponse, Data.AddInvoiceResponse>
+{
+    // plugin's Dao must implement this
+    public interface IDao extends ILndActionDao<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse> {
+        String getWalletContactName();
+    };
 
     private static int DEFAULT_TIMEOUT = 30000; // 30 sec
     private static int MAX_TIMEOUT = 300000; // 5 min
@@ -31,8 +37,7 @@ public class AddContactInvoice extends
     @Override
     protected Data.Invoice createLndRequest(PluginContext ctx, WalletData.AddContactInvoiceRequest req) {
 
-        // FIXME this is ugly: to access the implementation instead of an interface!
-        AddContactInvoiceDao dao = (AddContactInvoiceDao)this.dao();
+        IDao dao = (IDao)this.dao();
 
         Data.Invoice i = new Data.Invoice();
         i.value = 0; // FIXME maybe min-payment-amount?

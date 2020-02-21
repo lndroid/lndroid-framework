@@ -7,11 +7,15 @@ import androidx.room.Transaction;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetContact;
 
-public class GetContactDao implements IGetDao<WalletData.Contact>, IPluginDao {
-    private GetContactDaoRoom dao_;
+public class GetContactDao implements
+        IGetDao<WalletData.Contact>, IPluginDao,
+        GetContact.IDao
+{
+    private DaoRoom dao_;
 
-    GetContactDao(GetContactDaoRoom dao, RouteHintsDaoRoom routeDao) {
+    GetContactDao(DaoRoom dao, RouteHintsDaoRoom routeDao) {
         dao_ = dao;
         dao_.setRouteDao(routeDao);
     }
@@ -25,28 +29,30 @@ public class GetContactDao implements IGetDao<WalletData.Contact>, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-abstract class GetContactDaoRoom {
-    private RouteHintsDaoRoom routeDao_;
 
-    void setRouteDao(RouteHintsDaoRoom routeDao) {
-        routeDao_ = routeDao;
-    }
+    @Dao
+    abstract static class DaoRoom {
+        private RouteHintsDaoRoom routeDao_;
 
-    @Query("SELECT * FROM Contact WHERE id = :id")
-    abstract RoomData.Contact getContact(long id);
+        void setRouteDao(RouteHintsDaoRoom routeDao) {
+            routeDao_ = routeDao;
+        }
 
-    @Transaction
-    WalletData.Contact get(long id) {
-        RoomData.Contact rc = getContact(id);
-        if (rc == null)
-            return null;
+        @Query("SELECT * FROM Contact WHERE id = :id")
+        abstract RoomData.Contact getContact(long id);
 
-        return rc.getData().toBuilder()
-                .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
-                .build();
+        @Transaction
+        WalletData.Contact get(long id) {
+            RoomData.Contact rc = getContact(id);
+            if (rc == null)
+                return null;
+
+            return rc.getData().toBuilder()
+                    .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
+                    .build();
+        }
+
     }
 
 }

@@ -15,59 +15,6 @@ import org.lndroid.framework.plugins.Transaction;
 
 final class RoomConverters {
 
-    static class TxConverter{
-        // NOTE: this is not a 'Room converter', just a utility
-        // class w/ similar functionality
-
-        static RoomTransactions.TransactionData fromTx(Transaction t) {
-            RoomTransactions.TransactionData rt = new RoomTransactions.TransactionData();
-            rt.txId = t.txId;
-            rt.txUserId = t.userId;
-            rt.txAuthUserId = t.authUserId;
-            rt.txCreateTime = t.createTime;
-            rt.txDeadlineTime = t.deadlineTime;
-            rt.txDoneTime = t.doneTime;
-            rt.txAuthTime = t.authTime;
-            rt.txErrorCode = t.errorCode;
-            rt.txErrorMessage = t.errorMessage;
-
-            rt.responseClass = t.responseClass;
-            rt.responseId = t.responseId;
-            rt.tries = t.tries;
-            rt.maxTries = t.maxTries;
-            rt.maxTryTime = t.maxTryTime;
-            rt.lastTryTime = t.lastTryTime;
-            rt.nextTryTime = t.nextTryTime;
-            rt.jobState = t.jobState;
-            rt.jobErrorCode = t.jobErrorCode;
-            rt.jobErrorMessage = t.jobErrorMessage;
-            return rt;
-        }
-
-        static void toTx(RoomTransactions.TransactionData rt, Transaction t) {
-            t.createTime = rt.txCreateTime;
-            t.deadlineTime = rt.txDeadlineTime;
-            t.doneTime = rt.txDoneTime;
-            t.userId = rt.txUserId;
-            t.authUserId = rt.txAuthUserId;
-            t.authTime = rt.txAuthTime;
-            t.txId = rt.txId;
-            t.errorCode = rt.txErrorCode;
-            t.errorMessage = rt.txErrorMessage;
-
-            t.responseClass = rt.responseClass;
-            t.responseId = rt.responseId;
-            t.tries = rt.tries;
-            t.maxTries = rt.maxTries;
-            t.maxTryTime = rt.maxTryTime;
-            t.lastTryTime = rt.lastTryTime;
-            t.nextTryTime = rt.nextTryTime;
-            t.jobState = rt.jobState;
-            t.jobErrorCode = rt.jobErrorCode;
-            t.jobErrorMessage = rt.jobErrorMessage;
-        }
-    }
-
     static class ImmutableStringListConverter {
 
         @TypeConverter

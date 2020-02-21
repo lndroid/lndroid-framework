@@ -15,9 +15,11 @@ import org.lndroid.framework.engine.PluginContext;
 
 public class GetWalletInfo extends GetBase<Long> {
 
+    public interface IDao extends IWalletInfoDao{};
+
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IWalletInfoDao dao_;
+    private IDao dao_;
 
     public GetWalletInfo() {
         super(DefaultPlugins.GET_WALLET_INFO, DefaultTopics.WALLET_INFO);
@@ -26,7 +28,7 @@ public class GetWalletInfo extends GetBase<Long> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IWalletInfoDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

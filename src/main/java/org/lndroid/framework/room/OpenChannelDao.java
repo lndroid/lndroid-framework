@@ -10,140 +10,82 @@ import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IJobDao;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.OpenChannel;
 import org.lndroid.framework.plugins.Transaction;
 
-public class OpenChannelDao implements IJobDao<WalletData.OpenChannelRequest, WalletData.Channel>, IPluginDao {
-    private OpenChannelDaoRoom dao_;
+public class OpenChannelDao
+        extends ActionDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>
+        implements OpenChannel.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.OPEN_CHANNEL;
 
-    OpenChannelDao(OpenChannelDaoRoom dao) {
-        dao_ = dao;
+    OpenChannelDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
 
-    private Transaction<WalletData.OpenChannelRequest> fromRoom(RoomTransactions.OpenChannelTransaction tx) {
-        Transaction<WalletData.OpenChannelRequest> t = new Transaction<>();
-        RoomConverters.TxConverter.toTx(tx.getTxData(), t);
-        t.request = tx.getRequest();
-        return t;
-    }
+    @Dao
+    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>{
 
-    @Override
-    public List<Transaction<WalletData.OpenChannelRequest>> getTransactions() {
-        List<Transaction<WalletData.OpenChannelRequest>> r = new ArrayList<>();
-
-        List<RoomTransactions.OpenChannelTransaction> txs = dao_.getTransactions();
-        for (RoomTransactions.OpenChannelTransaction tx: txs) {
-            r.add(fromRoom(tx));
+        @Override @androidx.room.Transaction
+        public WalletData.Channel commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.Channel r, long time) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, r, time);
         }
 
-        return r;
-    }
-
-    @Override
-    public Transaction<WalletData.OpenChannelRequest> getTransaction(long txUserId, String txId) {
-        RoomTransactions.OpenChannelTransaction tx = dao_.getTransaction(txUserId, txId);
-        if (tx == null)
-            return null;
-
-        return fromRoom(tx);
-    }
-
-    @Override
-    public void startTransaction(Transaction<WalletData.OpenChannelRequest> t) {
-        RoomTransactions.OpenChannelTransaction tx = new RoomTransactions.OpenChannelTransaction();
-        tx.setTxData(RoomConverters.TxConverter.fromTx(t));
-        tx.setRequest(t.request);
-        dao_.createTransaction(tx);
-    }
-
-    @Override
-    public WalletData.Channel commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Channel r) {
-        return dao_.commitTransaction(txUserId, txId, txAuthUserId, r, System.currentTimeMillis());
-    }
-
-    @Override
-    public void rejectTransaction(long txUserId, String txId, long txAuthUserId) {
-        dao_.rejectTransaction(txUserId, txId, txAuthUserId, Transaction.TX_STATE_REJECTED, System.currentTimeMillis());
-    }
-
-    @Override
-    public void timeoutTransaction(long txUserId, String txId) {
-        dao_.timeoutTransaction(txUserId, txId, Transaction.TX_STATE_TIMEDOUT, System.currentTimeMillis());
-    }
-
-    @Override
-    public WalletData.Channel getResponse(long id) {
-        return dao_.getResponse(id);
-    }
-
-    @Override
-    public void init() {
-        // noop
-    }
-}
-
-@Dao
-abstract class OpenChannelDaoRoom {
-    @Query("SELECT * FROM OpenChannelTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.OpenChannelTransaction> getTransactions();
-
-    @Query("SELECT * FROM OpenChannelTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.OpenChannelTransaction getTransaction(long txUserId, String txId);
-
-    @Insert
-    public abstract void createTransaction(RoomTransactions.OpenChannelTransaction tx);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.OpenChannelTransaction tx);
-
-    @Query("UPDATE OpenChannelTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Query("UPDATE OpenChannelTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Insert
-    public abstract void insertChannel(RoomData.Channel i);
-
-    @Query("UPDATE Channel SET channelPoint = :cp WHERE id = :id")
-    abstract void setFakeChannelPoint(long id, String cp);
-
-    @Query("SELECT * FROM Channel WHERE id = :id")
-    abstract RoomData.Channel getResponseRoom(long id);
-
-    WalletData.Channel getResponse(long id) {
-        RoomData.Channel r = getResponseRoom(id);
-        return r != null ? r.getData() : null;
-    }
-
-    @androidx.room.Transaction
-    public WalletData.Channel commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Channel channel, long time) {
-        // insert payment into it's own table
-        RoomData.Channel p = new RoomData.Channel();
-        p.setData(channel);
-
-        insertChannel(p);
-        setFakeChannelPoint(channel.id(), Long.toString(channel.id()));
-
-        // get tx
-        RoomTransactions.OpenChannelTransaction tx = getTransaction(txUserId, txId);
-
-        // update state
-        tx.setResponse(channel.getClass(), channel.id());
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
-        if (txAuthUserId != 0) {
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.txData.txAuthTime = time;
+        @Override @androidx.room.Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.OpenChannelRequest req){
+            createTransactionImpl(tx, req);
         }
 
-        // write tx
-        updateTransaction(tx);
+        @Insert
+        abstract long insertRequest(RoomTransactions.OpenChannelRequest i);
 
-        return channel;
+        @Override
+        protected long insertRequest(WalletData.OpenChannelRequest req) {
+            // convert request to room object
+            RoomTransactions.OpenChannelRequest r = new RoomTransactions.OpenChannelRequest();
+            r.data = req;
+
+            // insert request
+            return insertRequest(r);
+        }
+
+        @Query("SELECT * FROM Channel WHERE id = :id")
+        abstract RoomData.Channel getResponseRoom(long id);
+
+        @Override
+        public WalletData.Channel getResponse(long id) {
+            RoomData.Channel r = getResponseRoom(id);
+            return r != null ? r.getData() : null;
+        }
+
+        @Query("SELECT * FROM txOpenChannelRequest WHERE id_ = :id")
+        abstract RoomTransactions.OpenChannelRequest getRequestRoom(long id);
+
+        @Override
+        public WalletData.OpenChannelRequest getRequest(long id) {
+            RoomTransactions.OpenChannelRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Insert
+        public abstract void insertResponseRoom(RoomData.Channel i);
+
+        @Query("UPDATE Channel SET channelPoint = :cp WHERE id = :id")
+        abstract void setFakeChannelPoint(long id, String cp);
+
+        @Override
+        protected long insertResponse(WalletData.Channel v) {
+            RoomData.Channel r = new RoomData.Channel();
+            r.setData(v);
+
+            insertResponseRoom(r);
+            setFakeChannelPoint(v.id(), Long.toString(v.id()));
+
+            return v.id();
+        }
     }
 }

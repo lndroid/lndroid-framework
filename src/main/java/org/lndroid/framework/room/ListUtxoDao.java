@@ -12,16 +12,18 @@ import com.google.common.collect.ImmutableList;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IListDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ListUtxo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ListUtxoDao implements
-        IListDao<WalletData.ListUtxoRequest, WalletData.ListUtxoResult>, IPluginDao {
+        IListDao<WalletData.ListUtxoRequest, WalletData.ListUtxoResult>, IPluginDao,
+        ListUtxo.IDao
+{
+    private DaoRoom dao_;
 
-    private Room dao_;
-
-    ListUtxoDao(Room dao) {
+    ListUtxoDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -69,7 +71,7 @@ public class ListUtxoDao implements
     }
 
     @Dao
-    static abstract class Room {
+    static abstract class DaoRoom {
 
         @RawQuery
         abstract long[] listIds(SupportSQLiteQuery query);
@@ -103,9 +105,6 @@ public class ListUtxoDao implements
                     .build();
         }
     }
-
-
-
 
 }
 

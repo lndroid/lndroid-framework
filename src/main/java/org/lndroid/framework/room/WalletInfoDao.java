@@ -8,12 +8,18 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IWalletInfoDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetWalletInfo;
+import org.lndroid.framework.plugins.WalletInfoWorker;
 
-class WalletInfoDao implements IWalletInfoDao, IPluginDao {
+class WalletInfoDao implements
+        IWalletInfoDao, IPluginDao,
+        GetWalletInfo.IDao,
+        WalletInfoWorker.IDao
+{
 
-    private WalletInfoDaoRoom dao_;
+    private DaoRoom dao_;
 
-    WalletInfoDao(WalletInfoDaoRoom dao) {
+    WalletInfoDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -34,13 +40,13 @@ class WalletInfoDao implements IWalletInfoDao, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface WalletInfoDaoRoom {
-    @Query("SELECT * FROM WalletInfo LIMIT 1")
-    RoomData.WalletInfo get();
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM WalletInfo LIMIT 1")
+        RoomData.WalletInfo get();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void update(RoomData.WalletInfo b);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void update(RoomData.WalletInfo b);
+    }
 }

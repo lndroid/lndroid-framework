@@ -9,54 +9,68 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.ShareContact;
 
-class ShareContactDao extends ActionDaoBase<WalletData.ShareContactRequest, WalletData.ShareContactResponse, RoomTransactions.ShareContactTransaction> {
+class ShareContactDao
+        extends ActionDaoBase<WalletData.ShareContactRequest, WalletData.ShareContactResponse>
+        implements ShareContact.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.SHARE_CONTACT;
 
-    ShareContactDao(ShareContactDaoRoom dao) {
-        super(dao, RoomTransactions.ShareContactTransaction.class);
+    ShareContactDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
+
+    @Dao
+    abstract static class DaoRoom
+            extends RoomActionDaoBase<WalletData.ShareContactRequest, WalletData.ShareContactResponse>{
+
+        @Override @Transaction
+        public WalletData.ShareContactResponse commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.ShareContactResponse res, long time) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, res, time);
+        }
+
+        @Override @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.ShareContactRequest req){
+            createTransactionImpl(tx, req);
+        }
+
+        @Insert
+        abstract long insertRequest(RoomTransactions.ShareContactRequest i);
+
+        @Override
+        protected long insertRequest(WalletData.ShareContactRequest req) {
+            // convert request to room object
+            RoomTransactions.ShareContactRequest r = new RoomTransactions.ShareContactRequest();
+            r.data = req;
+
+            // insert request
+            return insertRequest(r);
+        }
+
+        @Override
+        public WalletData.ShareContactResponse getResponse(long id) {
+            return null;
+        }
+
+        @Query("SELECT * FROM txShareContactRequest WHERE id_ = :id")
+        abstract RoomTransactions.ShareContactRequest getRequestRoom(long id);
+
+        @Override
+        public WalletData.ShareContactRequest getRequest(long id) {
+            RoomTransactions.ShareContactRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Override
+        protected long insertResponse(WalletData.ShareContactResponse v) {
+            // not stored
+            return 0;
+        }
+    }
+
 }
 
-@Dao
-abstract class ShareContactDaoRoom
-        implements IRoomActionDao<RoomTransactions.ShareContactTransaction, WalletData.ShareContactResponse>{
-
-    @Override @Query("SELECT * FROM ShareContactTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.ShareContactTransaction> getTransactions();
-
-    @Override @Query("SELECT * FROM ShareContactTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.ShareContactTransaction getTransaction(long txUserId, String txId);
-
-    @Override @Insert
-    public abstract void createTransaction(RoomTransactions.ShareContactTransaction tx);
-
-    @Override @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.ShareContactTransaction tx);
-
-    @Override
-    @Query("UPDATE ShareContactTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Override // not stored!
-    public WalletData.ShareContactResponse getResponse(long id) { return null; };
-
-    @Override @Transaction
-    public WalletData.ShareContactResponse commitTransaction(
-            RoomTransactions.ShareContactTransaction tx, long txAuthUserId, WalletData.ShareContactResponse rep, long time) {
-
-        // we don't store this response, only attach it to the tx
-
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
-        tx.txData.txAuthUserId = txAuthUserId;
-        tx.txData.txAuthTime = time;
-
-        // write tx
-        updateTransaction(tx);
-
-        return rep;
-    }
-}

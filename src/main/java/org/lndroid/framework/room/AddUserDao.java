@@ -4,77 +4,84 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.AddUser;
 
-public class AddUserDao extends ActionDaoBase<WalletData.AddUserRequest, WalletData.User, RoomTransactions.AddUserTransaction> {
+class AddUserDao
+        extends ActionDaoBase<WalletData.AddUserRequest, WalletData.User>
+        implements AddUser.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.ADD_USER;
 
-    AddUserDao(AddUserDaoRoom dao) {
-        super(dao, RoomTransactions.AddUserTransaction.class);
+    AddUserDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
+    }
+
+    @Dao
+    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.AddUserRequest, WalletData.User> {
+
+        @Override @Transaction
+        public WalletData.User commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.User req, long time) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, req, time);
+        }
+
+        @Override @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.AddUserRequest req){
+            createTransactionImpl(tx, req);
+        }
+
+        @Insert
+        abstract long insertRequest(RoomTransactions.AddUserRequest i);
+
+        @Override
+        protected long insertRequest(WalletData.AddUserRequest req) {
+            // convert request to room object
+            RoomTransactions.AddUserRequest r = new RoomTransactions.AddUserRequest();
+            r.data = req;
+
+            // insert request
+            return insertRequest(r);
+        }
+
+        @Query("SELECT * FROM User WHERE id = :id")
+        abstract RoomData.User getResponseRoom(long id);
+
+        @Override
+        public WalletData.User getResponse(long id) {
+            RoomData.User r = getResponseRoom(id);
+            return r != null ? r.getData() : null;
+        }
+
+        @Query("SELECT * FROM txAddUserRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddUserRequest getRequestRoom(long id);
+
+        @Override
+        public WalletData.AddUserRequest getRequest(long id) {
+            RoomTransactions.AddUserRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Insert
+        abstract void insertResponseRoom(RoomData.User r);
+
+        @Override
+        protected long insertResponse(WalletData.User v) {
+
+            RoomData.User ru = new RoomData.User();
+            ru.setData(v);
+
+            // write
+            insertResponseRoom(ru);
+
+            return v.id();
+        }
     }
 }
 
-@Dao
-abstract class AddUserDaoRoom implements IRoomActionDao<RoomTransactions.AddUserTransaction, WalletData.User> {
-    @Override
-    @Query("SELECT * FROM AddUserTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.AddUserTransaction> getTransactions();
-
-    @Override
-    @Query("SELECT * FROM AddUserTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddUserTransaction getTransaction(long txUserId, String txId);
-
-    @Override @Insert
-    public abstract void createTransaction(RoomTransactions.AddUserTransaction tx);
-
-    @Override @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.AddUserTransaction tx);
-
-    @Override
-    @Query("UPDATE AddUserTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    // helper to insert users
-    @Insert
-    abstract void insertUser(RoomData.User r);
-
-    @Query("SELECT * FROM User WHERE id = :id")
-    abstract RoomData.User getResponseRoom(long id);
-
-    @Override
-    public WalletData.User getResponse(long id) {
-        RoomData.User r = getResponseRoom(id);
-        return r != null ? r.getData() : null;
-    }
-
-    // create user and add it to tx response and commit
-    @Override @androidx.room.Transaction
-    public WalletData.User commitTransaction(
-            RoomTransactions.AddUserTransaction tx, long txAuthUserId, WalletData.User user, long time) {
-
-        RoomData.User ru = new RoomData.User();
-        ru.setData(user);
-
-        // insert new user
-        insertUser(ru);
-
-        // set response to tx
-        tx.setResponse(user.getClass(), user.id());
-
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txAuthUserId = txAuthUserId;
-        tx.txData.txDoneTime = time;
-        tx.txData.txAuthTime = time;
-
-        // update tx
-        updateTransaction(tx);
-
-        // user with id
-        return user;
-    }
-}

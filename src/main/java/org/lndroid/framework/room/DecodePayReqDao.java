@@ -9,78 +9,87 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.DecodePayReq;
 
-public class DecodePayReqDao extends LndActionDaoBase<String, WalletData.SendPayment, RoomTransactions.DecodePayReqTransaction> {
+public class DecodePayReqDao
+        extends LndActionDaoBase<String, WalletData.SendPayment>
+        implements DecodePayReq.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.DECODE_PAYREQ;
 
-    DecodePayReqDao(DecodePayReqDaoRoom dao) {
-        super(dao, RoomTransactions.DecodePayReqTransaction.class);
+    DecodePayReqDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
     }
-}
 
-@Dao
-abstract class DecodePayReqDaoRoom
-        implements IRoomLndActionDao<RoomTransactions.DecodePayReqTransaction, String, WalletData.SendPayment> {
-    @Query("SELECT * FROM DecodePayReqTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.DecodePayReqTransaction> getTransactions();
+    @Dao
+    abstract static class DaoRoom
+            extends RoomLndActionDaoBase<String, WalletData.SendPayment> {
 
-    @Query("SELECT * FROM DecodePayReqTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.DecodePayReqTransaction getTransaction(long txUserId, String txId);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract long upsertRequest(RoomTransactions.PayReqString i);
 
-    @Insert
-    public abstract void createTransaction(RoomTransactions.DecodePayReqTransaction tx);
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.DecodePayReqTransaction tx);
+        @Query("SELECT * FROM txPayReqString WHERE id_ = :id")
+        abstract RoomTransactions.PayReqString getRequestRoom(long id);
 
-    @Query("UPDATE DecodePayReqTransaction " +
-            "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
-
-    @Query("UPDATE DecodePayReqTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
-
-    @Override
-    @Query("UPDATE DecodePayReqTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
-
-    @Query("UPDATE DecodePayReqTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
-
-    @Override @Transaction
-    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time, String authedRequest) {
-        if (authedRequest != null) {
-            RoomTransactions.DecodePayReqTransaction tx = getTransaction(txUserId, txId);
-            tx.txData.txAuthTime = time;
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.request = authedRequest;
-            updateTransaction(tx);
-        } else {
-            confirmTransaction(txUserId, txId, txAuthUserId, time);
+        @Override
+        @Transaction
+        public WalletData.SendPayment commitTransaction(
+                long userId, String txId, WalletData.SendPayment r, long time) {
+            return commitTransactionImpl(userId, txId, r, time);
         }
-    }
 
-    @Override // not stored
-    public WalletData.SendPayment getResponse(long id) { return null; };
+        @Override
+        @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, String req) {
+            createTransactionImpl(tx, req);
+        }
 
-    @Transaction
-    public WalletData.SendPayment commitTransaction(long txUserId, String txId, WalletData.SendPayment r, long time) {
-        RoomTransactions.DecodePayReqTransaction tx = getTransaction(txUserId, txId);
+        @Override
+        protected long insertRequest(String req) {
+            // convert request to room object
+            RoomTransactions.PayReqString r = new RoomTransactions.PayReqString();
+            r.data = req;
 
-        // NOTE: r is not written to it's own table bcs we don't store them
+            // insert request
+            return upsertRequest(r);
+        }
 
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
+        @Override
+        protected void updateRequest(long id, String req) {
+            // convert request to room object
+            RoomTransactions.PayReqString r = new RoomTransactions.PayReqString();
+            r.id_ = id;
+            r.data = req;
 
-        // update tx
-        updateTransaction(tx);
+            // update
+            upsertRequest(r);
+        }
 
-        return r;
+        @Override
+        public String getRequest(long id) {
+            RoomTransactions.PayReqString r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
+
+        @Override
+        protected long insertResponse(WalletData.SendPayment r) {
+            // not stored
+            return 0;
+        }
+
+        @Override
+        public WalletData.SendPayment getResponse(long id) {
+            // not stored
+            return null;
+        }
+
+        @Override
+        @Transaction
+        public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
+                                       String authedRequest) {
+            confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
+        }
     }
 }

@@ -10,10 +10,10 @@ import org.lndroid.framework.dao.IRawQueryDao;
 
 public class RawQueryDao implements IRawQueryDao {
 
-    private RawQueryDaoRoom dao_;
+    private DaoRoom dao_;
     private SupportSQLiteOpenHelper writer_;
 
-    RawQueryDao(RawQueryDaoRoom dao, SupportSQLiteOpenHelper writer) {
+    RawQueryDao(DaoRoom dao, SupportSQLiteOpenHelper writer) {
         dao_ = dao;
         writer_ = writer;
     }
@@ -37,12 +37,13 @@ public class RawQueryDao implements IRawQueryDao {
     public void execute(String query) {
         writer_.getWritableDatabase().execSQL(query);
     }
-}
 
-@Dao
-abstract class RawQueryDaoRoom {
-    @RawQuery
-    abstract long getLong(SupportSQLiteQuery query);
-    @RawQuery
-    abstract String getString(SupportSQLiteQuery query);
+    @Dao
+    abstract static class DaoRoom {
+        @RawQuery
+        abstract long getLong(SupportSQLiteQuery query);
+
+        @RawQuery
+        abstract String getString(SupportSQLiteQuery query);
+    }
 }

@@ -14,7 +14,9 @@ import java.util.List;
 
 public class ListUtxo extends ListBase<WalletData.ListUtxoRequest, WalletData.Utxo> {
 
-    private IListDao<WalletData.ListUtxoRequest, WalletData.ListUtxoResult> dao_;
+    public interface IDao extends IListDao<WalletData.ListUtxoRequest, WalletData.ListUtxoResult>{};
+
+    private IDao dao_;
 
     public ListUtxo() {
         super(DefaultPlugins.LIST_UTXO);
@@ -49,7 +51,7 @@ public class ListUtxo extends ListBase<WalletData.ListUtxoRequest, WalletData.Ut
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IListDao<WalletData.ListUtxoRequest, WalletData.ListUtxoResult>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

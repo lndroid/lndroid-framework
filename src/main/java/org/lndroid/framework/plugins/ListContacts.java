@@ -11,11 +11,12 @@ import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginServer;
-import org.lndroid.framework.room.ListContactsDao;
 
 public class ListContacts extends ListBase<WalletData.ListContactsRequest, WalletData.Contact> {
 
-    private IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult> dao_;
+    public interface IDao extends IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult> {};
+
+    private IDao dao_;
 
     public ListContacts() {
         super(DefaultPlugins.LIST_CONTACTS);
@@ -50,7 +51,7 @@ public class ListContacts extends ListBase<WalletData.ListContactsRequest, Walle
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback callback) {
         super.init(callback);
-        dao_ = (IListDao<WalletData.ListContactsRequest, WalletData.ListContactsResult>) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

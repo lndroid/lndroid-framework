@@ -2,6 +2,7 @@ package org.lndroid.framework.plugins;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.PluginContext;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class SendCoins extends JobBase<WalletData.SendCoinsRequest, WalletData.Transaction> {
+
+    public interface IDao extends IJobDao<WalletData.SendCoinsRequest, WalletData.Transaction> {};
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 300000; // 5 min

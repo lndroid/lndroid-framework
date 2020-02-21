@@ -177,12 +177,13 @@ public class AuthClient extends Handler implements IAuthClient {
     }
 
     @Override
-    public <T> void getTransactionRequest(long userId, String txId, Class<T> cls, IResponseCallback<T> cb) {
+    public <T> void getTransactionRequest(String pluginId, long userId, String txId,
+                                          IResponseCallback<T> cb) {
         AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
                 .setType(AuthData.MESSAGE_TYPE_GET_TX)
                 .setUserId(userId)
-                .setTxId(txId)
-                .setData(cls);
+                .setPluginId(pluginId)
+                .setTxId(txId);
 
         send(b, cb);
     }

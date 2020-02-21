@@ -6,12 +6,15 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.GetTransaction;
 
-public class GetTransactionDao implements IGetDao<WalletData.Transaction>, IPluginDao {
+public class GetTransactionDao implements
+        IGetDao<WalletData.Transaction>, IPluginDao,
+        GetTransaction.IDao
+{
+    private DaoRoom dao_;
 
-    private GetTransactionDaoRoom dao_;
-
-    GetTransactionDao(GetTransactionDaoRoom dao) {
+    GetTransactionDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -25,10 +28,10 @@ public class GetTransactionDao implements IGetDao<WalletData.Transaction>, IPlug
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface GetTransactionDaoRoom {
-    @Query("SELECT * FROM 'Transaction' WHERE id = :id")
-    RoomData.Transaction get(long id);
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM 'Transaction' WHERE id = :id")
+        RoomData.Transaction get(long id);
+    }
 }

@@ -8,11 +8,17 @@ import androidx.room.Query;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IChannelBalanceDao;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.ChannelBalanceWorker;
+import org.lndroid.framework.plugins.GetChannelBalance;
 
-public class ChannelBalanceDao implements IChannelBalanceDao, IPluginDao {
-    private ChannelBalanceDaoRoom dao_;
+public class ChannelBalanceDao implements
+        IChannelBalanceDao, IPluginDao,
+        ChannelBalanceWorker.IDao,
+        GetChannelBalance.IDao
+{
+    private DaoRoom dao_;
 
-    ChannelBalanceDao(ChannelBalanceDaoRoom dao) {
+    ChannelBalanceDao(DaoRoom dao) {
         dao_ = dao;
     }
 
@@ -33,13 +39,13 @@ public class ChannelBalanceDao implements IChannelBalanceDao, IPluginDao {
     public void init() {
         // noop
     }
-}
 
-@Dao
-interface ChannelBalanceDaoRoom {
-    @Query("SELECT * FROM ChannelBalance LIMIT 1")
-    RoomData.ChannelBalance get();
+    @Dao
+    interface DaoRoom {
+        @Query("SELECT * FROM ChannelBalance LIMIT 1")
+        RoomData.ChannelBalance get();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void update(RoomData.ChannelBalance b);
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void update(RoomData.ChannelBalance b);
+    }
 }

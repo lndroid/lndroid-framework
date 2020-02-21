@@ -15,9 +15,11 @@ import org.lndroid.framework.engine.PluginContext;
 
 public class GetAppUser extends GetBase<String> {
 
+    public interface IDao extends IAuthDao{};
+
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
 
-    private IAuthDao dao_;
+    private IDao dao_;
 
     public GetAppUser() {
         super(DefaultPlugins.GET_APP_USER, DefaultTopics.USER_STATE);
@@ -26,7 +28,7 @@ public class GetAppUser extends GetBase<String> {
     @Override
     public void init(IPluginServer server, IPluginForegroundCallback engine) {
         super.init(engine);
-        dao_ = (IAuthDao) server.getDaoProvider().getPluginDao(id());
+        dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
     }
 
     @Override

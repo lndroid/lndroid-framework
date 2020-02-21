@@ -10,14 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+import org.lndroid.framework.plugins.AddContactInvoice;
 
-public class AddContactInvoiceDao extends
-        LndActionDaoBase<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse, RoomTransactions.AddContactInvoiceTransaction> {
+class AddContactInvoiceDao
+        extends LndActionDaoBase<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse>
+        implements AddContactInvoice.IDao
+{
+    public static final String PLUGIN_ID = DefaultPlugins.ADD_CONTACT_INVOICE;
 
-    private AddContactInvoiceDaoRoom dao_;
+    private DaoRoom dao_;
 
-    AddContactInvoiceDao(AddContactInvoiceDaoRoom dao) {
-        super(dao, RoomTransactions.AddContactInvoiceTransaction.class);
+    AddContactInvoiceDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+        super(dao);
+        dao.init(PLUGIN_ID, txDao);
+
         dao_ = dao;
     }
 
@@ -48,90 +55,84 @@ public class AddContactInvoiceDao extends
         }
         return cs;
     }
-}
 
-@Dao
-abstract class AddContactInvoiceDaoRoom
-        implements IRoomLndActionDao<RoomTransactions.AddContactInvoiceTransaction,
-                WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse>{
 
-    @Query("SELECT identityPubkey FROM WalletInfo LIMIT 1")
-    public abstract String getWalletPubkey();
+    @Dao
+    abstract static class DaoRoom
+            extends RoomLndActionDaoBase<WalletData.AddContactInvoiceRequest, WalletData.AddContactInvoiceResponse> {
+        @Query("SELECT identityPubkey FROM WalletInfo LIMIT 1")
+        public abstract String getWalletPubkey();
 
-    @Query("SELECT * FROM ChannelEdge WHERE node1Pubkey = :pubkey OR node2Pubkey = :pubkey")
-    public abstract List<RoomData.ChannelEdge> getChannels(String pubkey);
+        @Query("SELECT * FROM ChannelEdge WHERE node1Pubkey = :pubkey OR node2Pubkey = :pubkey")
+        public abstract List<RoomData.ChannelEdge> getChannels(String pubkey);
 
-    @Query("SELECT * FROM RoutingPolicy WHERE channelId = :channelId")
-    public abstract List<RoomData.RoutingPolicy> getRoutingPolicies(long channelId);
+        @Query("SELECT * FROM RoutingPolicy WHERE channelId = :channelId")
+        public abstract List<RoomData.RoutingPolicy> getRoutingPolicies(long channelId);
 
-    @Override @Query("SELECT * FROM AddContactInvoiceTransaction WHERE txState = 0")
-    public abstract List<RoomTransactions.AddContactInvoiceTransaction> getTransactions();
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        abstract long upsertRequest(RoomTransactions.AddContactInvoiceRequest i);
 
-    @Override @Query("SELECT * FROM AddContactInvoiceTransaction WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract RoomTransactions.AddContactInvoiceTransaction getTransaction(long txUserId, String txId);
+        @Query("SELECT * FROM txAddContactInvoiceRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddContactInvoiceRequest getRequestRoom(long id);
 
-    @Override @Insert
-    public abstract void createTransaction(RoomTransactions.AddContactInvoiceTransaction tx);
+        @Override
+        @Transaction
+        public WalletData.AddContactInvoiceResponse commitTransaction(
+                long userId, String txId, WalletData.AddContactInvoiceResponse r, long time) {
+            return commitTransactionImpl(userId, txId, r, time);
+        }
 
-    @Override @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public abstract void updateTransaction(RoomTransactions.AddContactInvoiceTransaction tx);
+        @Override
+        @Transaction
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.AddContactInvoiceRequest req) {
+            createTransactionImpl(tx, req);
+        }
 
-    @Query("UPDATE AddContactInvoiceTransaction " +
-            "SET txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time);
+        @Override
+        protected long insertRequest(WalletData.AddContactInvoiceRequest req) {
+            // convert request to room object
+            RoomTransactions.AddContactInvoiceRequest r = new RoomTransactions.AddContactInvoiceRequest();
+            r.data = req;
 
-    @Override
-    @Query("UPDATE AddContactInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txAuthTime = :time, txAuthUserId = :txAuthUserId " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void rejectTransaction(long txUserId, String txId, long txAuthUserId, int txState, long time);
+            // insert request
+            return upsertRequest(r);
+        }
 
-    @Override
-    @Query("UPDATE AddContactInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time, txErrorCode = :code, txErrorMessage = :message " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void failTransaction(long txUserId, String txId, String code, String message, int txState, long time);
+        @Override
+        protected void updateRequest(long id, WalletData.AddContactInvoiceRequest req) {
+            // convert request to room object
+            RoomTransactions.AddContactInvoiceRequest r = new RoomTransactions.AddContactInvoiceRequest();
+            r.id_ = id;
+            r.data = req;
 
-    @Override
-    @Query("UPDATE AddContactInvoiceTransaction " +
-            "SET txState = :txState, txDoneTime = :time " +
-            "WHERE txUserId = :txUserId AND txId = :txId")
-    public abstract void timeoutTransaction(long txUserId, String txId, int txState, long time);
+            // update
+            upsertRequest(r);
+        }
 
-    @Override @Transaction
-    public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
-                                   WalletData.AddContactInvoiceRequest authedRequest) {
+        @Override
+        public WalletData.AddContactInvoiceRequest getRequest(long id) {
+            RoomTransactions.AddContactInvoiceRequest r = getRequestRoom(id);
+            return r != null ? r.data : null;
+        }
 
-        if (authedRequest != null) {
-            RoomTransactions.AddContactInvoiceTransaction tx = getTransaction(txUserId, txId);
-            tx.txData.txAuthTime = time;
-            tx.txData.txAuthUserId = txAuthUserId;
-            tx.request = authedRequest;
-            updateTransaction(tx);
-        } else {
-            confirmTransaction(txUserId, txId, txAuthUserId, time);
+        @Override
+        protected long insertResponse(WalletData.AddContactInvoiceResponse r) {
+            // not stored
+            return 0;
+        }
+
+        @Override
+        public WalletData.AddContactInvoiceResponse getResponse(long id) {
+            // not stored
+            return null;
+        }
+
+        @Override
+        @Transaction
+        public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
+                                       WalletData.AddContactInvoiceRequest authedRequest) {
+            confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
         }
     }
-
-    @Override // not stored!
-    public WalletData.AddContactInvoiceResponse getResponse(long id) { return null; }
-
-    @Override @Transaction
-    public WalletData.AddContactInvoiceResponse commitTransaction(
-            long txUserId, String txId,
-            WalletData.AddContactInvoiceResponse rep, long time) {
-
-        // get tx
-        RoomTransactions.AddContactInvoiceTransaction tx = getTransaction(txUserId, txId);
-
-        // update state
-        tx.txData.txState = org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED;
-        tx.txData.txDoneTime = time;
-
-        // write tx
-        updateTransaction(tx);
-
-        return rep;
-    }
 }
+
