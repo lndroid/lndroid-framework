@@ -22,6 +22,7 @@ public class DefaultIdGenerator implements IIdGenerator {
 
     @Override
     public void init() {
+        daos_.getRawQueryDao().execute("INSERT OR IGNORE INTO NextId (pk_, id) VALUES (0, 1)");
         nextId_ = getNextId();
     }
 

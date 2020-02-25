@@ -80,13 +80,17 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     protected abstract int maxTimeout();
     protected abstract Request getRequestData(IPluginData in);
     protected abstract Type getResponseType();
+    protected int maxTries(PluginContext ctx, Request r) { return 0; }
+    protected long maxTryTime(PluginContext ctx, Request r) { return 0; }
 
     private void commit(PluginContext ctx, long authUserId) {
+        Request req = (Request)ctx.request;
         // convert request to response
-        Response rep = createResponse(ctx, (Request) ctx.request, authUserId);
+        Response rep = createResponse(ctx, req, authUserId);
 
         // store response in finished tx
-        rep = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, rep);
+        rep = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, rep,
+                maxTries(ctx, req), maxTryTime(ctx, req));
 
         // notify other plugins if needed
         engine_.onSignal(id(), newTopic_, rep);
@@ -94,7 +98,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
 
         // response to client
         engine_.onReply(id(), ctx, rep, getResponseType());
-        engine_.onDone(id(), ctx);
+        engine_.onDone(id(), ctx, true);
     }
 
     @Override
@@ -111,7 +115,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, getResponseType());
-                    engine_.onDone(id(), ctx);
+                    engine_.onDone(id(), ctx, true);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
                 }
@@ -134,8 +138,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
 
         // create tx
         tx = new Transaction<>();
-        tx.tx.userId = ctx.user.id();
-        tx.tx.txId = ctx.txId;
+        tx.tx = new Transaction.TransactionData(id(), ctx.user.id(), ctx.txId);
         tx.request = req;
         tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;

@@ -1006,15 +1006,10 @@ public final class WalletData {
     public static final int CHANNEL_STATE_OPEN = 1;
     public static final int CHANNEL_STATE_CLOSED = 2;
     public static final int CHANNEL_STATE_FAILED = 3; // open failed
-    public static final int CHANNEL_STATE_OPENING = 4; // maybe sent OpenChannel to lnd, waiting for reply
-    public static final int CHANNEL_STATE_CLOSING = 5;
-    public static final int CHANNEL_STATE_PENDING_OPEN = 6; // opened, waiting tx confs
-    public static final int CHANNEL_STATE_LOST = 7; // OpenWorker was interrupted and needs StateWorker to sync
-    public static final int CHANNEL_STATE_RETRY = 8; // StateWorker didn't find LOST channel, OpenWorker should retry
-    public static final int CHANNEL_STATE_PENDING_CLOSE = 9; // closing
-    public static final int CHANNEL_STATE_PENDING_FORCE_CLOSE = 10; // force closing
-    public static final int CHANNEL_STATE_WAITING_CLOSE = 11; // waiting for close tx confs
-    public static final int CHANNEL_STATE_WILL_CLOSE = 12;
+    public static final int CHANNEL_STATE_PENDING_OPEN = 4; // opened, waiting tx confs
+    public static final int CHANNEL_STATE_PENDING_CLOSE = 5; // closing
+    public static final int CHANNEL_STATE_PENDING_FORCE_CLOSE = 6; // force closing
+    public static final int CHANNEL_STATE_WAITING_CLOSE = 7; // waiting for close tx confs
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_Channel.class)
@@ -1037,11 +1032,6 @@ public final class WalletData {
                 long settledBalance,
                 long timeLockedBalance,
                 int closeType,
-                int tries,
-                int maxTries,
-                long maxTryTime,
-                long lastTryTime,
-                long nextTryTime,
                 int state,
                 String errorCode,
                 String errorMessage,
@@ -1093,11 +1083,6 @@ public final class WalletData {
                     .setSettledBalance(settledBalance)
                     .setTimeLockedBalance(timeLockedBalance)
                     .setCloseType(closeType)
-                    .setTries(tries)
-                    .setMaxTries(maxTries)
-                    .setMaxTryTime(maxTryTime)
-                    .setLastTryTime(lastTryTime)
-                    .setNextTryTime(nextTryTime)
                     .setState(state)
                     .setErrorCode(errorCode)
                     .setErrorMessage(errorMessage)
@@ -1148,11 +1133,6 @@ public final class WalletData {
                     .setSettledBalance(0)
                     .setTimeLockedBalance(0)
                     .setCloseType(0)
-                    .setTries(0)
-                    .setMaxTries(0)
-                    .setMaxTryTime(0)
-                    .setLastTryTime(0)
-                    .setNextTryTime(0)
                     .setState(0)
                     .setCreateTime(0)
                     .setOpenTime(0)
@@ -1162,6 +1142,10 @@ public final class WalletData {
                     .setCapacity(0)
                     .setLocalBalance(0)
                     .setRemoteBalance(0)
+                    .setConfirmationHeight(0)
+                    .setLimboBalance(0)
+                    .setMaturityHeight(0)
+                    .setRecoveredBalance(0)
                     .setCommitFee(0)
                     .setCommitWeight(0)
                     .setFeePerKw(0)
@@ -1253,14 +1237,12 @@ public final class WalletData {
 
         public static CloseChannelRequest create(
                 long channelId,
-                String channelPoint,
                 boolean force,
                 int targetConf,
                 long satPerByte
         ) {
             return builder()
                     .setChannelId(channelId)
-                    .setChannelPoint(channelPoint)
                     .setForce(force)
                     .setTargetConf(targetConf)
                     .setSatPerByte(satPerByte)
@@ -1636,11 +1618,6 @@ public final class WalletData {
                 long userId,
                 long authUserId,
                 String purpose,
-                int tries,
-                int maxTries,
-                long maxTryTime,
-                long lastTryTime,
-                long nextTryTime,
                 int state,
                 String errorCode,
                 String errorMessage,
@@ -1679,11 +1656,6 @@ public final class WalletData {
                     .setUserId(userId)
                     .setAuthUserId(authUserId)
                     .setPurpose(purpose)
-                    .setTries(tries)
-                    .setMaxTries(maxTries)
-                    .setMaxTryTime(maxTryTime)
-                    .setLastTryTime(lastTryTime)
-                    .setNextTryTime(nextTryTime)
                     .setState(state)
                     .setErrorCode(errorCode)
                     .setErrorMessage(errorMessage)
@@ -1722,11 +1694,6 @@ public final class WalletData {
                     .setId(0)
                     .setUserId(0)
                     .setAuthUserId(0)
-                    .setTries(0)
-                    .setMaxTries(0)
-                    .setMaxTryTime(0)
-                    .setLastTryTime(0)
-                    .setNextTryTime(0)
                     .setState(SEND_PAYMENT_STATE_PENDING)
                     .setInvoiceTimestamp(0)
                     .setInvoiceExpiry(0)
@@ -2354,13 +2321,6 @@ public final class WalletData {
     public static final int TRANSACTION_STATE_NEW = 0;
     public static final int TRANSACTION_STATE_SENT = 1;
     public static final int TRANSACTION_STATE_FAILED = 2;
-    public static final int TRANSACTION_STATE_SENDING = 3;
-    // if tx broadcast was interrupted by failure and we don't know
-    // if it succeeded or not, waiting for full sync w/ lnd
-    public static final int TRANSACTION_STATE_LOST = 5;
-    // lost->retry if tx is not found on restart, sendworker
-    // should decide if it needs to retry
-    public static final int TRANSACTION_STATE_RETRY = 6;
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_Transaction.class)
@@ -2375,11 +2335,6 @@ public final class WalletData {
                 long createTime,
                 long sendTime,
                 String purpose,
-                int tries,
-                int maxTries,
-                long maxTryTime,
-                long lastTryTime,
-                long nextTryTime,
                 int state,
                 String errorCode,
                 String errorMessage,
@@ -2405,11 +2360,6 @@ public final class WalletData {
                     .setCreateTime(createTime)
                     .setSendTime(sendTime)
                     .setPurpose(purpose)
-                    .setTries(tries)
-                    .setMaxTries(maxTries)
-                    .setMaxTryTime(maxTryTime)
-                    .setLastTryTime(lastTryTime)
-                    .setNextTryTime(nextTryTime)
                     .setState(state)
                     .setErrorCode(errorCode)
                     .setErrorMessage(errorMessage)
@@ -2435,11 +2385,6 @@ public final class WalletData {
                     .setUserId(0)
                     .setAuthUserId(0)
                     .setCreateTime(0)
-                    .setTries(0)
-                    .setMaxTries(0)
-                    .setMaxTryTime(0)
-                    .setLastTryTime(0)
-                    .setNextTryTime(0)
                     .setState(TRANSACTION_STATE_NEW)
                     .setTargetConf(0)
                     .setSatPerByte(0)

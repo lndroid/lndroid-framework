@@ -83,7 +83,7 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public void stop(PluginContext ctx) {
-        engine_.onDone(id(), ctx);
+        engine_.onDone(id(), ctx, true);
     }
 
     @Override

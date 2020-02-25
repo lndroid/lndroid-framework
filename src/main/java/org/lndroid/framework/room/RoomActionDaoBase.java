@@ -10,6 +10,7 @@ abstract class RoomActionDaoBase<Request, Response> {
     private RoomTransactions.TransactionDao txDao_;
 
     protected RoomTransactions.TransactionDao txDao() { return txDao_; };
+    protected String pluginId() { return pluginId_; }
 
     public void init (String pluginId, RoomTransactions.TransactionDao txDao) {
         pluginId_ = pluginId;

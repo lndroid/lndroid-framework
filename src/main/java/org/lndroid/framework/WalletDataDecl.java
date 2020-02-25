@@ -717,22 +717,6 @@ public class WalletDataDecl {
         int closeType();
         // =======================
 
-        // lndroid fields
-        // current number of tries
-        int tries();
-
-        // max number of tries
-        int maxTries();
-
-        // deadline for retries, in ms
-        long maxTryTime();
-
-        // last time we retried, in ms
-        long lastTryTime();
-
-        // next time we'll retry, in ms
-        long nextTryTime();
-
         // see above
         int state();
 
@@ -950,14 +934,6 @@ public class WalletDataDecl {
         // either id or channelPoint must be provided
         long channelId();
 
-        /**
-         The outpoint (txid:index) of the funding transaction. With this value, Bob
-         will be able to generate a signature for Alice's version of the commitment
-         transaction.
-         */
-        @Nullable
-        String channelPoint();
-
         /// If true, then the channel will be closed forcibly. This means the current commitment transaction will be signed and broadcast.
         boolean force();
 
@@ -1157,22 +1133,7 @@ public class WalletDataDecl {
         @Nullable
         String purpose();
 
-        // current number of tries
-        int tries();
-
-        // max number of tries
-        int maxTries();
-
-        // deadline for retries, in ms
-        long maxTryTime();
-
-        // last time we retried, in ms
-        long lastTryTime();
-
-        // next time we'll retry, in ms
-        long nextTryTime();
-
-        // 0 - pending, 1 - sent, 2 - failed, 3 - sending, 4 - rejected by user
+        // see at WalletData
         int state();
 
         // error code if state=failed
@@ -1502,21 +1463,6 @@ public class WalletDataDecl {
         // internal description to be presented to the user
         @Nullable
         String purpose();
-
-        // current number of tries
-        int tries();
-
-        // max number of tries
-        int maxTries();
-
-        // deadline for retries, in ms
-        long maxTryTime();
-
-        // last time we retried, in ms
-        long lastTryTime();
-
-        // next time we'll retry, in ms
-        long nextTryTime();
 
         // 0 - pending, 1 - sent, 2 - failed, 3 - sending, 4 - rejected by user
         int state();

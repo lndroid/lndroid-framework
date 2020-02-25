@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 64,
-    "identityHash": "7e62f7cfa4087c8f1d975ebd9dca9d0d",
+    "identityHash": "d1c31dced6ba5aea4455766bae837722",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -98,7 +98,7 @@
       },
       {
         "tableName": "Channel",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `txId` TEXT, `authUserId` INTEGER, `description` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `minHtlcMsat` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER, `chainHashHex` TEXT, `closingTxHashHex` TEXT, `closeHeight` INTEGER, `settledBalance` INTEGER, `timeLockedBalance` INTEGER, `closeType` INTEGER, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `createTime` INTEGER, `openTime` INTEGER, `closeTime` INTEGER, `active` INTEGER, `remotePubkey` TEXT, `channelPoint` TEXT, `chanId` INTEGER, `capacity` INTEGER, `localBalance` INTEGER, `remoteBalance` INTEGER, `confirmationHeight` INTEGER, `limboBalance` INTEGER, `maturityHeight` INTEGER, `recoveredBalance` INTEGER, `commitFee` INTEGER, `commitWeight` INTEGER, `feePerKw` INTEGER, `unsettledBalance` INTEGER, `totalSatoshisSent` INTEGER, `totalSatoshisReceived` INTEGER, `numUpdates` INTEGER, `csvDelay` INTEGER, `isPrivate` INTEGER, `initiator` INTEGER, `chanStatusFlags` TEXT, `localChanReserveSat` INTEGER, `remoteChanReserveSat` INTEGER, `staticRemoteKey` INTEGER, `lifetime` INTEGER, `uptime` INTEGER, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `txId` TEXT, `authUserId` INTEGER, `description` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `minHtlcMsat` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER, `chainHashHex` TEXT, `closingTxHashHex` TEXT, `closeHeight` INTEGER, `settledBalance` INTEGER, `timeLockedBalance` INTEGER, `closeType` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `createTime` INTEGER, `openTime` INTEGER, `closeTime` INTEGER, `active` INTEGER, `remotePubkey` TEXT, `channelPoint` TEXT, `chanId` INTEGER, `capacity` INTEGER, `localBalance` INTEGER, `remoteBalance` INTEGER, `confirmationHeight` INTEGER, `limboBalance` INTEGER, `maturityHeight` INTEGER, `recoveredBalance` INTEGER, `commitFee` INTEGER, `commitWeight` INTEGER, `feePerKw` INTEGER, `unsettledBalance` INTEGER, `totalSatoshisSent` INTEGER, `totalSatoshisReceived` INTEGER, `numUpdates` INTEGER, `csvDelay` INTEGER, `isPrivate` INTEGER, `initiator` INTEGER, `chanStatusFlags` TEXT, `localChanReserveSat` INTEGER, `remoteChanReserveSat` INTEGER, `staticRemoteKey` INTEGER, `lifetime` INTEGER, `uptime` INTEGER, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -199,36 +199,6 @@
           {
             "fieldPath": "data_.closeType",
             "columnName": "closeType",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.tries",
-            "columnName": "tries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.maxTries",
-            "columnName": "maxTries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.maxTryTime",
-            "columnName": "maxTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.lastTryTime",
-            "columnName": "lastTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.nextTryTime",
-            "columnName": "nextTryTime",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -1428,7 +1398,7 @@
       },
       {
         "tableName": "SendPayment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `invoiceDescription` TEXT, `invoiceDescriptionHashHex` TEXT, `invoiceFallbackAddr` TEXT, `paymentAddrHex` TEXT, `invoiceTimestamp` INTEGER, `invoiceExpiry` INTEGER, `destPubkey` TEXT, `valueMsat` INTEGER, `totalValueMsat` INTEGER, `paymentHashHex` TEXT, `paymentRequest` TEXT, `finalCltvDelta` INTEGER, `feeLimitFixedMsat` INTEGER, `feeLimitPercent` INTEGER, `outgoingChanId` INTEGER, `cltvLimit` INTEGER, `destCustomRecords` BLOB, `paymentError` TEXT, `paymentPreimageHex` TEXT, `routeHints` TEXT, `features` TEXT, `createTime` INTEGER, `sendTime` INTEGER, `feeMsat` INTEGER, `contactPubkey` TEXT, `message` TEXT, `senderPubkey` TEXT, `isKeysend` INTEGER, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `invoiceDescription` TEXT, `invoiceDescriptionHashHex` TEXT, `invoiceFallbackAddr` TEXT, `paymentAddrHex` TEXT, `invoiceTimestamp` INTEGER, `invoiceExpiry` INTEGER, `destPubkey` TEXT, `valueMsat` INTEGER, `totalValueMsat` INTEGER, `paymentHashHex` TEXT, `paymentRequest` TEXT, `finalCltvDelta` INTEGER, `feeLimitFixedMsat` INTEGER, `feeLimitPercent` INTEGER, `outgoingChanId` INTEGER, `cltvLimit` INTEGER, `destCustomRecords` BLOB, `paymentError` TEXT, `paymentPreimageHex` TEXT, `routeHints` TEXT, `features` TEXT, `createTime` INTEGER, `sendTime` INTEGER, `feeMsat` INTEGER, `contactPubkey` TEXT, `message` TEXT, `senderPubkey` TEXT, `isKeysend` INTEGER, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -1464,36 +1434,6 @@
             "fieldPath": "data_.purpose",
             "columnName": "purpose",
             "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.tries",
-            "columnName": "tries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.maxTries",
-            "columnName": "maxTries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.maxTryTime",
-            "columnName": "maxTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.lastTryTime",
-            "columnName": "lastTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.nextTryTime",
-            "columnName": "nextTryTime",
-            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -1974,7 +1914,7 @@
       },
       {
         "tableName": "Transaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `sendTime` INTEGER, `purpose` TEXT, `tries` INTEGER, `maxTries` INTEGER, `maxTryTime` INTEGER, `lastTryTime` INTEGER, `nextTryTime` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `addrToAmount` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `sendAll` INTEGER, `txHash` TEXT, `amount` INTEGER, `numConfirmations` INTEGER, `blockHash` TEXT, `blockHeight` INTEGER, `timestamp` INTEGER, `totalFees` INTEGER, `destAddresses` TEXT, `rawTxHex` TEXT, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `sendTime` INTEGER, `purpose` TEXT, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `addrToAmount` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `sendAll` INTEGER, `txHash` TEXT, `amount` INTEGER, `numConfirmations` INTEGER, `blockHash` TEXT, `blockHeight` INTEGER, `timestamp` INTEGER, `totalFees` INTEGER, `destAddresses` TEXT, `rawTxHex` TEXT, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -2022,36 +1962,6 @@
             "fieldPath": "data_.purpose",
             "columnName": "purpose",
             "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.tries",
-            "columnName": "tries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.maxTries",
-            "columnName": "maxTries",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.maxTryTime",
-            "columnName": "maxTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.lastTryTime",
-            "columnName": "lastTryTime",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.nextTryTime",
-            "columnName": "nextTryTime",
-            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -2902,7 +2812,7 @@
       },
       {
         "tableName": "txCloseChannelRequest",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `channelId` INTEGER, `channelPoint` TEXT, `force` INTEGER, `targetConf` INTEGER, `satPerByte` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `channelId` INTEGER, `force` INTEGER, `targetConf` INTEGER, `satPerByte` INTEGER)",
         "fields": [
           {
             "fieldPath": "id_",
@@ -2914,12 +2824,6 @@
             "fieldPath": "data.channelId",
             "columnName": "channelId",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data.channelPoint",
-            "columnName": "channelPoint",
-            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -3490,7 +3394,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7e62f7cfa4087c8f1d975ebd9dca9d0d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd1c31dced6ba5aea4455766bae837722')"
     ]
   }
 }

@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.dao.IChannelStateWorkerDao;
 import org.lndroid.framework.engine.IPluginBackground;
 import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.lnd.ILightningDao;
@@ -22,7 +21,14 @@ import lnrpc.Rpc;
 
 public class ChannelStateWorker implements IPluginBackground {
 
-    public interface IDao extends IChannelStateWorkerDao{};
+    public interface IDao {
+        WalletData.Channel getChannelByChannelPoint(String channelPoint);
+        List<Job> getOpeningJobs();
+        List<Job> getClosingJobs();
+        void updateChannel(Job job, WalletData.Channel c);
+        void updateJob(Job job);
+        void setChannelActive(String channelPoint, boolean active);
+    };
 
     private static final String TAG = "ChannelStateWorker";
 
@@ -65,7 +71,30 @@ public class ChannelStateWorker implements IPluginBackground {
     }
 
     private void update(WalletData.Channel.Builder b){
-        dao_.updateChannel(b.build());
+        Job job = null;
+        List<Job> jobs = dao_.getOpeningJobs();
+        for(Job j: jobs) {
+            WalletData.Channel c = (WalletData.Channel)j.objects.get(0);
+            if (c.id() == b.id()) {
+                job = j;
+                job.job.jobState = Transaction.JOB_STATE_DONE;
+            }
+        }
+        if (job == null) {
+            jobs = dao_.getClosingJobs();
+            for(Job j: jobs) {
+                WalletData.Channel c = (WalletData.Channel)j.objects.get(0);
+                if (c.id() == b.id()) {
+                    job = j;
+                    if (b.state() == WalletData.CHANNEL_STATE_OPEN)
+                        job.job.jobState = Transaction.JOB_STATE_RETRY;
+                    else
+                        job.job.jobState = Transaction.JOB_STATE_DONE;
+                }
+            }
+        }
+
+        dao_.updateChannel(job, b.build());
         engine_.onSignal(id(), DefaultTopics.CHANNEL_STATE, null);
     }
 
@@ -170,10 +199,18 @@ public class ChannelStateWorker implements IPluginBackground {
         // now we're synched and ready to process new events
         synched_ = true;
 
-        // mark all non-updated channels as 'retry'
-        List<WalletData.Channel> cs = dao_.getOpeningChannels();
-        for(WalletData.Channel c: cs) {
-            dao_.updateChannel(c.toBuilder().setState(WalletData.CHANNEL_STATE_RETRY).build());
+        // mark all non-updated open-channel jobs as 'retry'
+        List<Job> jobs = dao_.getOpeningJobs();
+        for(Job job: jobs) {
+            job.job.jobState = Transaction.JOB_STATE_RETRY;
+            dao_.updateJob(job);
+        }
+
+        // mark all non-updated close-channel jobs as 'retry'
+        jobs = dao_.getClosingJobs();
+        for(Job job: jobs) {
+            job.job.jobState = Transaction.JOB_STATE_RETRY;
+            dao_.updateJob(job);
         }
 
         // process buffered new events

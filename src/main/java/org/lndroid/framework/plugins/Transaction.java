@@ -44,6 +44,28 @@ public class Transaction<Request> {
         // that tx has no side-effets and thus may be safely repeated
         public String responseClass;
         public long responseId;
+
+        public TransactionData(String pluginId, long userId, String txId) {
+            this.pluginId = pluginId;
+            this.userId = userId;
+            this.txId = txId;
+
+            state = 0;
+            createTime = 0;
+            deadlineTime = 0;
+            doneTime = 0;
+            authUserId = 0;
+            authTime = 0;
+
+            errorCode = null;
+            errorMessage = null;
+
+            requestClass = null;
+            requestId = 0;
+
+            responseClass = null;
+            responseId = 0;
+        }
     }
 
     public static class JobData{
@@ -71,9 +93,22 @@ public class Transaction<Request> {
 
         // error message
         public String jobErrorMessage;
+
+        public JobData() {
+            tries = 0;
+            maxTries = 0;
+            maxTryTime = 0;
+            lastTryTime = 0;
+            nextTryTime = 0;
+            jobState = 0;
+            jobErrorCode = null;
+            jobErrorMessage = null;
+        }
     }
 
+    @NonNull
     public TransactionData tx;
+    @NonNull
     public JobData job;
 
     // Embedded request: we need to store request bcs
@@ -83,4 +118,9 @@ public class Transaction<Request> {
     // requests are not entities but only partial info on target
     // entity.
     public Request request;
+
+    public Transaction() {
+        // NOTE: txData requires params, so it's initialized separately
+        job = new JobData();
+    }
 }

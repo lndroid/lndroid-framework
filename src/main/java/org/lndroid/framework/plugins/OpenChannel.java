@@ -36,7 +36,6 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
                 .setAuthUserId(authUserId)
                 .setDescription(req.description())
                 .setRemotePubkey(req.nodePubkey())
-                // FIXME is this right?
                 .setCapacity(req.localFundingAmount())
                 .setLocalBalance(req.localFundingAmount() - req.pushSat())
                 .setRemoteBalance(req.pushSat())
@@ -47,7 +46,6 @@ public class OpenChannel extends JobBase<WalletData.OpenChannelRequest, WalletDa
                 .setMinHtlcMsat(req.minHtlcMsat())
                 .setMinConfs(req.minConfs())
                 .setSpendUnconfirmed(req.spendUnconfirmed())
-                // FIXME is this right?
                 .setCsvDelay(req.remoteCsvDelay())
                 .setCreateTime(System.currentTimeMillis())
                 .build();

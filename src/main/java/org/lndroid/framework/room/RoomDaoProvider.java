@@ -89,7 +89,7 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.SEND_PAYMENT, new SendPaymentDao(
                 db_.sendPaymentDao(), db_.txDao(), db_.routeHintsDao()));
         pluginDaos_.put(DefaultPlugins.SEND_PAYMENT_WORKER, new SendPaymentWorkerDao(
-                db_.sendPaymentWorkerDao(), db_.routeHintsDao()));
+                db_.sendPaymentWorkerDao(), db_.txDao(), db_.routeHintsDao()));
         pluginDaos_.put(DefaultPlugins.GET_SEND_PAYMENT, new GetSendPaymentDao(
                 db_.getSendPaymentDao()));
         pluginDaos_.put(DefaultPlugins.SUBSCRIBE_SEND_PAYMENTS, new SubscribeSendPaymentsDao(
@@ -98,11 +98,15 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.OPEN_CHANNEL, new OpenChannelDao(
                 db_.openChannelDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.OPEN_CHANNEL_WORKER, new OpenChannelWorkerDao(
-                db_.openChannelWorkerDao()));
+                db_.openChannelWorkerDao(), db_.txDao()));
+        pluginDaos_.put(DefaultPlugins.CLOSE_CHANNEL, new CloseChannelDao(
+                db_.closeChannelDao(), db_.txDao()));
+        pluginDaos_.put(DefaultPlugins.CLOSE_CHANNEL_WORKER, new CloseChannelWorkerDao(
+                db_.closeChannelWorkerDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.GET_CHANNEL, new GetChannelDao(
                 db_.getChannelDao()));
         pluginDaos_.put(DefaultPlugins.CHANNEL_STATE_WORKER, new ChannelStateWorkerDao(
-                db_.channelStateWorkerDao()));
+                db_.channelStateWorkerDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.LIST_CHANNELS, new ListChannelsDao(
                 db_.listChannelsDao()));
 
@@ -132,9 +136,9 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.SEND_COINS, new SendCoinsDao(
                 db_.sendCoinsDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.SEND_COINS_WORKER, new SendCoinsWorkerDao(
-                db_.sendCoinsWorkerDao()));
+                db_.sendCoinsWorkerDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.TRANSACTION_STATE_WORKER, new TransactionStateWorkerDao(
-                db_.transactionStateWorkerDao()));
+                db_.transactionStateWorkerDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.GET_TRANSACTION, new GetTransactionDao(
                 db_.getTransactionDao()));
         pluginDaos_.put(DefaultPlugins.LIST_TRANSACTIONS, new ListTransactionsDao(

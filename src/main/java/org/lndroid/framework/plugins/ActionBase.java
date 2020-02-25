@@ -85,7 +85,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
 
         // send response
         engine_.onReply(id(), ctx, response, getResponseType());
-        engine_.onDone(id(), ctx);
+        engine_.onDone(id(), ctx, true);
     }
 
     @Override
@@ -114,7 +114,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, getResponseType());
-                    engine_.onDone(id(), ctx);
+                    engine_.onDone(id(), ctx, true);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
                 }
@@ -133,9 +133,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
 
         // create tx
         tx = new Transaction<>();
-        tx.tx = new Transaction.TransactionData();
-        tx.tx.userId = ctx.user.id();
-        tx.tx.txId = ctx.txId;
+        tx.tx = new Transaction.TransactionData(id(), ctx.user.id(), ctx.txId);
         tx.request = req;
         tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;

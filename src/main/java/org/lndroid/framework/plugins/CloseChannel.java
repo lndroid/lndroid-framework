@@ -28,14 +28,13 @@ public class CloseChannel extends JobBase<WalletData.CloseChannelRequest, Wallet
 
     @Override
     protected WalletData.Channel createResponse(PluginContext ctx, WalletData.CloseChannelRequest req, long authUserId) {
-        // FIXME or channelPoint?
         return dao().getResponse(req.channelId());
     }
 
     @Override
     protected boolean isValid(WalletData.CloseChannelRequest req) {
-        // FIXME check that channel exists!
-        return true;
+        WalletData.Channel c = dao().getResponse(req.channelId());
+        return c != null && c.state() == WalletData.CHANNEL_STATE_OPEN;
     }
 
     @Override

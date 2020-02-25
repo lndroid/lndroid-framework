@@ -15,8 +15,8 @@ import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.OpenChannel;
 import org.lndroid.framework.plugins.Transaction;
 
-public class OpenChannelDao
-        extends ActionDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>
+class OpenChannelDao
+        extends JobDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>
         implements OpenChannel.IDao
 {
     public static final String PLUGIN_ID = DefaultPlugins.OPEN_CHANNEL;
@@ -27,12 +27,13 @@ public class OpenChannelDao
     }
 
     @Dao
-    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>{
+    abstract static class DaoRoom extends RoomJobDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>{
 
         @Override @androidx.room.Transaction
         public WalletData.Channel commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.Channel r, long time) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, r, time);
+                long txUserId, String txId, long txAuthUserId, WalletData.Channel r, long time,
+                int maxTries, long maxTryTime) {
+            return commitTransactionImpl(txUserId, txId, txAuthUserId, r, time, maxTries, maxTryTime);
         }
 
         @Override @androidx.room.Transaction

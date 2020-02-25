@@ -20,6 +20,8 @@ import org.lndroid.framework.plugins.AddUser;
 import org.lndroid.framework.plugins.ChannelBackupWorker;
 import org.lndroid.framework.plugins.ChannelBalanceWorker;
 import org.lndroid.framework.plugins.ChannelStateWorker;
+import org.lndroid.framework.plugins.CloseChannel;
+import org.lndroid.framework.plugins.CloseChannelWorker;
 import org.lndroid.framework.plugins.ConnectPeer;
 import org.lndroid.framework.plugins.DecodePayReq;
 import org.lndroid.framework.plugins.EstimateFee;
@@ -149,6 +151,8 @@ public class DefaultPluginProvider implements IPluginProvider {
 
         plugins_.put(DefaultPlugins.OPEN_CHANNEL, new ForegroundPlugin(new OpenChannel()));
         plugins_.put(DefaultPlugins.OPEN_CHANNEL_WORKER, new BackgroundPlugin(new OpenChannelWorker()));
+        plugins_.put(DefaultPlugins.CLOSE_CHANNEL, new ForegroundPlugin(new CloseChannel()));
+        plugins_.put(DefaultPlugins.CLOSE_CHANNEL_WORKER, new BackgroundPlugin(new CloseChannelWorker()));
         plugins_.put(DefaultPlugins.CHANNEL_STATE_WORKER, new BackgroundPlugin(new ChannelStateWorker()));
         plugins_.put(DefaultPlugins.GET_CHANNEL, new ForegroundPlugin(new GetChannel()));
         plugins_.put(DefaultPlugins.LIST_CHANNELS, new ForegroundPlugin(new ListChannels()));

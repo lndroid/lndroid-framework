@@ -43,8 +43,10 @@ public class SendPaymentDao
     }
 
     @Override
-    public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p) {
-        return dao_.commitTransaction(txUserId, txId, txAuthUserId, p, System.currentTimeMillis());
+    public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p,
+                                                int maxTries, long maxTryTime) {
+        return dao_.commitTransaction(txUserId, txId, txAuthUserId, p, System.currentTimeMillis(),
+                maxTries, maxTryTime);
     }
 
     @Override
@@ -52,8 +54,13 @@ public class SendPaymentDao
         throw new RuntimeException("Unsupported method");
     }
 
+    @Override
+    public WalletData.SendPayment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.SendPayment r, int maxTries, long maxTryTime) {
+        throw new RuntimeException("Unsupported method");
+    }
+
     @Dao
-    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.SendPaymentRequest, WalletData.SendPayment>{
+    abstract static class DaoRoom extends RoomJobDaoBase<WalletData.SendPaymentRequest, WalletData.SendPayment>{
 
         RouteHintsDaoRoom routeDao;
 
@@ -161,8 +168,10 @@ public class SendPaymentDao
         }
 
         @androidx.room.Transaction
-        public WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId,
-                                                    WalletData.Payment payment, long time) {
+        public WalletData.Payment commitTransaction(
+                long txUserId, String txId, long txAuthUserId,
+                WalletData.Payment payment, long time,
+                int maxTries, long maxTryTime) {
 
             // get sendpayment to be written
             WalletData.SendPayment sp = payment.sendPayments().get(payment.sourceId());
@@ -179,6 +188,7 @@ public class SendPaymentDao
             insertPayment(rp);
 
             // update tx state: confirm and commit
+            txDao().initTransactionJob(PLUGIN_ID, txUserId, txId, maxTries, maxTryTime);
             txDao().confirmTransaction(PLUGIN_ID, txUserId, txId, txAuthUserId, time);
             txDao().commitTransaction(PLUGIN_ID, txUserId, txId,
                     org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED,
@@ -187,5 +197,10 @@ public class SendPaymentDao
             return payment;
         }
 
+        public WalletData.SendPayment commitTransaction(
+                long txUserId, String txId, long txAuthUserId, WalletData.SendPayment r, long time,
+                int maxTries, long maxTryTime) {
+            throw new RuntimeException("Unsupported method");
+        }
     }
 }

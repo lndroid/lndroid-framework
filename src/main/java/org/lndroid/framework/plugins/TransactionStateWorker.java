@@ -20,8 +20,9 @@ public class TransactionStateWorker implements IPluginBackground {
 
     public interface IDao {
         WalletData.Transaction getTransaction(String txHash);
-        List<WalletData.Transaction> getSendingTransactions();
-        void updateTransaction(WalletData.Transaction t);
+        List<Job> getSendingJobs();
+        void updateTransaction(Job job, WalletData.Transaction t);
+        void updateJob(Job job);
     }
 
     private static final String TAG = "TransactionStateWorker";
@@ -51,6 +52,7 @@ public class TransactionStateWorker implements IPluginBackground {
         Log.i(TAG, "tx update up "+u);
 
         WalletData.Transaction tx = dao_.getTransaction(u.txHash);
+        Job job = null;
         if (tx == null) {
             // if we were interrupted while sending new tx,
             // or if we get notified before sender gets txHash,
@@ -61,8 +63,9 @@ public class TransactionStateWorker implements IPluginBackground {
             // - so timestamp should be around lastTryTime
             // - amount should be same?
             // - dest addresses should be same
-            List<WalletData.Transaction> txs = dao_.getSendingTransactions();
-            for (WalletData.Transaction t: txs) {
+            List<Job> jobs = dao_.getSendingJobs();
+            for (Job j: jobs) {
+                WalletData.Transaction t = (WalletData.Transaction)j.objects.get(0);
                 long amount = 0;
                 if (t.addrToAmount() != null) {
                     for (long a : t.addrToAmount().values())
@@ -73,13 +76,14 @@ public class TransactionStateWorker implements IPluginBackground {
                 for (String a: u.destAddresses)
                     addressesMatch &= t.addrToAmount().containsKey(a);
                 // FIXME check this!
-                boolean timestampMatch = u.timeStamp >= (t.lastTryTime() / 1000);
+                boolean timestampMatch = u.timeStamp >= (job.job.lastTryTime / 1000);
                 boolean amountMatch = t.sendAll() || amount == t.amount();
 
                 Log.i(TAG, "maybe tx "+t+" addressesMatch "+addressesMatch+
                         " timestampMatch "+timestampMatch+" amountMatch "+amountMatch);
                 if (addressesMatch && timestampMatch && amountMatch) {
                     tx = t;
+                    job = j;
                     break;
                 }
             }
@@ -95,7 +99,10 @@ public class TransactionStateWorker implements IPluginBackground {
 
         LightningCodec.TransactionConverter.decode(u, b);
         b.setState(WalletData.TRANSACTION_STATE_SENT);
-        dao_.updateTransaction(b.build());
+        if (job != null)
+            job.job.jobState = Transaction.JOB_STATE_DONE;
+
+        dao_.updateTransaction(job, b.build());
 
         engine_.onSignal(id(), DefaultTopics.TRANSACTION_STATE, null);
     }
@@ -129,8 +136,8 @@ public class TransactionStateWorker implements IPluginBackground {
             }
         });
 
-        List<WalletData.Transaction> txs = dao_.getSendingTransactions();
-        if (txs == null || txs.isEmpty()) {
+        List<Job> jobs = dao_.getSendingJobs();
+        if (jobs == null || jobs.isEmpty()) {
             synched_ = true;
             return;
         }
@@ -158,9 +165,10 @@ public class TransactionStateWorker implements IPluginBackground {
                     onUpdate(t);
 
                 // mark all non-updated channels as 'retry'
-                List<WalletData.Transaction> txs = dao_.getSendingTransactions();
-                for(WalletData.Transaction t: txs) {
-                    dao_.updateTransaction(t.toBuilder().setState(WalletData.TRANSACTION_STATE_RETRY).build());
+                List<Job> jobs = dao_.getSendingJobs();
+                for(Job job: jobs) {
+                    job.job.jobState = Transaction.JOB_STATE_RETRY;
+                    dao_.updateJob(job);
                 }
 
                 // now we're synched and ready to process new events

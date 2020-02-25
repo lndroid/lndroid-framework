@@ -1216,15 +1216,19 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     @Override
-    public void onDone(String pluginId, PluginContext ctx) {
-        Log.i(TAG, "onDone plugin "+pluginId+" user "+ctx.user.id()+" tx "+ctx.txId);
-        PluginData.PluginMessage pm = PluginData.PluginMessage.builder()
-                .setType(PluginData.MESSAGE_TYPE_DONE)
-                .setPluginId(pluginId)
-                .setTxId(ctx.txId)
-                .build();
+    public void onDone(String pluginId, PluginContext ctx, boolean notifyClient) {
+        Log.i(TAG, "onDone plugin "+pluginId+" user "+ctx.user.id()+" tx "+ctx.txId+
+                " notify "+notifyClient);
 
-        sendTxReply(ctx, pm);
+        if (notifyClient) {
+            PluginData.PluginMessage pm = PluginData.PluginMessage.builder()
+                    .setType(PluginData.MESSAGE_TYPE_DONE)
+                    .setPluginId(pluginId)
+                    .setTxId(ctx.txId)
+                    .build();
+
+            sendTxReply(ctx, pm);
+        }
 
         releaseContext(pluginId, ctx);
     }

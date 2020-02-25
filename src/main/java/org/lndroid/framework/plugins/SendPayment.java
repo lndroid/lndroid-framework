@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.dao.IActionDao;
+import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.defaults.DefaultTopics;
@@ -21,7 +21,7 @@ import org.lndroid.framework.lnd.LightningCodec;
 // Job
 public class SendPayment implements IPluginForeground {
 
-    public interface IDao extends IActionDao<WalletData.SendPaymentRequest, WalletData.SendPayment> {
+    public interface IDao extends IJobDao<WalletData.SendPaymentRequest, WalletData.SendPayment> {
 
         String walletPubkey();
 
@@ -31,7 +31,8 @@ public class SendPayment implements IPluginForeground {
 
         // write response to db (if required), attach response to tx, set to COMMITTED state,
         // resp.id will be initialized after this call.
-        WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.Payment p);
+        WalletData.Payment commitTransaction(long txUserId, String txId, long txAuthUserId,
+                                             WalletData.Payment p, int maxTries, long maxTryTime);
     }
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
@@ -106,8 +107,6 @@ public class SendPayment implements IPluginForeground {
                 .setInvoiceDescriptionHashHex(req.invoiceDescriptionHashHex())
                 .setInvoiceTimestamp(req.invoiceTimestamp())
                 .setInvoiceFallbackAddr(req.invoiceFallbackAddr())
-                .setMaxTryTime(req.expiry())
-                .setMaxTries(req.maxTries())
                 .setDestPubkey(req.destPubkey() != null
                         ? req.destPubkey()
                         : (c != null ? c.pubkey() : null)
@@ -146,11 +145,13 @@ public class SendPayment implements IPluginForeground {
     }
 
     private void commit(PluginContext ctx, long authUserId) {
+        WalletData.SendPaymentRequest req = (WalletData.SendPaymentRequest)ctx.request;
+
         // convert request to response
-        WalletData.Payment p = createResponse(ctx, (WalletData.SendPaymentRequest)ctx.request, authUserId);
+        WalletData.Payment p = createResponse(ctx, req, authUserId);
 
         // store response in finished tx
-        p = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, p);
+        p = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, p, req.maxTries(), req.expiry());
 
         // notify other plugins
         PluginData.PluginNotification n = new PluginData.PluginNotification();
@@ -161,7 +162,7 @@ public class SendPayment implements IPluginForeground {
 
         // response to client
         engine_.onReply(id(), ctx, p.sendPayments().entrySet().iterator().next().getValue(), WalletData.SendPayment.class);
-        engine_.onDone(id(), ctx);
+        engine_.onDone(id(), ctx, true);
     }
 
     @Override
@@ -178,7 +179,7 @@ public class SendPayment implements IPluginForeground {
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, WalletData.SendPayment.class);
-                    engine_.onDone(id(), ctx);
+                    engine_.onDone(id(), ctx, true);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
                 }
@@ -212,8 +213,7 @@ public class SendPayment implements IPluginForeground {
 
         // create tx
         tx = new Transaction<>();
-        tx.tx.userId = ctx.user.id();
-        tx.tx.txId = ctx.txId;
+        tx.tx = new Transaction.TransactionData(id(), ctx.user.id(), ctx.txId);
         tx.request = req;
         tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;

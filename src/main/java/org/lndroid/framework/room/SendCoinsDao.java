@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SendCoinsDao
-        extends ActionDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>
+        extends JobDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>
         implements SendCoins.IDao
 {
     public static final String PLUGIN_ID = DefaultPlugins.SEND_COINS;
@@ -27,12 +27,18 @@ public class SendCoinsDao
     }
 
     @Dao
-    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>{
+    abstract static class DaoRoom extends RoomJobDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>{
+
+        public WalletData.Transaction commitTransaction(
+                long userId, String txId, long txAuthUserId, WalletData.Transaction r, long time) {
+            throw new RuntimeException("Unsupported method");
+        }
 
         @Override @androidx.room.Transaction
         public WalletData.Transaction commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.Transaction r, long time) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, r, time);
+                long userId, String txId, long txAuthUserId, WalletData.Transaction r, long time,
+                int maxTries, long maxTryTime) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, r, time, maxTries, maxTryTime);
         }
 
         @Override @androidx.room.Transaction

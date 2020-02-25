@@ -19,10 +19,13 @@ import java.util.List;
 public class SendCoinsWorker implements IPluginBackground {
 
     public interface IDao {
-        List<WalletData.Transaction> getNewTransactions();
-        List<WalletData.Transaction> getSendingTransactions();
-        List<WalletData.Transaction> getRetryTransactions();
-        void updateTransaction(WalletData.Transaction t);
+
+        List<Job> getNewJobs(long now);
+        List<Job> getSendingJobs();
+        List<Job> getRetryJobs();
+
+        void updateJob(Job j);
+        void updateTransaction(Job j, WalletData.Transaction t);
     }
 
     private static final String TAG = "SendCoinsWorker";
@@ -51,61 +54,62 @@ public class SendCoinsWorker implements IPluginBackground {
         // - get all payments w/ 'opening' state from db
         // - mark as Lost, let StateWorker sync w/ lnd and
         //   either update this channel to proper state, or set state to RETRY
-        List<WalletData.Transaction> pending = dao_.getSendingTransactions();
-        for (WalletData.Transaction t: pending) {
-            onUpdate(t.toBuilder().setState(WalletData.TRANSACTION_STATE_LOST).build());
+        List<Job> sending = dao_.getSendingJobs();
+        for (Job j: sending) {
+            j.job.jobState = Transaction.JOB_STATE_LOST;
+            dao_.updateJob(j);
         }
     }
 
-    private void onUpdate(WalletData.Transaction t) {
-        dao_.updateTransaction(t);
+    private void onUpdate(Job job, WalletData.Transaction t) {
+        dao_.updateTransaction(job, t);
         engine_.onSignal(id(), DefaultTopics.TRANSACTION_STATE, null);
     }
 
-    private void onFailed(WalletData.Transaction c, WalletData.Transaction.Builder b) {
+    private void onFailed(Job job, WalletData.Transaction.Builder b) {
         // FIXME check if it's permanent failure or not
 
-        int tries = c.tries();
-        tries++;
+        job.job.tries++;
 
-        if (tries >= c.maxTries() || System.currentTimeMillis() > c.maxTryTime()) {
+        if (job.job.tries >= job.job.maxTries || System.currentTimeMillis() > job.job.maxTryTime) {
+            job.job.jobState = Transaction.JOB_STATE_FAILED;
+            job.job.jobErrorMessage = b.errorMessage();
+            job.job.jobErrorCode = b.errorCode();
             b.setState(WalletData.TRANSACTION_STATE_FAILED);
         } else {
-            b.setNextTryTime(System.currentTimeMillis() + TRY_INTERVAL);
-            b.setState(WalletData.TRANSACTION_STATE_NEW);
+            job.job.jobState = Transaction.JOB_STATE_NEW;
+            job.job.nextTryTime = System.currentTimeMillis() + TRY_INTERVAL;
         }
     }
 
-    private WalletData.Transaction prepare(WalletData.Transaction.Builder b){
+    private void writeStartJob(Job job){
 
         // mark as opening
-        b.setState(WalletData.TRANSACTION_STATE_SENDING);
-        b.setLastTryTime(System.currentTimeMillis());
+        job.job.jobState = Transaction.JOB_STATE_EXECUTING;
+        job.job.lastTryTime = System.currentTimeMillis();
 
         // ensure deadline
-        if (b.maxTryTime() == 0) {
-            b.setMaxTryTime(b.lastTryTime() + DEFAULT_EXPIRY);
+        if (job.job.maxTryTime == 0) {
+            job.job.maxTryTime = job.job.lastTryTime + DEFAULT_EXPIRY;
         }
 
-        return b.build();
+        dao_.updateJob(job);
     }
 
-    private void onLndError(WalletData.Transaction ut, int code, String error) {
+    private void onLndError(Job job, WalletData.Transaction ut, int code, String error) {
         Log.e(TAG, "send coins error "+code+" err "+error);
 
         WalletData.Transaction.Builder b = ut.toBuilder();
         b.setErrorCode(Errors.LND_ERROR);
         b.setErrorMessage(error);
 
-        onFailed(ut, b);
+        onFailed(job, b);
 
         // write
-        onUpdate(b.build());
+        onUpdate(job, b.build());
     }
 
-    private void sendCoins(WalletData.Transaction t) {
-
-        WalletData.Transaction.Builder b = t.toBuilder();
+    private void sendCoins(final Job job, final WalletData.Transaction t) {
 
         // convert to lnd request
         Data.SendCoinsRequest r = new Data.SendCoinsRequest();
@@ -113,40 +117,40 @@ public class SendCoinsWorker implements IPluginBackground {
         // bad payment?
         if (!LightningCodec.SendCoinsCodec.encode(t, r)) {
             Log.e(TAG, "send coins error bad request");
+            WalletData.Transaction.Builder b = t.toBuilder();
             b.setErrorCode(Errors.PLUGIN_INPUT);
             b.setErrorMessage(Errors.errorMessage(Errors.PLUGIN_INPUT));
-            b.setState(WalletData.TRANSACTION_STATE_FAILED);
-            onUpdate(b.build());
+            onFailed(job, b);
+            onUpdate(job, b.build());
             return;
         }
 
-        final WalletData.Transaction ut = prepare(b);
-
         // write opening state
-        onUpdate(ut);
+        writeStartJob(job);
 
         // send
         lnd_.client().sendCoins(r, new ILightningCallback<Data.SendCoinsResponse>() {
             @Override
             public void onResponse(Data.SendCoinsResponse r) {
                 Log.i(TAG, "send coins response "+r);
-                WalletData.Transaction.Builder b = ut.toBuilder();
+                WalletData.Transaction.Builder b = t.toBuilder();
                 LightningCodec.SendCoinsCodec.decode(r, b);
                 b.setState(WalletData.TRANSACTION_STATE_SENT);
                 b.setSendTime(System.currentTimeMillis());
-                onUpdate(b.build());
+
+                job.job.jobState = Transaction.JOB_STATE_DONE;
+                onUpdate(job, b.build());
             }
 
             @Override
             public void onError(int i, String s) {
-                onLndError(ut, i, s);
+                onLndError(job, t, i, s);
             }
         });
     }
 
-    private void sendMany(WalletData.Transaction t) {
+    private void sendMany(final Job job, final WalletData.Transaction t) {
 
-        WalletData.Transaction.Builder b = t.toBuilder();
 
         // convert to lnd request
         Data.SendManyRequest r = new Data.SendManyRequest();
@@ -154,33 +158,34 @@ public class SendCoinsWorker implements IPluginBackground {
         // bad payment?
         if (!LightningCodec.SendCoinsCodec.encode(t, r)) {
             Log.e(TAG, "send coins error bad request");
+            WalletData.Transaction.Builder b = t.toBuilder();
             b.setErrorCode(Errors.PLUGIN_INPUT);
             b.setErrorMessage(Errors.errorMessage(Errors.PLUGIN_INPUT));
-            b.setState(WalletData.TRANSACTION_STATE_FAILED);
-            onUpdate(b.build());
+            onFailed(job, b);
+            onUpdate(job, b.build());
             return;
         }
 
-        final WalletData.Transaction ut = prepare(b);
-
         // write opening state
-        onUpdate(ut);
+        writeStartJob(job);
 
         // send
         lnd_.client().sendMany(r, new ILightningCallback<Data.SendManyResponse>() {
             @Override
             public void onResponse(Data.SendManyResponse r) {
                 Log.i(TAG, "send coins response "+r);
-                WalletData.Transaction.Builder b = ut.toBuilder();
+                WalletData.Transaction.Builder b = t.toBuilder();
                 LightningCodec.SendCoinsCodec.decode(r, b);
                 b.setState(WalletData.TRANSACTION_STATE_SENT);
                 b.setSendTime(System.currentTimeMillis());
-                onUpdate(b.build());
+
+                job.job.jobState = Transaction.JOB_STATE_DONE;
+                onUpdate(job, b.build());
             }
 
             @Override
             public void onError(int i, String s) {
-                onLndError(ut, i, s);
+                onLndError(job, t, i, s);
             }
         });
     }
@@ -200,18 +205,20 @@ public class SendCoinsWorker implements IPluginBackground {
         notified_ = false;
 
         // check retried txs, move to pending or failed
-        List<WalletData.Transaction> retry = dao_.getRetryTransactions();
-        for (WalletData.Transaction t: retry) {
-            onLndError(t, -1, "Unknown lnd error");
+        List<Job> retry = dao_.getRetryJobs();
+        for (Job job: retry) {
+            WalletData.Transaction t = (WalletData.Transaction)job.objects.get(0);
+            onLndError(job, t, -1, "Unknown lnd error");
         }
 
         // exec
-        List<WalletData.Transaction> pending = dao_.getSendingTransactions();
-        for (WalletData.Transaction t: pending) {
+        List<Job> pending = dao_.getNewJobs(System.currentTimeMillis());
+        for (Job job: pending) {
+            WalletData.Transaction t = (WalletData.Transaction)job.objects.get(0);
             if (t.sendAll())
-                sendCoins(t);
+                sendCoins(job, t);
             else
-                sendMany(t);
+                sendMany(job, t);
         }
 
         nextWorkTime_ = System.currentTimeMillis() + WORK_INTERVAL;

@@ -56,7 +56,8 @@ public abstract class ListBase<Request extends WalletData.ListRequestBase, Respo
     }
 
     private void onDone(PluginContext ctx) {
-        engine_.onDone(id(), ctx);
+        Request req = (Request)ctx.request;
+        engine_.onDone(id(), ctx, req.enablePaging());
     }
 
     protected abstract WalletDataDecl.ListResultTmpl<Response> listEntities(Request req, WalletData.ListPage page, WalletData.User user);

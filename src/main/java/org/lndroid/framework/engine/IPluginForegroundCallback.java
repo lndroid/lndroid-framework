@@ -50,7 +50,7 @@ public interface IPluginForegroundCallback {
     void onError(String pluginId, PluginContext ctx, String code, String message);
 
     // called when tx resources can be released
-    void onDone(String pluginId, PluginContext ctx);
+    void onDone(String pluginId, PluginContext ctx, boolean notifyClient);
 
     // notify other plugins about some change
     void onSignal(String pluginId, String topic, Object data);

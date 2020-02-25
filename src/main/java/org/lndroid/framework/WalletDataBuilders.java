@@ -314,11 +314,6 @@ public class WalletDataBuilders {
         Builder setSettledBalance(long settledBalance);
         Builder setTimeLockedBalance(long timeLockedBalance);
         Builder setCloseType(int closeType);
-        Builder setTries(int tries);
-        Builder setMaxTries(int maxTries);
-        Builder setMaxTryTime(long maxTryTime);
-        Builder setLastTryTime(long lastTryTime);
-        Builder setNextTryTime(long nextTryTime);
         Builder setState(int state);
         Builder setErrorCode(String errorCode);
         Builder setErrorMessage(String errorMessage);
@@ -370,7 +365,6 @@ public class WalletDataBuilders {
 
     interface CloseChannelRequestBuilder<Builder> {
         Builder setChannelId(long channelId);
-        Builder setChannelPoint(String channelPoint);
         Builder setForce(boolean force);
         Builder setTargetConf(int targetConf);
         Builder setSatPerByte(long satPerByte);
@@ -438,11 +432,6 @@ public class WalletDataBuilders {
         Builder setUserId(long userId);
         Builder setAuthUserId(long authUserId);
         Builder setPurpose(String purpose);
-        Builder setTries(int tries);
-        Builder setMaxTries(int maxTries);
-        Builder setMaxTryTime(long maxTryTime);
-        Builder setLastTryTime(long lastTryTime);
-        Builder setNextTryTime(long nextTryTime);
         Builder setState(int state);
         Builder setErrorCode(String errorCode);
         Builder setErrorMessage(String errorMessage);
@@ -554,11 +543,6 @@ public class WalletDataBuilders {
         Builder setCreateTime(long createTime);
         Builder setSendTime(long sendTime);
         Builder setPurpose(String purpose);
-        Builder setTries(int tries);
-        Builder setMaxTries(int maxTries);
-        Builder setMaxTryTime(long maxTryTime);
-        Builder setLastTryTime(long lastTryTime);
-        Builder setNextTryTime(long nextTryTime);
         Builder setState(int state);
         Builder setErrorCode(String errorCode);
         Builder setErrorMessage(String errorMessage);

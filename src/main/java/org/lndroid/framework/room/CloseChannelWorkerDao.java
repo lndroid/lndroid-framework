@@ -1,25 +1,23 @@
 package org.lndroid.framework.room;
 
 import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.CloseChannelWorker;
 import org.lndroid.framework.plugins.Job;
-import org.lndroid.framework.plugins.OpenChannelWorker;
 import org.lndroid.framework.plugins.Transaction;
 
-class OpenChannelWorkerDao implements OpenChannelWorker.IDao, IPluginDao {
+import java.util.ArrayList;
+import java.util.List;
+
+public class CloseChannelWorkerDao implements CloseChannelWorker.IDao, IPluginDao {
 
     private DaoRoom dao_;
 
-    OpenChannelWorkerDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+    CloseChannelWorkerDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
         dao_ = dao;
         dao_.txDao = txDao;
     }
@@ -49,20 +47,15 @@ class OpenChannelWorkerDao implements OpenChannelWorker.IDao, IPluginDao {
         dao_.updateJob(j);
     }
 
-    @Override
-    public void updateChannel(Job j, WalletData.Channel c) {
-        RoomData.Channel d = new RoomData.Channel();
-        d.setData(c);
-        dao_.updateChannel(j, d);
-    }
-
-
     @Dao
     abstract static class DaoRoom {
         RoomTransactions.TransactionDao txDao;
 
         @Query("SELECT * FROM Channel WHERE id = :id")
         abstract List<RoomData.Channel> getChannel(long id);
+
+        @Query("SELECT * FROM txCloseChannelRequest WHERE id_ = :id")
+        abstract RoomTransactions.CloseChannelRequest getRequest(long id);
 
         private List<Object> fromRoom(List<RoomData.Channel> rsps) {
             List<Object> sps = new ArrayList<>();
@@ -73,17 +66,22 @@ class OpenChannelWorkerDao implements OpenChannelWorker.IDao, IPluginDao {
             return sps;
         }
 
+        private Object fromRoom(RoomTransactions.CloseChannelRequest r) {
+            return r != null ? r.data : null;
+        }
+
         @androidx.room.Transaction
         public List<Job> getJobs(int state, long now) {
             List<RoomTransactions.RoomTransaction> txs = txDao.getJobTransactions(
-                    DefaultPlugins.OPEN_CHANNEL, state, now);
+                    DefaultPlugins.CLOSE_CHANNEL, state, now);
 
             List<Job> jobs = new ArrayList<>();
             for(RoomTransactions.RoomTransaction tx: txs) {
-                if (tx.txData.responseId == 0)
+                if (tx.txData.responseId == 0 || tx.txData.requestId == 0)
                     continue;
                 Job job = new Job(tx.txData.pluginId, tx.txData.userId, tx.txData.txId);
                 job.job = tx.jobData;
+                job.request = fromRoom(getRequest(tx.txData.requestId));
                 job.objects = fromRoom(getChannel(tx.txData.responseId));
                 jobs.add(job);
             }
@@ -91,19 +89,11 @@ class OpenChannelWorkerDao implements OpenChannelWorker.IDao, IPluginDao {
             return jobs;
         }
 
-        @Insert(onConflict = OnConflictStrategy.REPLACE)
-        abstract void updateChannel(RoomData.Channel c);
-
         @androidx.room.Transaction
         void updateJob(Job job) {
             txDao.updateJob(job.pluginId, job.userId, job.txId, job.job);
         }
-
-        @androidx.room.Transaction
-        void updateChannel(Job job, RoomData.Channel c) {
-            updateJob(job);
-            updateChannel(c);
-        }
     }
 
 }
+

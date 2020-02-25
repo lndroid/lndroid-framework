@@ -119,7 +119,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
 
                 // response to client
                 engine_.onReply(id(), data.ctx, convertResponse(rep), getResponseType());
-                engine_.onDone(id(), data.ctx);
+                engine_.onDone(id(), data.ctx, true);
             }
 
             @Override
@@ -152,7 +152,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
                     if (r == null)
                         throw new RuntimeException("Response entity not found");
                     engine_.onReply(id(), ctx, r, getResponseType());
-                    engine_.onDone(id(), ctx);
+                    engine_.onDone(id(), ctx, true);
                 } else {
                     engine_.onError(id(), ctx, Errors.TX_TIMEOUT, Errors.errorMessage(Errors.TX_TIMEOUT));
                 }
@@ -176,9 +176,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
 
         // create tx
         tx = new Transaction<>();
-        tx.tx = new Transaction.TransactionData();
-        tx.tx.userId = ctx.user.id();
-        tx.tx.txId = ctx.txId;
+        tx.tx = new Transaction.TransactionData(id(), ctx.user.id(), ctx.txId);
         tx.request = data.request;
         tx.tx.createTime = System.currentTimeMillis();
         int timeout = (int)ctx.timeout;

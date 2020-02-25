@@ -28,6 +28,14 @@ public class SendCoins extends JobBase<WalletData.SendCoinsRequest, WalletData.T
         return user.isRoot();
     }
 
+    protected int maxTries(PluginContext ctx, WalletData.SendCoinsRequest r) {
+        return r.maxTries();
+    }
+
+    protected long maxTryTime(PluginContext ctx, WalletData.SendCoinsRequest r) {
+        return r.maxTryTime();
+    }
+
     @Override
     protected WalletData.Transaction createResponse(
             PluginContext ctx, WalletData.SendCoinsRequest req, long authUserId) {
@@ -44,8 +52,6 @@ public class SendCoins extends JobBase<WalletData.SendCoinsRequest, WalletData.T
                 .setAuthUserId(authUserId)
                 .setCreateTime(System.currentTimeMillis())
                 .setPurpose(req.purpose())
-                .setMaxTries(req.maxTries())
-                .setMaxTryTime(req.maxTryTime())
                 .setAddrToAmount(req.addrToAmount())
                 .setTargetConf(req.targetConf())
                 .setSatPerByte(req.satPerByte())

@@ -53,7 +53,8 @@ public abstract class GetBase<IdType> implements IPluginForeground {
     }
 
     protected void onDone(PluginContext ctx) {
-        engine_.onDone(pluginId_, ctx);
+        WalletDataDecl.GetRequestTmpl<IdType> req = (WalletDataDecl.GetRequestTmpl<IdType>)ctx.request;
+        engine_.onDone(pluginId_, ctx, req.subscribe());
     }
 
     @Override

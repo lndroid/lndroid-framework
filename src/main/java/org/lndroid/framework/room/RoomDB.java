@@ -74,6 +74,8 @@ abstract class RoomDB extends RoomDatabase {
 
     abstract OpenChannelDao.DaoRoom openChannelDao();
     abstract OpenChannelWorkerDao.DaoRoom openChannelWorkerDao();
+    abstract CloseChannelDao.DaoRoom closeChannelDao();
+    abstract CloseChannelWorkerDao.DaoRoom closeChannelWorkerDao();
     abstract GetChannelDao.DaoRoom getChannelDao();
     abstract ChannelStateWorkerDao.DaoRoom channelStateWorkerDao();
     abstract ListChannelsDao.DaoRoom listChannelsDao();

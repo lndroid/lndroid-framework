@@ -109,6 +109,7 @@ class AddAppContactDao
             RoomData.Contact ri = getContactByPubkey(contact.pubkey());
             if (ri == null) {
                 ri = new RoomData.Contact();
+            } else {
                 // drop newly generated id, reuse old one
                 contact = contact.toBuilder().setId(ri.getData().id()).build();
             }

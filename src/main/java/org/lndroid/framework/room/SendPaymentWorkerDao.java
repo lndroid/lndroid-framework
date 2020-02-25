@@ -4,31 +4,34 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.IPluginDao;
+import org.lndroid.framework.plugins.Job;
 import org.lndroid.framework.plugins.SendPaymentWorker;
+import org.lndroid.framework.plugins.Transaction;
 
 public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao {
     private DaoRoom dao_;
 
-    SendPaymentWorkerDao(DaoRoom dao, RouteHintsDaoRoom routeDao) {
+    SendPaymentWorkerDao(DaoRoom dao, RoomTransactions.TransactionDao txDao, RouteHintsDaoRoom routeDao) {
         dao_ = dao;
-        dao_.setRouteDao(routeDao);
+        dao_.routeDao = routeDao;
+        dao_.txDao = txDao;
     }
 
     @Override
-    public List<WalletData.SendPayment> getSendingPayments() {
-        return dao_.getPayments(WalletData.SEND_PAYMENT_STATE_SENDING);
+    public List<Job> getSendingJobs() {
+        return dao_.getJobs(Transaction.JOB_STATE_EXECUTING, 0);
     }
 
     @Override
-    public List<WalletData.SendPayment> getPendingPayments(long now) {
-        return dao_.getRetryPayments(WalletData.SEND_PAYMENT_STATE_PENDING, now);
+    public List<Job> getPendingJobs(long now) {
+        return dao_.getJobs(Transaction.JOB_STATE_NEW, now);
     }
 
     @Override
@@ -37,19 +40,24 @@ public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao 
     }
 
     @Override
-    public void updatePayment(WalletData.SendPayment p) {
-        RoomData.SendPayment rp = new RoomData.SendPayment();
-        rp.setData(p);
-        dao_.updatePayment(rp);
+    public void updateJob(Job j) {
+        dao_.updateJob(j);
     }
 
     @Override
-    public void settlePayment(WalletData.SendPayment sp, WalletData.HTLCAttempt htlc) {
+    public void updatePayment(Job job, WalletData.SendPayment p) {
+        RoomData.SendPayment rp = new RoomData.SendPayment();
+        rp.setData(p);
+        dao_.updatePayment(job, rp);
+    }
+
+    @Override
+    public void settlePayment(Job job, WalletData.SendPayment sp, WalletData.HTLCAttempt htlc) {
         RoomData.SendPayment rsp = new RoomData.SendPayment();
         rsp.setData(sp);
         RoomData.HTLCAttempt rhtlc = new RoomData.HTLCAttempt();
         rhtlc.setData(htlc);
-        dao_.settlePayment(rsp, rhtlc);
+        dao_.settlePayment(job, rsp, rhtlc);
     }
 
     @Override
@@ -60,11 +68,8 @@ public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao 
     @Dao
     abstract static class DaoRoom {
 
-        private RouteHintsDaoRoom routeDao_;
-
-        void setRouteDao(RouteHintsDaoRoom routeDao) {
-            routeDao_ = routeDao;
-        }
+        RouteHintsDaoRoom routeDao;
+        RoomTransactions.TransactionDao txDao;
 
         @Query("SELECT * FROM Contact WHERE pubkey = :pubkey")
         public abstract RoomData.Contact getContactRoom(String pubkey);
@@ -75,15 +80,12 @@ public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao 
                 return null;
 
             return rc.getData().toBuilder()
-                    .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
+                    .setRouteHints(routeDao.getRouteHints(RoomData.routeHintsParentId(rc.getData())))
                     .build();
         }
 
-        @Query("SELECT * FROM SendPayment WHERE state = :state")
-        abstract List<RoomData.SendPayment> getPaymentsRoom(int state);
-
-        @Query("SELECT * FROM SendPayment WHERE state = :state and nextTryTime <= :now")
-        abstract List<RoomData.SendPayment> getRetryPaymentsRoom(int state, long now);
+        @Query("SELECT * FROM SendPayment WHERE id = :id")
+        abstract List<RoomData.SendPayment> getSendPayment(long id);
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         abstract void updateSendPayment(RoomData.SendPayment p);
@@ -94,35 +96,50 @@ public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao 
         @Insert
         abstract void insertHTLC(RoomData.HTLCAttempt htlc);
 
-        private List<WalletData.SendPayment> fromRoom(List<RoomData.SendPayment> rsps) {
-            List<WalletData.SendPayment> sps = new ArrayList<>();
+        private List<Object> fromRoom(List<RoomData.SendPayment> rsps) {
+            List<Object> sps = new ArrayList<>();
             for (RoomData.SendPayment r: rsps) {
                 WalletData.SendPayment sp = r.getData();
                 sps.add (sp.toBuilder()
-                        .setRouteHints(routeDao_.getRouteHints(RoomData.routeHintsParentId(sp)))
+                        .setRouteHints(routeDao.getRouteHints(RoomData.routeHintsParentId(sp)))
                         .build());
             }
             return sps;
         }
 
-        @Transaction
-        public List<WalletData.SendPayment> getPayments(int state) {
-            return fromRoom(getPaymentsRoom(state));
+        @androidx.room.Transaction
+        public void updateJob(Job job) {
+            txDao.updateJob(job.pluginId, job.userId, job.txId, job.job);
         }
 
-        @Transaction
-        public List<WalletData.SendPayment> getRetryPayments(int state, long now) {
-            return fromRoom(getRetryPaymentsRoom(state, now));
+        @androidx.room.Transaction
+        public List<Job> getJobs(int state, long now) {
+            List<RoomTransactions.RoomTransaction> txs = txDao.getJobTransactions(
+                    DefaultPlugins.SEND_PAYMENT, state, now);
+
+            List<Job> jobs = new ArrayList<>();
+            for(RoomTransactions.RoomTransaction tx: txs) {
+                if (tx.txData.responseId == 0)
+                    continue;
+                Job job = new Job(tx.txData.pluginId, tx.txData.userId, tx.txData.txId);
+                job.job = tx.jobData;
+                job.objects = fromRoom(getSendPayment(tx.txData.responseId));
+                jobs.add(job);
+            }
+
+            return jobs;
         }
 
-        @Transaction
-        public void updatePayment(RoomData.SendPayment sp) {
+        @androidx.room.Transaction
+        public void updatePayment(Job job, RoomData.SendPayment sp) {
+            updateJob(job);
             updateSendPayment(sp);
             setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(), sp.getData().destPubkey(), 0L);
         }
 
-        @Transaction
-        public void settlePayment(RoomData.SendPayment sp, RoomData.HTLCAttempt htlc) {
+        @androidx.room.Transaction
+        public void settlePayment(Job job, RoomData.SendPayment sp, RoomData.HTLCAttempt htlc) {
+            updateJob(job);
             updateSendPayment(sp);
             insertHTLC(htlc);
             setPaymentData(WalletData.PAYMENT_TYPE_SENDPAYMENT, sp.getData().id(),

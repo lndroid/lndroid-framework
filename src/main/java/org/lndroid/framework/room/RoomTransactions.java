@@ -129,6 +129,14 @@ public class RoomTransactions {
         @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId AND state = 0")
         public abstract List<RoomTransaction> getTransactions(String pluginId);
 
+        @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId "+
+                "AND jobState = :state AND nextTryTime <= :now")
+        public abstract List<RoomTransaction> getJobTransactions(String pluginId, int state, long now);
+
+        @Query("SELECT * FROM RoomTransaction WHERE pluginId IN (:pluginIds) "+
+                "AND jobState = :state AND nextTryTime <= :now")
+        public abstract List<RoomTransaction> getJobTransactions(String[] pluginIds, int state, long now);
+
         @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
         public abstract RoomTransactions.RoomTransaction getTransaction(String pluginId, long userId, String txId);
 
@@ -140,6 +148,12 @@ public class RoomTransactions {
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         public abstract void updateTransaction(RoomTransaction tx);
+
+        @Query("UPDATE RoomTransaction " +
+                "SET maxTries = :maxTries, maxTryTime = :maxTryTime " +
+                "WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
+        public abstract void initTransactionJob(String pluginId, long userId, String txId,
+                                                int maxTries, long maxTryTime);
 
         @Query("UPDATE RoomTransaction " +
                 "SET authTime = :time, authUserId = :authUserId " +
@@ -168,6 +182,13 @@ public class RoomTransactions {
                 int state, long time,
                 String responseClass, long responseId);
 
+        @androidx.room.Transaction
+        public void updateJob(String pluginId, long userId, String txId, Transaction.JobData job) {
+            RoomTransactions.RoomTransaction tx = getTransaction(pluginId, userId, txId);
+            tx.jobData = job;
+            updateTransaction(tx);
+        }
+
         @Override
         public <T> T getTransactionRequest(String pluginId, long userId, String txId) {
             if (pluginId == null)
@@ -179,7 +200,7 @@ public class RoomTransactions {
 
             final long id = tx.txData.requestId;
 
-            Object r = null;
+            TransactionRequestBase r = null;
             if (pluginId.equals(DefaultPlugins.ADD_USER))
                 r = getAddUserRequest(id);
             else if (pluginId.equals(DefaultPlugins.NEW_ADDRESS))
@@ -208,10 +229,10 @@ public class RoomTransactions {
             if (r == null)
                 return null;
 
-            if (!r.getClass().getName().equals(tx.txData.requestClass))
+            if (!r.data.getClass().getName().equals(tx.txData.requestClass))
                 return null;
 
-            return (T)r;
+            return (T)r.data;
         }
 
         @Query("SELECT * FROM txAddUserRequest WHERE id_ = :id")

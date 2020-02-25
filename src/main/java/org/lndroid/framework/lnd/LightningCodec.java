@@ -202,7 +202,7 @@ public class LightningCodec {
 
     public static class SendToRouteCodec {
 
-        public static boolean encode(WalletDataDecl.SendPayment req, Data.SendToRouteRequest r) {
+        public static boolean encode(WalletData.SendPayment req, Data.SendToRouteRequest r) {
             r.paymentHash = LightningCodec.hexToBytes(req.paymentHashHex());
             // set MPP info if invoice requires it
             if (req.paymentAddrHex() != null) {
@@ -386,6 +386,31 @@ public class LightningCodec {
             r.satPerByte = req.satPerByte();
             r.spendUnconfirmed = req.spendUnconfirmed();
             return r.localFundingAmount > 0;
+        }
+
+        public static void decode(Data.ChannelPoint rep, WalletData.Channel.Builder b) {
+            b.setChannelPoint(channelPointToString(rep));
+        }
+    }
+
+    public static class CloseChannelCodec {
+
+        public static boolean encode(WalletData.CloseChannelRequest req, WalletData.Channel c, Data.CloseChannelRequest r) {
+            if (c.channelPoint() == null)
+                return false;
+
+            String[] cp = c.channelPoint().split(":");
+            if (cp.length != 2)
+                return false;
+
+            r.channelPoint = new Data.ChannelPoint();
+            r.channelPoint.fundingTxidStr = cp[0];
+            r.channelPoint.outputIndex = Integer.parseInt(cp[1]);
+            r.force = req.force();
+            r.satPerByte = req.satPerByte();
+            r.targetConf = req.targetConf();
+
+            return true;
         }
 
         public static void decode(Data.ChannelPoint rep, WalletData.Channel.Builder b) {
