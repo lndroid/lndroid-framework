@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.AddListContactsPrivilege;
 
@@ -29,8 +30,9 @@ class AddListContactsPrivilegeDao
 
         @Override @Transaction
         public WalletData.ListContactsPrivilege commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.ListContactsPrivilege req, long time) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, req, time);
+                long userId, String txId, long txAuthUserId, WalletData.ListContactsPrivilege req,
+                long time, IActionDao.OnResponseMerge<WalletData.ListContactsPrivilege> merger) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, req, time, merger);
         }
 
         @Override @Transaction
@@ -76,14 +78,19 @@ class AddListContactsPrivilegeDao
         abstract void upsert(RoomData.ListContactsPrivilege r);
 
         @Override
-        protected long insertResponse(WalletData.ListContactsPrivilege v) {
+        protected long insertResponse(
+                WalletData.ListContactsPrivilege v,
+                IActionDao.OnResponseMerge<WalletData.ListContactsPrivilege> merger) {
 
             RoomData.ListContactsPrivilege rv = getExisting(v.userId());
             if (rv == null) {
                 rv = new RoomData.ListContactsPrivilege();
             } else {
-                // reuse existing id
-                v = v.toBuilder().setId(rv.getData().id()).build();
+                // merge
+                if (merger != null)
+                    v = merger.merge(rv.getData(), v);
+                else
+                    v = v.toBuilder().setId(rv.getData().id()).build();
             }
 
             rv.setData(v);

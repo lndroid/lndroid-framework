@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.IPluginDao;
@@ -32,8 +33,9 @@ class OpenChannelDao
         @Override @androidx.room.Transaction
         public WalletData.Channel commitTransaction(
                 long txUserId, String txId, long txAuthUserId, WalletData.Channel r, long time,
-                int maxTries, long maxTryTime) {
-            return commitTransactionImpl(txUserId, txId, txAuthUserId, r, time, maxTries, maxTryTime);
+                int maxTries, long maxTryTime, IActionDao.OnResponseMerge<WalletData.Channel> merger) {
+            return commitTransactionImpl(txUserId, txId, txAuthUserId, r, time, maxTries, maxTryTime,
+                    merger);
         }
 
         @Override @androidx.room.Transaction
@@ -79,7 +81,8 @@ class OpenChannelDao
         abstract void setFakeChannelPoint(long id, String cp);
 
         @Override
-        protected long insertResponse(WalletData.Channel v) {
+        protected long insertResponse(WalletData.Channel v,
+                                      IActionDao.OnResponseMerge<WalletData.Channel> merger) {
             RoomData.Channel r = new RoomData.Channel();
             r.setData(v);
 

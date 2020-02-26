@@ -11,6 +11,10 @@ public final class DefaultPlugins {
     public static final String ESTIMATE_FEE = "org.lndroid.plugins.ESTIMATE_FEE";
 
     public static final String CONNECT_PEER = "org.lndroid.plugins.CONNECT_PEER";
+    public static final String DISCONNECT_PEER = "org.lndroid.plugins.DISCONNECT_PEER";
+    public static final String GET_PEER = "org.lndroid.plugins.GET_PEER";
+    public static final String LIST_PEERS = "org.lndroid.plugins.LIST_PEERS";
+    public static final String PEER_STATE_WORKER = "org.lndroid.plugins.PEER_STATE_WORKER";
 
     public static final String GET_WALLET_BALANCE = "org.lndroid.plugins.GET_WALLET_BALANCE";
     public static final String WALLET_BALANCE_WORKER = "org.lndroid.plugins.WALLET_BALANCE_WORKER";

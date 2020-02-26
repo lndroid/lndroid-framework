@@ -98,6 +98,10 @@ public class RoomTransactions {
     static class ConnectPeerRequest extends TransactionRequestBase<WalletData.ConnectPeerRequest> {
     }
 
+    @Entity(tableName = "txDisconnectPeerRequest")
+    static class DisconnectPeerRequest extends TransactionRequestBase<WalletData.DisconnectPeerRequest> {
+    }
+
     @Entity(tableName = "txShareContactRequest")
     static class ShareContactRequest extends TransactionRequestBase<WalletData.ShareContactRequest> {
     }
@@ -221,6 +225,8 @@ public class RoomTransactions {
                 r = getAddContactPaymentsPrivilegeRequest(id);
             else if (pluginId.equals(DefaultPlugins.CONNECT_PEER))
                 r = getConnectPeerRequest(id);
+            else if (pluginId.equals(DefaultPlugins.DISCONNECT_PEER))
+                r = getDisconnectPeerRequest(id);
             else if (pluginId.equals(DefaultPlugins.SHARE_CONTACT))
                 r = getShareContactRequest(id);
             else if (pluginId.equals(DefaultPlugins.ADD_CONTACT_INVOICE))
@@ -255,6 +261,8 @@ public class RoomTransactions {
         abstract RoomTransactions.ContactPaymentsPrivilege getAddContactPaymentsPrivilegeRequest(long id);
         @Query("SELECT * FROM txConnectPeerRequest WHERE id_ = :id")
         abstract RoomTransactions.ConnectPeerRequest getConnectPeerRequest(long id);
+        @Query("SELECT * FROM txDisconnectPeerRequest WHERE id_ = :id")
+        abstract RoomTransactions.DisconnectPeerRequest getDisconnectPeerRequest(long id);
         @Query("SELECT * FROM txShareContactRequest WHERE id_ = :id")
         abstract RoomTransactions.ShareContactRequest getShareContactRequest(long id);
         @Query("SELECT * FROM txAddContactInvoiceRequest WHERE id_ = :id")

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.engine.IPluginDao;
@@ -37,8 +38,10 @@ public class SendCoinsDao
         @Override @androidx.room.Transaction
         public WalletData.Transaction commitTransaction(
                 long userId, String txId, long txAuthUserId, WalletData.Transaction r, long time,
-                int maxTries, long maxTryTime) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, r, time, maxTries, maxTryTime);
+                int maxTries, long maxTryTime,
+                IActionDao.OnResponseMerge<WalletData.Transaction> merger) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, r, time, maxTries, maxTryTime,
+                    merger);
         }
 
         @Override @androidx.room.Transaction
@@ -81,7 +84,8 @@ public class SendCoinsDao
         public abstract void insertResponseRoom(RoomData.Transaction i);
 
         @Override
-        protected long insertResponse(WalletData.Transaction v) {
+        protected long insertResponse(WalletData.Transaction v,
+                                      IActionDao.OnResponseMerge<WalletData.Transaction> merger) {
             RoomData.Transaction r = new RoomData.Transaction();
             r.setData(v);
             insertResponseRoom(r);

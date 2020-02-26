@@ -70,8 +70,10 @@ class ActionDaoBase<Request, Response>
     }
 
     @Override
-    public Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r) {
-        return dao_.commitTransaction(txUserId, txId, txAuthUserId, r, System.currentTimeMillis());
+    public Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r,
+                                      OnResponseMerge<Response> merger) {
+        return dao_.commitTransaction(txUserId, txId, txAuthUserId, r, System.currentTimeMillis(),
+                merger);
     }
 
     @Override

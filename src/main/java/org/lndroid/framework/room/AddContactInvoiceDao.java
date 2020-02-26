@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.AddContactInvoice;
 
@@ -78,8 +79,9 @@ class AddContactInvoiceDao
         @Override
         @Transaction
         public WalletData.AddContactInvoiceResponse commitTransaction(
-                long userId, String txId, WalletData.AddContactInvoiceResponse r, long time) {
-            return commitTransactionImpl(userId, txId, r, time);
+                long userId, String txId, WalletData.AddContactInvoiceResponse r, long time,
+                ILndActionDao.OnResponseMerge<WalletData.AddContactInvoiceResponse> merger) {
+            return commitTransactionImpl(userId, txId, r, time, merger);
         }
 
         @Override
@@ -116,7 +118,9 @@ class AddContactInvoiceDao
         }
 
         @Override
-        protected long insertResponse(WalletData.AddContactInvoiceResponse r) {
+        protected long insertResponse(
+                WalletData.AddContactInvoiceResponse r,
+                ILndActionDao.OnResponseMerge<WalletData.AddContactInvoiceResponse> merger) {
             // not stored
             return 0;
         }

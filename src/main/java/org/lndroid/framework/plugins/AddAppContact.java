@@ -45,6 +45,18 @@ public class AddAppContact extends ActionBase<WalletData.Contact, WalletData.Con
     }
 
     @Override
+    protected IActionDao.OnResponseMerge<WalletData.Contact> getMerger() {
+        return new IActionDao.OnResponseMerge<WalletData.Contact>() {
+            @Override
+            public WalletData.Contact merge(WalletData.Contact old, WalletData.Contact cur) {
+                return old.toBuilder()
+                        .setRouteHints(cur.routeHints())
+                        .build();
+            }
+        };
+    }
+
+    @Override
     protected void signal(WalletData.Contact rep) {
         engine().onSignal(id(), DefaultTopics.NEW_CONTACT, rep);
         engine().onSignal(id(), DefaultTopics.CONTACT_STATE, rep);

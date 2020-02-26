@@ -467,8 +467,33 @@ public class WalletDataBuilders {
 
     interface ConnectPeerRequestBuilder<Builder>{
         Builder setPubkey(String pubkey);
-        Builder setHost(String host);
+        Builder setAddress(String address);
         Builder setPerm(boolean perm);
+    }
+
+    interface DisconnectPeerRequestBuilder<Builder>{
+        Builder setId(long id);
+        Builder setContactId(long contactId);
+        Builder setPubkey(String pubkey);
+    }
+
+    interface PeerBuilder<Builder> {
+        Builder setId(long id);
+        Builder setPubkey(String pubkey);
+        Builder setAddress(String address);
+        Builder setBytesSent(long bytesSent);
+        Builder setBytesRecv(long bytesRecv);
+        Builder setSatsSent(long satsSent);
+        Builder setSatsRecv(long satsRecv);
+        Builder setInbound(boolean inbound);
+        Builder setPingTime(long pingTime);
+        Builder setSyncType(int syncType);
+        Builder setFeatures(ImmutableList<Integer> features);
+        Builder setPerm(boolean perm);
+        Builder setOnline(boolean online);
+        Builder setDisabled(boolean disabled);
+        Builder setLastConnectTime(long lastConnectTime);
+        Builder setLastDisconnectTime(long lastDisconnectTime);
     }
 
     interface AddContactInvoiceResponseBuilder<Builder>{
@@ -617,5 +642,13 @@ public class WalletDataBuilders {
         Builder setSortDesc(boolean sortDesc);
     }
 
-
+    interface ListPeersRequestBuilder<Builder> {
+        Builder setOnlyOwn(boolean onlyOwn);
+        Builder setNoAuth(boolean noAuth);
+        Builder setEnablePaging(boolean enablePaging);
+        Builder setAuthUserId(long authUserId);
+        Builder setStateFilter(String stateFilter);
+        Builder setSort(String sort);
+        Builder setSortDesc(boolean sortDesc);
+    }
 }

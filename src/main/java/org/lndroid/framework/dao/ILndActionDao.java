@@ -6,6 +6,10 @@ import org.lndroid.framework.plugins.Transaction;
 
 public interface ILndActionDao<Request, Response> {
 
+    interface OnResponseMerge<Response>{
+        Response merge(Response old, Response cur);
+    }
+
     // get all active txs
     List<Transaction<Request>> getTransactions();
 
@@ -16,8 +20,9 @@ public interface ILndActionDao<Request, Response> {
     void startTransaction(Transaction<Request> t);
 
     // write response to db (if required), attach response to tx, set to COMMITTED state,
-    // resp.id will be initialized after this call.
-    Response commitTransaction(long txUserId, String txId, Response resp);
+    // allows client to specify custom merger in case an
+    // existing Response record might be updated
+    Response commitTransaction(long txUserId, String txId, Response resp, OnResponseMerge<Response> merger);
 
     // set auth user/time
     void confirmTransaction(long txUserId, String txId, long txAuthUserId, Request authedRequest);

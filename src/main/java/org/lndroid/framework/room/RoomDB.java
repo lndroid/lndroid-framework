@@ -19,6 +19,7 @@ import androidx.room.RoomDatabase;
         RoomData.NextId.class,
         RoomData.SendPayment.class,
         RoomData.Payment.class,
+        RoomData.Peer.class,
         RoomData.RoutingPolicy.class,
         RoomData.RouteHint.class,
         RoomData.Transaction.class,
@@ -34,6 +35,7 @@ import androidx.room.RoomDatabase;
         RoomTransactions.CloseChannelRequest.class,
         RoomTransactions.ConnectPeerRequest.class,
         RoomTransactions.ContactPaymentsPrivilege.class,
+        RoomTransactions.DisconnectPeerRequest.class,
         RoomTransactions.EstimateFeeRequest.class,
         RoomTransactions.ListContactsPrivilege.class,
         RoomTransactions.NewAddressRequest.class,
@@ -63,6 +65,10 @@ abstract class RoomDB extends RoomDatabase {
     abstract NewAddressDao.DaoRoom newAddressDao();
 
     abstract ConnectPeerDao.DaoRoom connectPeerDao();
+    abstract DisconnectPeerDao.DaoRoom disconnectPeerDao();
+    abstract GetPeerDao.DaoRoom getPeerDao();
+    abstract ListPeersDao.DaoRoom listPeersDao();
+    abstract PeerStateWorkerDao.DaoRoom peerStateWorkerDao();
 
     abstract DecodePayReqDao.DaoRoom decodePayReqDao();
     abstract EstimateFeeDao.DaoRoom estimateFeeDao();

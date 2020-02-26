@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.ShareContact;
 
@@ -29,8 +30,9 @@ class ShareContactDao
 
         @Override @Transaction
         public WalletData.ShareContactResponse commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.ShareContactResponse res, long time) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, res, time);
+                long userId, String txId, long txAuthUserId, WalletData.ShareContactResponse res,
+                long time, IActionDao.OnResponseMerge<WalletData.ShareContactResponse> merger) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, res, time, merger);
         }
 
         @Override @Transaction
@@ -66,7 +68,8 @@ class ShareContactDao
         }
 
         @Override
-        protected long insertResponse(WalletData.ShareContactResponse v) {
+        protected long insertResponse(WalletData.ShareContactResponse v,
+                                      IActionDao.OnResponseMerge<WalletData.ShareContactResponse> merger) {
             // not stored
             return 0;
         }

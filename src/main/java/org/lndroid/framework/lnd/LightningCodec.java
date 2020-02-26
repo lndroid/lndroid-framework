@@ -247,12 +247,12 @@ public class LightningCodec {
         public static boolean encode(WalletData.ConnectPeerRequest req, Data.ConnectPeerRequest r) {
             r.perm = req.perm();
             r.addr = new Data.LightningAddress();
-            r.addr.host = req.host();
+            r.addr.host = req.address();
             r.addr.pubkey = req.pubkey();
             return true;
         }
 
-        public static void decode(Data.ConnectPeerResponse rep, WalletData.ConnectPeerResponse.Builder r) {
+        public static void decode(Data.ConnectPeerResponse rep, WalletData.Peer.Builder r) {
         }
 
     }
@@ -638,6 +638,25 @@ public class LightningCodec {
             b.setLimboBalance(rep.getLimboBalance());
             decode(rep.getChannel(), b);
         }
-
     }
+
+    public static class PeerConverter {
+        public static void decode(lnrpc.Rpc.Peer r, WalletData.Peer.Builder b) {
+            b.setPubkey(r.getPubKey());
+            b.setAddress(r.getAddress());
+            b.setBytesSent(r.getBytesSent());
+            b.setBytesRecv(r.getBytesRecv());
+            b.setSatsRecv(r.getSatRecv());
+            b.setSatsSent(r.getSatSent());
+            b.setInbound(r.getInbound());
+            b.setPingTime(r.getPingTime());
+            b.setSyncType(r.getSyncTypeValue());
+            if (r.getFeaturesCount() > 0) {
+                ImmutableList.Builder<Integer> builder = ImmutableList.builder();
+                builder.addAll(r.getFeaturesMap().keySet());
+                b.setFeatures(builder.build());
+            }
+        }
+    }
+
 }

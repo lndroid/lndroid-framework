@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 64,
-    "identityHash": "d1c31dced6ba5aea4455766bae837722",
+    "identityHash": "bff3950454bead433140a46ff6306e82",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -1760,6 +1760,147 @@
         "foreignKeys": []
       },
       {
+        "tableName": "Peer",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `pubkey` TEXT, `address` TEXT, `bytesSent` INTEGER, `bytesRecv` INTEGER, `satsSent` INTEGER, `satsRecv` INTEGER, `inbound` INTEGER, `pingTime` INTEGER, `syncType` INTEGER, `features` TEXT, `perm` INTEGER, `online` INTEGER, `disabled` INTEGER, `lastConnectTime` INTEGER, `lastDisconnectTime` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.bytesSent",
+            "columnName": "bytesSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.bytesRecv",
+            "columnName": "bytesRecv",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satsSent",
+            "columnName": "satsSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satsRecv",
+            "columnName": "satsRecv",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.inbound",
+            "columnName": "inbound",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pingTime",
+            "columnName": "pingTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.syncType",
+            "columnName": "syncType",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.perm",
+            "columnName": "perm",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.online",
+            "columnName": "online",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.disabled",
+            "columnName": "disabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastConnectTime",
+            "columnName": "lastConnectTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastDisconnectTime",
+            "columnName": "lastDisconnectTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Peer_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Peer_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Peer_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Peer_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          },
+          {
+            "name": "index_Peer_address",
+            "unique": false,
+            "columnNames": [
+              "address"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Peer_address` ON `${TABLE_NAME}` (`address`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
         "tableName": "RoutingPolicy",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `channelId` INTEGER, `reverse` INTEGER, `timeLockDelta` INTEGER, `minHtlc` INTEGER, `feeBaseMsat` INTEGER, `feeRateMilliMsat` INTEGER, `disabled` INTEGER, `maxHtlcMsat` INTEGER, `lastUpdate` INTEGER, PRIMARY KEY(`id_`))",
         "fields": [
@@ -2856,7 +2997,7 @@
       },
       {
         "tableName": "txConnectPeerRequest",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pubkey` TEXT, `host` TEXT, `perm` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pubkey` TEXT, `address` TEXT, `perm` INTEGER)",
         "fields": [
           {
             "fieldPath": "id_",
@@ -2871,8 +3012,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "data.host",
-            "columnName": "host",
+            "fieldPath": "data.address",
+            "columnName": "address",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -2930,6 +3071,44 @@
             "fieldPath": "data.contactId",
             "columnName": "contactId",
             "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txDisconnectPeerRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `contactId` INTEGER, `pubkey` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.contactId",
+            "columnName": "contactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
             "notNull": false
           }
         ],
@@ -3394,7 +3573,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd1c31dced6ba5aea4455766bae837722')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bff3950454bead433140a46ff6306e82')"
     ]
   }
 }

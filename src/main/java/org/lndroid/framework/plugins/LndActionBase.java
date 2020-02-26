@@ -40,6 +40,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     protected abstract boolean isUserPrivileged(WalletData.User user, Transaction<Request> tx);
     protected abstract Request getData(IPluginData in);
     protected abstract Type getResponseType();
+    protected ILndActionDao.OnResponseMerge<Response> getMerger() { return null; }
     protected Object convertResponse(Response r) { return r; };
 
     protected IPluginServer server() { return server_; }
@@ -103,6 +104,13 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
     private void startRequest(final TxData data) {
 
         LndRequest lndRequest = createLndRequest(data.ctx, data.request);
+        if (lndRequest == null) {
+            dao_.failTransaction(data.ctx.user.id(), data.ctx.txId, Errors.PLUGIN_INPUT,
+                    Errors.errorMessage(Errors.PLUGIN_INPUT));
+            engine_.onError(id(), data.ctx, Errors.PLUGIN_INPUT,
+                    Errors.errorMessage(Errors.PLUGIN_INPUT));
+            return;
+        }
 
         execute (lndRequest, new ILightningCallback<LndResponse>() {
             @Override
@@ -112,7 +120,7 @@ public abstract class LndActionBase<Request, LndRequest, Response, LndResponse> 
                 Response rep = createResponse(data.ctx, data.request, data.authUserId, r);
 
                 // store response in finished tx
-                rep = dao_.commitTransaction(data.ctx.user.id(), data.ctx.txId, rep);
+                rep = dao_.commitTransaction(data.ctx.user.id(), data.ctx.txId, rep, getMerger());
 
                 // notify other plugins if needed
                 signal(data.ctx, data.request, rep);

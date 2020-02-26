@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.AddInvoice;
 
@@ -42,8 +43,9 @@ class AddInvoiceDao
         @Override
         @Transaction
         public WalletData.Invoice commitTransaction(
-                long userId, String txId, WalletData.Invoice r, long time) {
-            return commitTransactionImpl(userId, txId, r, time);
+                long userId, String txId, WalletData.Invoice r, long time,
+                ILndActionDao.OnResponseMerge<WalletData.Invoice> merger) {
+            return commitTransactionImpl(userId, txId, r, time, merger);
         }
 
         @Override
@@ -80,7 +82,8 @@ class AddInvoiceDao
         }
 
         @Override
-        protected long insertResponse(WalletData.Invoice r) {
+        protected long insertResponse(WalletData.Invoice r,
+                                      ILndActionDao.OnResponseMerge<WalletData.Invoice> merger) {
             RoomData.Invoice ri = new RoomData.Invoice();
             ri.setData(r);
 

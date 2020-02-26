@@ -1,5 +1,6 @@
 package org.lndroid.framework.room;
 
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.plugins.Transaction;
 
 import java.util.List;
@@ -18,7 +19,7 @@ abstract class RoomActionDaoBase<Request, Response> {
     }
 
     protected abstract long insertRequest(Request req);
-    protected abstract long insertResponse(Response r);
+    protected abstract long insertResponse(Response rep, IActionDao.OnResponseMerge<Response> merger);
 
     public abstract Request getRequest(long id);
     public abstract Response getResponse(long id);
@@ -55,8 +56,9 @@ abstract class RoomActionDaoBase<Request, Response> {
 
     // we need this to be an atomic db tx, so each Room dao wraps this w/ @Transaction
     protected Response commitTransactionImpl(
-            long userId, String txId, long txAuthUserId, Response r, long time) {
-        final long id = insertResponse(r);
+            long userId, String txId, long txAuthUserId, Response r, long time,
+            IActionDao.OnResponseMerge<Response> merger) {
+        final long id = insertResponse(r, merger);
 
         // update tx state: confirm and commit
         txDao_.confirmTransaction(pluginId_, userId, txId, txAuthUserId, time);
@@ -67,6 +69,8 @@ abstract class RoomActionDaoBase<Request, Response> {
         return r;
     }
 
-    public abstract Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r, long time);
+    public abstract Response commitTransaction(
+            long txUserId, String txId, long txAuthUserId, Response r, long time,
+            IActionDao.OnResponseMerge<Response> merger);
 }
 

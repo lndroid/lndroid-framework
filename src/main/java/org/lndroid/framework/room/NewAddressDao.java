@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.NewAddress;
 
@@ -36,8 +37,9 @@ class NewAddressDao
         @Override
         @Transaction
         public WalletData.NewAddress commitTransaction(
-                long userId, String txId, WalletData.NewAddress r, long time) {
-            return commitTransactionImpl(userId, txId, r, time);
+                long userId, String txId, WalletData.NewAddress r, long time,
+                ILndActionDao.OnResponseMerge<WalletData.NewAddress> merger) {
+            return commitTransactionImpl(userId, txId, r, time, merger);
         }
 
         @Override
@@ -74,7 +76,8 @@ class NewAddressDao
         }
 
         @Override
-        protected long insertResponse(WalletData.NewAddress r) {
+        protected long insertResponse(WalletData.NewAddress r,
+                                      ILndActionDao.OnResponseMerge<WalletData.NewAddress> merger) {
             // not stored
             return 0;
         }

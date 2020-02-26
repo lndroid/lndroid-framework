@@ -1989,12 +1989,12 @@ public final class WalletData {
 
         public static ConnectPeerRequest create(
                 String pubkey,
-                String host,
+                String address,
                 boolean perm
         ) {
             return builder()
                     .setPubkey(pubkey)
-                    .setHost(host)
+                    .setAddress(address)
                     .setPerm(perm)
                     .build();
         }
@@ -2015,23 +2015,112 @@ public final class WalletData {
     }
 
     @AutoValue
-    @AutoValueClass(className = AutoValue_WalletData_ConnectPeerResponse.class)
-    public static abstract class ConnectPeerResponse {
+    @AutoValueClass(className = AutoValue_WalletData_DisconnectPeerRequest.class)
+    public static abstract class DisconnectPeerRequest
+            implements WalletDataDecl.DisconnectPeerRequest {
 
-        public static ConnectPeerResponse create() {
+        public static DisconnectPeerRequest create(
+                long id,
+                long contactId,
+                String pubkey
+        ) {
             return builder()
+                    .setId(id)
+                    .setContactId(contactId)
+                    .setPubkey(pubkey)
                     .build();
         }
 
         public static Builder builder() {
-            return new AutoValue_WalletData_ConnectPeerResponse.Builder();
+            return new AutoValue_WalletData_DisconnectPeerRequest.Builder()
+                    .setId(0)
+                    .setContactId(0)
+                    ;
         }
 
         public abstract Builder toBuilder();
 
         @AutoValue.Builder
         public abstract static class Builder implements
-                WalletDataBuilders.IBuilder<ConnectPeerResponse> {
+                WalletDataDecl.DisconnectPeerRequest,
+                WalletDataBuilders.IBuilder<DisconnectPeerRequest>,
+                WalletDataBuilders.DisconnectPeerRequestBuilder<Builder> {
+        }
+    }
+
+    public static final int PEER_SYNC_TYPE_UNKNOWN = 0;
+    public static final int PEER_SYNC_TYPE_ACTIVE = 1; // getting graph updates
+    public static final int PEER_SYNC_TYPE_PASSIVE = 2; // not getting graph updates
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_Peer.class)
+    public static abstract class Peer
+            implements WalletDataDecl.EntityBase, WalletDataDecl.Peer {
+
+        public static Peer create(
+                long id,
+                String pubkey,
+                String address,
+                long bytesSent,
+                long bytesRecv,
+                long satsSent,
+                long satsRecv,
+                boolean inbound,
+                long pingTime,
+                int syncType,
+                ImmutableList<Integer> features,
+                boolean perm,
+                boolean online,
+                boolean disabled,
+                long lastConnectTime,
+                long lastDisconnectTime
+        ) {
+            return builder()
+                    .setId(id)
+                    .setPubkey(pubkey)
+                    .setAddress(address)
+                    .setBytesSent(bytesSent)
+                    .setBytesRecv(bytesRecv)
+                    .setSatsSent(satsSent)
+                    .setSatsRecv(satsRecv)
+                    .setInbound(inbound)
+                    .setPingTime(pingTime)
+                    .setSyncType(syncType)
+                    .setFeatures(features)
+                    .setPerm(perm)
+                    .setOnline(online)
+                    .setDisabled(disabled)
+                    .setLastConnectTime(lastConnectTime)
+                    .setLastDisconnectTime(lastDisconnectTime)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_Peer.Builder()
+                    .setId(0)
+                    .setBytesSent(0)
+                    .setBytesRecv(0)
+                    .setSatsSent(0)
+                    .setSatsRecv(0)
+                    .setInbound(false)
+                    .setPingTime(0)
+                    .setSyncType(0)
+                    .setPerm(false)
+                    .setOnline(false)
+                    .setDisabled(false)
+                    .setLastConnectTime(0)
+                    .setLastDisconnectTime(0)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.EntityBase,
+                WalletDataDecl.Peer,
+                WalletDataBuilders.IBuilder<Peer>,
+                WalletDataBuilders.PeerBuilder<Builder> {
         }
     }
 
@@ -2702,5 +2791,67 @@ public final class WalletData {
         }
     }
 
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_ListPeersResult.class)
+    public static abstract class ListPeersResult implements WalletDataDecl.ListResultTmpl<Peer> {
+
+        public static ListPeersResult create(
+                ImmutableList<Peer> items,
+                int count,
+                int position
+        ) {
+            return builder()
+                    .setItems(items)
+                    .setCount(count)
+                    .setPosition(position)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_ListPeersResult.Builder()
+                    .setCount(0)
+                    .setPosition(0);
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.ListResultTmpl<Peer>,
+                WalletDataBuilders.IBuilder<ListPeersResult>,
+                WalletDataBuilders.ListResultTmplBuilder<Peer, Builder> {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_ListPeersRequest.class)
+    public static abstract class ListPeersRequest extends ListRequestBase
+            implements WalletDataDecl.ListPeersRequest {
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_ListPeersRequest.Builder()
+                    .setAuthUserId(0)
+                    .setOnlyOwn(false)
+                    .setNoAuth(false)
+                    .setEnablePaging(false)
+                    .setSortDesc(false)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @Override
+        public ListPeersRequest withPage(ListPage page) {
+            return toBuilder().setPage(page).build();
+        }
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.ListPeersRequest,
+                WalletDataBuilders.IBuilder<ListPeersRequest>,
+                WalletDataBuilders.ListPeersRequestBuilder<Builder> {
+            public abstract Builder setPage(ListPage page);
+        }
+    }
 
 }

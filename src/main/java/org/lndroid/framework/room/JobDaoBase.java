@@ -16,10 +16,11 @@ class JobDaoBase<Request, Response>
     }
 
     @Override
-    public Response commitTransaction(long txUserId, String txId, long txAuthUserId, Response r,
-                                      int maxTries, long maxTryTime) {
+    public Response commitTransaction(
+            long txUserId, String txId, long txAuthUserId, Response r,
+            int maxTries, long maxTryTime, IActionDao.OnResponseMerge<Response> merger) {
 
         return dao_.commitTransaction(txUserId, txId, txAuthUserId, r, System.currentTimeMillis(),
-                maxTries, maxTryTime);
+                maxTries, maxTryTime, merger);
     }
 }

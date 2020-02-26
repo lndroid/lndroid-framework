@@ -6,40 +6,51 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 
-import java.util.List;
-
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.plugins.ConnectPeer;
+import org.lndroid.framework.plugins.DisconnectPeer;
 
-public class ConnectPeerDao
-        extends LndActionDaoBase<WalletData.ConnectPeerRequest, WalletData.Peer>
-        implements ConnectPeer.IDao
+public class DisconnectPeerDao
+        extends LndActionDaoBase<WalletData.DisconnectPeerRequest, WalletData.Peer>
+        implements DisconnectPeer.IDao
 {
-    public static final String PLUGIN_ID = DefaultPlugins.CONNECT_PEER;
+    public static final String PLUGIN_ID = DefaultPlugins.DISCONNECT_PEER;
 
-    ConnectPeerDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
+    private DaoRoom dao_;
+
+    DisconnectPeerDao(DaoRoom dao, RoomTransactions.TransactionDao txDao) {
         super(dao);
         dao.init(PLUGIN_ID, txDao);
+        dao_ = dao;
+    }
+
+    @Override
+    public String getContactPubkey(long contactId) {
+        return dao_.getContactPubkey(contactId);
+    }
+
+    @Override
+    public String getPeerPubkey(long peerId) {
+        return dao_.getPeerPubkey(peerId);
     }
 
     @Dao
     abstract static class DaoRoom
-            extends RoomLndActionDaoBase<WalletData.ConnectPeerRequest, WalletData.Peer>
+            extends RoomLndActionDaoBase<WalletData.DisconnectPeerRequest, WalletData.Peer>
     {
         @Override
         @Transaction
         public void confirmTransaction(long txUserId, String txId, long txAuthUserId, long time,
-                                       WalletData.ConnectPeerRequest authedRequest) {
+                                       WalletData.DisconnectPeerRequest authedRequest) {
             confirmTransactionImpl(txUserId, txId, txAuthUserId, time, authedRequest);
         }
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
-        abstract long upsertRequest(RoomTransactions.ConnectPeerRequest i);
+        abstract long upsertRequest(RoomTransactions.DisconnectPeerRequest i);
 
-        @Query("SELECT * FROM txConnectPeerRequest WHERE id_ = :id")
-        abstract RoomTransactions.ConnectPeerRequest getRequestRoom(long id);
+        @Query("SELECT * FROM txDisconnectPeerRequest WHERE id_ = :id")
+        abstract RoomTransactions.DisconnectPeerRequest getRequestRoom(long id);
 
         @Override
         @Transaction
@@ -51,14 +62,14 @@ public class ConnectPeerDao
 
         @Override
         @Transaction
-        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.ConnectPeerRequest req) {
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.DisconnectPeerRequest req) {
             createTransactionImpl(tx, req);
         }
 
         @Override
-        protected long insertRequest(WalletData.ConnectPeerRequest req) {
+        protected long insertRequest(WalletData.DisconnectPeerRequest req) {
             // convert request to room object
-            RoomTransactions.ConnectPeerRequest r = new RoomTransactions.ConnectPeerRequest();
+            RoomTransactions.DisconnectPeerRequest r = new RoomTransactions.DisconnectPeerRequest();
             r.data = req;
 
             // insert request
@@ -66,9 +77,9 @@ public class ConnectPeerDao
         }
 
         @Override
-        protected void updateRequest(long id, WalletData.ConnectPeerRequest req) {
+        protected void updateRequest(long id, WalletData.DisconnectPeerRequest req) {
             // convert request to room object
-            RoomTransactions.ConnectPeerRequest r = new RoomTransactions.ConnectPeerRequest();
+            RoomTransactions.DisconnectPeerRequest r = new RoomTransactions.DisconnectPeerRequest();
             r.id_ = id;
             r.data = req;
 
@@ -77,13 +88,19 @@ public class ConnectPeerDao
         }
 
         @Override
-        public WalletData.ConnectPeerRequest getRequest(long id) {
-            RoomTransactions.ConnectPeerRequest r = getRequestRoom(id);
+        public WalletData.DisconnectPeerRequest getRequest(long id) {
+            RoomTransactions.DisconnectPeerRequest r = getRequestRoom(id);
             return r != null ? r.data : null;
         }
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         abstract void upsertPeer(RoomData.Peer i);
+
+        @Query("SELECT pubkey FROM Peer WHERE id = :id")
+        abstract String getPeerPubkey(long id);
+
+        @Query("SELECT pubkey FROM Contact WHERE id = :id")
+        abstract String getContactPubkey(long id);
 
         @Query("SELECT * FROM Peer WHERE pubkey = :pubkey")
         abstract RoomData.Peer getPeerByPubkey(String pubkey);
@@ -122,4 +139,5 @@ public class ConnectPeerDao
     }
 
 }
+
 

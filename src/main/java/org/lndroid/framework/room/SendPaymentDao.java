@@ -7,6 +7,7 @@ import androidx.room.Query;
 import com.google.common.collect.ImmutableList;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.SendPayment;
 
@@ -50,12 +51,16 @@ public class SendPaymentDao
     }
 
     @Override
-    public WalletData.SendPayment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.SendPayment p) {
+    public WalletData.SendPayment commitTransaction(
+            long txUserId, String txId, long txAuthUserId, WalletData.SendPayment p,
+            IActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
         throw new RuntimeException("Unsupported method");
     }
 
     @Override
-    public WalletData.SendPayment commitTransaction(long txUserId, String txId, long txAuthUserId, WalletData.SendPayment r, int maxTries, long maxTryTime) {
+    public WalletData.SendPayment commitTransaction(
+            long txUserId, String txId, long txAuthUserId, WalletData.SendPayment r,
+            int maxTries, long maxTryTime, IActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
         throw new RuntimeException("Unsupported method");
     }
 
@@ -86,7 +91,8 @@ public class SendPaymentDao
 
         @Override @androidx.room.Transaction
         public WalletData.SendPayment commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.SendPayment r, long time) {
+                long userId, String txId, long txAuthUserId, WalletData.SendPayment r, long time,
+                IActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
             throw new RuntimeException("Unsupported method");
         }
 
@@ -160,7 +166,8 @@ public class SendPaymentDao
         public abstract long insertPayment(RoomData.Payment p);
 
         @Override
-        protected long insertResponse(WalletData.SendPayment v) {
+        protected long insertResponse(WalletData.SendPayment v,
+                                      IActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
             RoomData.SendPayment r = new RoomData.SendPayment();
             r.setData(v);
             insertSendPayment(r);
@@ -177,7 +184,7 @@ public class SendPaymentDao
             WalletData.SendPayment sp = payment.sendPayments().get(payment.sourceId());
 
             // insert sendpayment
-            insertResponse(sp);
+            insertResponse(sp, null);
 
             // write route hints
             routeDao.upsertRouteHints(RoomData.routeHintsParentId(sp), sp.routeHints());
@@ -197,9 +204,10 @@ public class SendPaymentDao
             return payment;
         }
 
+        @Override
         public WalletData.SendPayment commitTransaction(
                 long txUserId, String txId, long txAuthUserId, WalletData.SendPayment r, long time,
-                int maxTries, long maxTryTime) {
+                int maxTries, long maxTryTime, IActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
             throw new RuntimeException("Unsupported method");
         }
     }

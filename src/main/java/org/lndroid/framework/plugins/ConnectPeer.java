@@ -1,6 +1,7 @@
 package org.lndroid.framework.plugins;
 
 import org.lndroid.framework.dao.ILndActionDao;
+import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.lnd.daemon.ILightningCallback;
 import org.lndroid.lnd.data.Data;
 
@@ -15,10 +16,10 @@ import org.lndroid.framework.lnd.LightningCodec;
 
 public class ConnectPeer extends
         LndActionBase<WalletData.ConnectPeerRequest, Data.ConnectPeerRequest,
-                WalletData.ConnectPeerResponse, Data.ConnectPeerResponse>
+                WalletData.Peer, Data.ConnectPeerResponse>
 {
     // plugin's Dao must extend this class
-    public interface IDao extends ILndActionDao<WalletData.ConnectPeerRequest, WalletData.ConnectPeerResponse> {};
+    public interface IDao extends ILndActionDao<WalletData.ConnectPeerRequest, WalletData.Peer> {};
 
     private static int DEFAULT_TIMEOUT = 60000; // 60 sec
     private static int MAX_TIMEOUT = 600000; // 10 min
@@ -41,11 +42,35 @@ public class ConnectPeer extends
     }
 
     @Override
-    protected WalletData.ConnectPeerResponse createResponse(
+    protected WalletData.Peer createResponse(
             PluginContext ctx, WalletData.ConnectPeerRequest req, long authUserId, Data.ConnectPeerResponse r) {
-        WalletData.ConnectPeerResponse.Builder b = WalletData.ConnectPeerResponse.builder();
-        LightningCodec.ConnectPeerCodec.decode(r, b);
-        return b.build();
+        return WalletData.Peer.builder()
+                .setId(server().getIdGenerator().generateId(WalletData.Peer.class))
+                .setPubkey(req.pubkey())
+                .setAddress(req.address())
+                .setPerm(req.perm())
+                .setDisabled(false)
+                .setOnline(true)
+                .setLastConnectTime(System.currentTimeMillis())
+                .build();
+    }
+
+    @Override
+    protected ILndActionDao.OnResponseMerge<WalletData.Peer> getMerger() {
+        return new ILndActionDao.OnResponseMerge<WalletData.Peer> () {
+
+            @Override
+            public WalletData.Peer merge(WalletData.Peer old, WalletData.Peer cur) {
+                return old.toBuilder()
+                        .setOnline(true)
+                        .setDisabled(false)
+                        .setPerm(cur.perm())
+                        .setAddress(cur.address())
+                        .setInbound(false)
+                        .setLastConnectTime(cur.lastConnectTime())
+                        .build();
+            }
+        };
     }
 
     @Override
@@ -54,7 +79,8 @@ public class ConnectPeer extends
     }
 
     @Override
-    protected void signal(PluginContext ctx, WalletData.ConnectPeerRequest req, WalletData.ConnectPeerResponse rep) {
+    protected void signal(PluginContext ctx, WalletData.ConnectPeerRequest req, WalletData.Peer rep) {
+        engine().onSignal(id(), DefaultTopics.PEER_STATE, rep);
     }
 
     @Override
@@ -74,7 +100,7 @@ public class ConnectPeer extends
 
     @Override
     protected Type getResponseType() {
-        return WalletData.ConnectPeerResponse.class;
+        return WalletData.Peer.class;
     }
 
     @Override

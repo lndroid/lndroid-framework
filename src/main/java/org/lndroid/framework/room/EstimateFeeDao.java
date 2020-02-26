@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.EstimateFee;
 
@@ -36,8 +37,9 @@ public class EstimateFeeDao
         @Override
         @Transaction
         public WalletData.EstimateFeeResponse commitTransaction(
-                long userId, String txId, WalletData.EstimateFeeResponse r, long time) {
-            return commitTransactionImpl(userId, txId, r, time);
+                long userId, String txId, WalletData.EstimateFeeResponse r, long time,
+                ILndActionDao.OnResponseMerge<WalletData.EstimateFeeResponse> merger) {
+            return commitTransactionImpl(userId, txId, r, time, merger);
         }
 
         @Override
@@ -74,7 +76,8 @@ public class EstimateFeeDao
         }
 
         @Override
-        protected long insertResponse(WalletData.EstimateFeeResponse r) {
+        protected long insertResponse(WalletData.EstimateFeeResponse r,
+                                      ILndActionDao.OnResponseMerge<WalletData.EstimateFeeResponse> merger) {
             // not stored
             return 0;
         }

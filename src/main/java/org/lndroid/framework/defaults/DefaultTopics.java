@@ -12,6 +12,8 @@ public final class DefaultTopics {
 
     public static final String NEW_ADDRESS = "org.lndroid.topics.NEW_ADDRESS";
 
+    public static final String PEER_STATE = "org.lndroid.topics.PEER_STATE";
+
     public static final String NEW_INVOICE = "org.lndroid.topics.NEW_INVOICE";
     public static final String INVOICE_STATE = "org.lndroid.topics.INVOICE_STATE";
 

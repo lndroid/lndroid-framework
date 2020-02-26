@@ -224,5 +224,16 @@ final class RoomData {
     static class Utxo extends RoomEntityBase<WalletData.Utxo> {
     }
 
+    @Entity(indices = {
+            @Index(unique = true, value = {"id"}),
+            @Index(unique = true, value = {"pubkey"}),
+            @Index(value = {"address"}),
+    })
+    @TypeConverters({
+            RoomConverters.ImmutableIntListConverter.class,
+    })
+    static class Peer extends RoomEntityBase<WalletData.Peer> {
+    }
+
 
 }

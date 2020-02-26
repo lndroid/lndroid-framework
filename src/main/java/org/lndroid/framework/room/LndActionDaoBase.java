@@ -64,8 +64,8 @@ class LndActionDaoBase<Request, Response>
     }
 
     @Override
-    public Response commitTransaction(long txUserId, String txId, Response r) {
-        return dao_.commitTransaction(txUserId, txId, r, System.currentTimeMillis());
+    public Response commitTransaction(long txUserId, String txId, Response resp, OnResponseMerge<Response> merger) {
+        return dao_.commitTransaction(txUserId, txId, resp, System.currentTimeMillis(), merger);
     }
 
     @Override

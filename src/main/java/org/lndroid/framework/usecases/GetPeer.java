@@ -1,16 +1,16 @@
 package org.lndroid.framework.usecases;
 
+import org.lndroid.framework.WalletData;
+import org.lndroid.framework.client.IPluginClient;
+import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultPlugins;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import org.lndroid.framework.WalletData;
-import org.lndroid.framework.client.IPluginClient;
-import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.common.IPluginData;
-
-public class ActionConnectPeer extends ActionUseCaseBase<WalletData.ConnectPeerRequest, WalletData.Peer> {
-    public ActionConnectPeer(IPluginClient client) {
-        super(DefaultPlugins.CONNECT_PEER, client, "ActionConnectPeer");
+public class GetPeer extends GetData<WalletData.Peer, Long> {
+    public GetPeer(IPluginClient client){
+        super(client, DefaultPlugins.GET_PEER);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class ActionConnectPeer extends ActionUseCaseBase<WalletData.ConnectPeerR
 
     @Override
     protected Type getRequestType() {
-        return WalletData.ConnectPeerRequest.class;
+        return WalletData.GetRequestLong.class;
     }
 }
 

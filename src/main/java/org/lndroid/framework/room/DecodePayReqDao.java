@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.DecodePayReq;
 
@@ -36,8 +37,9 @@ public class DecodePayReqDao
         @Override
         @Transaction
         public WalletData.SendPayment commitTransaction(
-                long userId, String txId, WalletData.SendPayment r, long time) {
-            return commitTransactionImpl(userId, txId, r, time);
+                long userId, String txId, WalletData.SendPayment r, long time,
+                ILndActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
+            return commitTransactionImpl(userId, txId, r, time, merger);
         }
 
         @Override
@@ -74,7 +76,8 @@ public class DecodePayReqDao
         }
 
         @Override
-        protected long insertResponse(WalletData.SendPayment r) {
+        protected long insertResponse(WalletData.SendPayment r,
+                                      ILndActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
             // not stored
             return 0;
         }

@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.AddUser;
 
@@ -28,8 +29,9 @@ class AddUserDao
 
         @Override @Transaction
         public WalletData.User commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.User req, long time) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, req, time);
+                long userId, String txId, long txAuthUserId, WalletData.User req, long time,
+                IActionDao.OnResponseMerge<WalletData.User> merger) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, req, time, merger);
         }
 
         @Override @Transaction
@@ -72,7 +74,8 @@ class AddUserDao
         abstract void insertResponseRoom(RoomData.User r);
 
         @Override
-        protected long insertResponse(WalletData.User v) {
+        protected long insertResponse(WalletData.User v,
+                                      IActionDao.OnResponseMerge<WalletData.User> merger) {
 
             RoomData.User ru = new RoomData.User();
             ru.setData(v);

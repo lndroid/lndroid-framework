@@ -69,6 +69,14 @@ public class RoomDaoProvider implements IDBDaoProvider {
 
         pluginDaos_.put(DefaultPlugins.CONNECT_PEER, new ConnectPeerDao(
                 db_.connectPeerDao(), db_.txDao()));
+        pluginDaos_.put(DefaultPlugins.DISCONNECT_PEER, new DisconnectPeerDao(
+                db_.disconnectPeerDao(), db_.txDao()));
+        pluginDaos_.put(DefaultPlugins.GET_PEER, new GetPeerDao(
+                db_.getPeerDao()));
+        pluginDaos_.put(DefaultPlugins.LIST_PEERS, new ListPeersDao(
+                db_.listPeersDao()));
+        pluginDaos_.put(DefaultPlugins.PEER_STATE_WORKER, new PeerStateWorkerDao(
+                db_.peerStateWorkerDao()));
 
         pluginDaos_.put(DefaultPlugins.NEW_ADDRESS, new NewAddressDao(
                 db_.newAddressDao(), db_.txDao()));
@@ -158,7 +166,7 @@ public class RoomDaoProvider implements IDBDaoProvider {
 
     @Override
     public void insertUser(WalletData.User user) {
-        db_.userAddDao().insertResponse(user);
+        db_.userAddDao().insertResponse(user, null);
     }
 
     @Override

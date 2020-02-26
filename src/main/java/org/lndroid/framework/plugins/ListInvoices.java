@@ -40,7 +40,7 @@ public class ListInvoices extends ListBase<WalletData.ListInvoicesRequest, Walle
 
     @Override
     protected Type getResponseType() {
-        return WalletData.ListPaymentsResult.class;
+        return WalletData.ListInvoicesResult.class;
     }
 
     @Override

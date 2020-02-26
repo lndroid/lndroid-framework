@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.AddAppContact;
 
@@ -36,8 +37,9 @@ class AddAppContactDao
 
         @Override @Transaction
         public WalletData.Contact commitTransaction(
-                long userId, String txId, long txAuthUserId, WalletData.Contact contact, long time) {
-            return commitTransactionImpl(userId, txId, txAuthUserId, contact, time);
+                long userId, String txId, long txAuthUserId, WalletData.Contact contact, long time,
+                IActionDao.OnResponseMerge<WalletData.Contact> merger) {
+            return commitTransactionImpl(userId, txId, txAuthUserId, contact, time, merger);
         }
 
         @Override @Transaction
@@ -104,14 +106,18 @@ class AddAppContactDao
         }
 
         @Override
-        protected long insertResponse(WalletData.Contact contact) {
+        protected long insertResponse(WalletData.Contact contact,
+                                      IActionDao.OnResponseMerge<WalletData.Contact> merger) {
             // make sure we replace existing contact w/ same pubkey
             RoomData.Contact ri = getContactByPubkey(contact.pubkey());
             if (ri == null) {
                 ri = new RoomData.Contact();
             } else {
-                // drop newly generated id, reuse old one
-                contact = contact.toBuilder().setId(ri.getData().id()).build();
+                // merge
+                if (merger != null)
+                    contact = merger.merge(ri.getData(), contact);
+                else
+                    contact = contact.toBuilder().setId(ri.getData().id()).build();
             }
             ri.setData(contact);
 

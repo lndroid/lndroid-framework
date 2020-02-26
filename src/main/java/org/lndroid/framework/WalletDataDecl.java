@@ -1270,14 +1270,76 @@ public class WalletDataDecl {
         boolean isKeysend();
     }
 
+    public interface Peer {
+        /// The identity pubkey of the peer
+        @Nullable
+        String pubkey();
+
+        /// Network address of the peer; eg `127.0.0.1:10011`
+        @Nullable
+        String address();
+
+        /// Bytes of data transmitted to this peer
+        long bytesSent();
+
+        /// Bytes of data transmitted from this peer
+        long bytesRecv();
+
+        /// Satoshis sent to this peer
+        long satsSent();
+
+        /// Satoshis received from this peer
+        long satsRecv();
+
+        /// If connection was initiated by the peer
+        boolean inbound();
+
+        /// Ping time to this peer
+        long pingTime();
+
+        // The type of sync we are currently performing with this peer.
+        int syncType();
+
+        /// Features advertised by the remote peer in their init message.
+        @Nullable
+        ImmutableList<Integer> features();
+
+        // if connection was requested to be permanent
+        boolean perm();
+
+        // if connection is active
+        boolean online();
+
+        // disconnect was requested
+        boolean disabled();
+
+        // last time the Connect was called, ms
+        long lastConnectTime();
+
+        // last time the Disconnect was called, ms
+        long lastDisconnectTime();
+    }
+
     public interface ConnectPeerRequest {
         @Nullable
         String pubkey();
 
         @Nullable
-        String host();
+        String address();
 
         boolean perm();
+    }
+
+    public interface DisconnectPeerRequest {
+        // use id or contactId or pubkey
+        long id();
+
+        // contact id
+        long contactId();
+
+        // peer pubkey
+        @Nullable
+        String pubkey();
     }
 
     public interface AddContactInvoiceResponse {
@@ -1587,6 +1649,20 @@ public class WalletDataDecl {
         long maxConfirmations();
 
         // sort order: amount, confirmations
+        @Nullable
+        String sort();
+
+        boolean sortDesc();
+    }
+
+    public interface ListPeersRequest {
+
+        long authUserId();
+
+        // all, online, enabled(!disabled), offline(!online && !disabled), disabled
+        String stateFilter();
+
+        // sort order: id, pubkey, address
         @Nullable
         String sort();
 

@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.common.Errors;
 import org.lndroid.framework.engine.IPluginForeground;
@@ -82,6 +83,7 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
     protected abstract Type getResponseType();
     protected int maxTries(PluginContext ctx, Request r) { return 0; }
     protected long maxTryTime(PluginContext ctx, Request r) { return 0; }
+    protected IActionDao.OnResponseMerge<Response> getMerger() { return null; }
 
     private void commit(PluginContext ctx, long authUserId) {
         Request req = (Request)ctx.request;
@@ -90,7 +92,8 @@ public abstract class JobBase<Request, Response> implements IPluginForeground {
 
         // store response in finished tx
         rep = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, rep,
-                maxTries(ctx, req), maxTryTime(ctx, req));
+                maxTries(ctx, req), maxTryTime(ctx, req),
+                getMerger());
 
         // notify other plugins if needed
         engine_.onSignal(id(), newTopic_, rep);

@@ -27,6 +27,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
     protected abstract Type getResponseType();
     protected abstract boolean isValidUser(WalletData.User user);
     protected abstract Request getRequestData(IPluginData in);
+    protected IActionDao.OnResponseMerge<Response> getMerger() { return null; }
 
     protected IPluginForegroundCallback engine() { return engine_; };
     protected IPluginServer server() { return server_; }
@@ -76,7 +77,8 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
         Response response = createResponse(ctx, req, authUserId);
 
         // returned entity has the id assigned
-        response = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, response);
+        response = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, response,
+                getMerger());
 
         // first inform other plugins
         signal(response);

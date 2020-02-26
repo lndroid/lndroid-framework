@@ -24,6 +24,7 @@ import org.lndroid.framework.plugins.CloseChannel;
 import org.lndroid.framework.plugins.CloseChannelWorker;
 import org.lndroid.framework.plugins.ConnectPeer;
 import org.lndroid.framework.plugins.DecodePayReq;
+import org.lndroid.framework.plugins.DisconnectPeer;
 import org.lndroid.framework.plugins.EstimateFee;
 import org.lndroid.framework.plugins.GetAppUser;
 import org.lndroid.framework.plugins.GetAuthRequestUser;
@@ -31,6 +32,7 @@ import org.lndroid.framework.plugins.GetChannel;
 import org.lndroid.framework.plugins.GetChannelBalance;
 import org.lndroid.framework.plugins.GetContact;
 import org.lndroid.framework.plugins.GetInvoice;
+import org.lndroid.framework.plugins.GetPeer;
 import org.lndroid.framework.plugins.GetSendPayment;
 import org.lndroid.framework.plugins.GetTransaction;
 import org.lndroid.framework.plugins.GetUser;
@@ -42,12 +44,14 @@ import org.lndroid.framework.plugins.ListChannels;
 import org.lndroid.framework.plugins.ListContacts;
 import org.lndroid.framework.plugins.ListInvoices;
 import org.lndroid.framework.plugins.ListPayments;
+import org.lndroid.framework.plugins.ListPeers;
 import org.lndroid.framework.plugins.ListTransactions;
 import org.lndroid.framework.plugins.ListUtxo;
 import org.lndroid.framework.plugins.NewAddress;
 import org.lndroid.framework.plugins.NodeInfoWorker;
 import org.lndroid.framework.plugins.OpenChannel;
 import org.lndroid.framework.plugins.OpenChannelWorker;
+import org.lndroid.framework.plugins.PeerStateWorker;
 import org.lndroid.framework.plugins.SendCoins;
 import org.lndroid.framework.plugins.SendCoinsWorker;
 import org.lndroid.framework.plugins.SendPayment;
@@ -141,6 +145,10 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.ESTIMATE_FEE, new ForegroundPlugin(new EstimateFee()));
 
         plugins_.put(DefaultPlugins.CONNECT_PEER, new ForegroundPlugin(new ConnectPeer()));
+        plugins_.put(DefaultPlugins.DISCONNECT_PEER, new ForegroundPlugin(new DisconnectPeer()));
+        plugins_.put(DefaultPlugins.GET_PEER, new ForegroundPlugin(new GetPeer()));
+        plugins_.put(DefaultPlugins.LIST_PEERS, new ForegroundPlugin(new ListPeers()));
+        plugins_.put(DefaultPlugins.PEER_STATE_WORKER, new BackgroundPlugin(new PeerStateWorker()));
 
         plugins_.put(DefaultPlugins.DECODE_PAYREQ, new ForegroundPlugin(new DecodePayReq()));
 
