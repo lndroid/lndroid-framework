@@ -28,7 +28,6 @@ public class SubscribeSendPaymentsDao implements SubscribeSendPayments.IDao, IPl
     public List<WalletData.SendPayment> getActivePayments(long userId) {
         final int[] ACTIVE_STATES = {
                 WalletData.SEND_PAYMENT_STATE_PENDING,
-                WalletData.SEND_PAYMENT_STATE_SENDING
         };
 
         List<RoomData.SendPayment> rps = (userId != 0)

@@ -117,7 +117,8 @@ public class ChannelStateWorkerDao implements
 
         @androidx.room.Transaction
         void updateChannel(Job job, RoomData.Channel c) {
-            updateJob(job);
+            if (job != null)
+                updateJob(job);
             updateChannel(c);
         }
 

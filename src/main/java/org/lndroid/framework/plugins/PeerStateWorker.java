@@ -25,12 +25,14 @@ public class PeerStateWorker implements IPluginBackground {
     }
 
     private static final String TAG = "PeerStateWorker";
+    private static final long LIST_INTERVAL = 10000; // 10sec
 
     private IPluginServer server_;
     private IDao dao_;
     private ILightningDao lnd_;
     private IPluginBackgroundCallback engine_;
     private boolean started_;
+    private boolean listing_;
     private long nextListTime_;
 
     @Override
@@ -99,9 +101,10 @@ public class PeerStateWorker implements IPluginBackground {
             });
         }
 
-        if (nextListTime_ > System.currentTimeMillis())
+        if (nextListTime_ > System.currentTimeMillis() || listing_)
             return;
 
+        listing_ = true;
         Rpc.ListPeersRequest s = Rpc.ListPeersRequest.newBuilder().build();
         lnd_.client().listPeers(s, new ILightningCallback<Rpc.ListPeersResponse>() {
 
@@ -110,6 +113,9 @@ public class PeerStateWorker implements IPluginBackground {
                 Log.e(TAG, "list peers: "+r.getPeersCount());
                 for(Rpc.Peer p:r.getPeersList())
                     onUpdate(p);
+
+                listing_ = false;
+                nextListTime_ = System.currentTimeMillis() + LIST_INTERVAL;
             }
 
             @Override

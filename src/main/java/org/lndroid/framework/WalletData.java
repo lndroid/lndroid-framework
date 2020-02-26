@@ -1605,7 +1605,6 @@ public final class WalletData {
     public static final int SEND_PAYMENT_STATE_PENDING = 0;
     public static final int SEND_PAYMENT_STATE_OK = 1;
     public static final int SEND_PAYMENT_STATE_FAILED = 2;
-    public static final int SEND_PAYMENT_STATE_SENDING = 3;
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_SendPayment.class)

@@ -1660,6 +1660,7 @@ public class WalletDataDecl {
         long authUserId();
 
         // all, online, enabled(!disabled), offline(!online && !disabled), disabled
+        @Nullable
         String stateFilter();
 
         // sort order: id, pubkey, address

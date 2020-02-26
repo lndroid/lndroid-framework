@@ -110,7 +110,6 @@ public class SendPaymentService {
                             stopService();
                         break;
                     case WalletData.SEND_PAYMENT_STATE_PENDING:
-                    case WalletData.SEND_PAYMENT_STATE_SENDING:
                         activePayments_.add(p.id());
                         if (wasEmpty)
                             startService();
