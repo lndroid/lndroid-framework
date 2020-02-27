@@ -9,6 +9,14 @@ public class WalletDataBuilders {
         T build();
     }
 
+
+    interface FieldBuilder<Builder> {
+        Builder setId(String id);
+        Builder setName(String name);
+        Builder setValue(String value);
+        Builder setHelp(String help);
+    }
+
     interface ErrorBuilder<Builder> {
         Builder setCode(String code);
 
@@ -651,4 +659,14 @@ public class WalletDataBuilders {
         Builder setSort(String sort);
         Builder setSortDesc(boolean sortDesc);
     }
+
+    interface ListUsersRequestBuilder<Builder> {
+        Builder setOnlyOwn(boolean onlyOwn);
+        Builder setNoAuth(boolean noAuth);
+        Builder setEnablePaging(boolean enablePaging);
+        Builder setRole(String role);
+        Builder setSort(String sort);
+        Builder setSortDesc(boolean sortDesc);
+    }
+
 }

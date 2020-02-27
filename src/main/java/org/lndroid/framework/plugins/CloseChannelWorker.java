@@ -123,14 +123,21 @@ public class CloseChannelWorker implements IPluginBackground {
             @Override
             public void onResponse(Data.CloseStatusUpdate r) {
                 Log.i(TAG, "close channel response "+r);
-                job.job.jobState = Transaction.JOB_STATE_DONE;
-                dao_.updateJob(job);
+                // ignore if job is already done
+                if (job.job.jobState != Transaction.JOB_STATE_DONE) {
+                    job.job.jobState = Transaction.JOB_STATE_DONE;
+                    dao_.updateJob(job);
+                }
             }
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "open channel error "+i+" err "+s);
-                onLndError(job, i, s);
+                // ignore errors if job is already done bcs this is most-probably
+                // an end-of-stream error code!
+                if (job.job.jobState != Transaction.JOB_STATE_DONE) {
+                    Log.e(TAG, "open channel error " + i + " err " + s);
+                    onLndError(job, i, s);
+                }
             }
         });
     }

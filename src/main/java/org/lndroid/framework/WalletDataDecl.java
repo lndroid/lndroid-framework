@@ -18,6 +18,17 @@ public class WalletDataDecl {
         long id();
     }
 
+    public interface Field {
+        @Nullable
+        String id();
+        @Nullable
+        String name();
+        @Nullable
+        String value();
+        @Nullable
+        String help();
+    }
+
     public interface Error {
         @Nullable
         String code();
@@ -1664,6 +1675,17 @@ public class WalletDataDecl {
         String stateFilter();
 
         // sort order: id, pubkey, address
+        @Nullable
+        String sort();
+
+        boolean sortDesc();
+    }
+
+    public interface ListUsersRequest {
+        @Nullable
+        String role();
+
+        // sort order: id, name
         @Nullable
         String sort();
 

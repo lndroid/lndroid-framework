@@ -51,6 +51,8 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.GET_APP_USER, authDao_);
         pluginDaos_.put(DefaultPlugins.GET_USER, authDao_);
         pluginDaos_.put(DefaultPlugins.GET_AUTH_REQUEST_USER, authRequestDao_);
+        pluginDaos_.put(DefaultPlugins.LIST_USERS, new ListUsersDao(
+                db_.listUsersDao()));
 
         pluginDaos_.put(DefaultPlugins.GET_WALLET_BALANCE, new WalletBalanceDao(
                 db_.walletBalanceDao()));

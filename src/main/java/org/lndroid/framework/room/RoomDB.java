@@ -55,6 +55,7 @@ abstract class RoomDB extends RoomDatabase {
     abstract AuthRequestDao.DaoRoom authRequestDao();
 
     abstract AddUserDao.DaoRoom userAddDao();
+    abstract ListUsersDao.DaoRoom listUsersDao();
 
     abstract WalletBalanceDao.DaoRoom walletBalanceDao();
 

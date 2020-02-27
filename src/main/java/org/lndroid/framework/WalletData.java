@@ -13,6 +13,24 @@ import java.util.List;
 public final class WalletData {
 
     @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_Field.class)
+    public static abstract class Field implements WalletDataDecl.Field {
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_Field.Builder();
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.Field,
+                WalletDataBuilders.IBuilder<Field>,
+                WalletDataBuilders.FieldBuilder<Builder> {
+        }
+    }
+
+    @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_Error.class)
     public static abstract class Error implements WalletDataDecl.Error {
 
@@ -2850,6 +2868,69 @@ public final class WalletData {
                 WalletDataBuilders.IBuilder<ListPeersRequest>,
                 WalletDataBuilders.ListPeersRequestBuilder<Builder> {
             public abstract Builder setPage(ListPage page);
+        }
+    }
+
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_ListPeersRequest.class)
+    public static abstract class ListUsersRequest extends ListRequestBase
+            implements WalletDataDecl.ListUsersRequest {
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_ListUsersRequest.Builder()
+                    .setOnlyOwn(false)
+                    .setNoAuth(false)
+                    .setEnablePaging(false)
+                    .setSortDesc(false)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @Override
+        public ListUsersRequest withPage(ListPage page) {
+            return toBuilder().setPage(page).build();
+        }
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.ListUsersRequest,
+                WalletDataBuilders.IBuilder<ListUsersRequest>,
+                WalletDataBuilders.ListUsersRequestBuilder<Builder> {
+            public abstract Builder setPage(ListPage page);
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_ListUsersResult.class)
+    public static abstract class ListUsersResult implements WalletDataDecl.ListResultTmpl<User> {
+
+        public static ListUsersResult create(
+                ImmutableList<User> items,
+                int count,
+                int position
+        ) {
+            return builder()
+                    .setItems(items)
+                    .setCount(count)
+                    .setPosition(position)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_ListUsersResult.Builder()
+                    .setCount(0)
+                    .setPosition(0);
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.ListResultTmpl<User>,
+                WalletDataBuilders.IBuilder<ListUsersResult>,
+                WalletDataBuilders.ListResultTmplBuilder<User, Builder> {
         }
     }
 

@@ -161,7 +161,10 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
             error_.observeForever(new Observer<WalletData.Error>() {
                 @Override
                 public void onChanged(WalletData.Error error) {
-                    if (error.code().equals(Errors.TX_INVALIDATE) || error.code().equals(Errors.TX_TIMEOUT)) {
+                    if (error.code().equals(Errors.TX_INVALIDATE)
+                            || error.code().equals(Errors.TX_TIMEOUT)
+                            || error.code().equals(Errors.TX_DONE)
+                    ) {
                         buildPagedList();
                     }
                 }
@@ -257,11 +260,6 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
             private LoadInitialCallback<Response> initialCallback_;
             private LoadCallback<Response> callback_;
             private int count_;
-            private Runnable onStarted_;
-
-            void setOnStarted(Runnable onStarted) {
-                onStarted_ = onStarted;
-            }
 
             @Override
             public void onChanged(WalletDataDecl.ListResultTmpl<Response> res) {
@@ -281,11 +279,6 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
 
                         c.onResult(res.items());
                     }
-                }
-
-                if (onStarted_ != null) {
-                    onStarted_.run();
-                    onStarted_ = null;
                 }
             }
 

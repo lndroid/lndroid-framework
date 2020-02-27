@@ -46,6 +46,7 @@ import org.lndroid.framework.plugins.ListInvoices;
 import org.lndroid.framework.plugins.ListPayments;
 import org.lndroid.framework.plugins.ListPeers;
 import org.lndroid.framework.plugins.ListTransactions;
+import org.lndroid.framework.plugins.ListUsers;
 import org.lndroid.framework.plugins.ListUtxo;
 import org.lndroid.framework.plugins.NewAddress;
 import org.lndroid.framework.plugins.NodeInfoWorker;
@@ -131,6 +132,7 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.GET_APP_USER, new ForegroundPlugin(new GetAppUser()));
         plugins_.put(DefaultPlugins.GET_USER, new ForegroundPlugin(new GetUser()));
         plugins_.put(DefaultPlugins.GET_AUTH_REQUEST_USER, new ForegroundPlugin(new GetAuthRequestUser()));
+        plugins_.put(DefaultPlugins.LIST_USERS, new ForegroundPlugin(new ListUsers()));
 
         plugins_.put(DefaultPlugins.GET_WALLET_BALANCE, new ForegroundPlugin(new GetWalletBalance()));
         plugins_.put(DefaultPlugins.WALLET_BALANCE_WORKER, new BackgroundPlugin(new WalletBalanceWorker()));

@@ -6,6 +6,7 @@ public final class DefaultPlugins {
     public static final String GET_USER = "org.lndroid.plugins.GET_USER";
     public static final String GET_APP_USER = "org.lndroid.plugins.GET_APP_USER";
     public static final String GET_AUTH_REQUEST_USER = "org.lndroid.plugins.GET_AUTH_REQUEST_USER";
+    public static final String LIST_USERS = "org.lndroid.plugins.LIST_USERS";
 
     public static final String DECODE_PAYREQ = "org.lndroid.plugins.DECODE_PAYREQ";
     public static final String ESTIMATE_FEE = "org.lndroid.plugins.ESTIMATE_FEE";
