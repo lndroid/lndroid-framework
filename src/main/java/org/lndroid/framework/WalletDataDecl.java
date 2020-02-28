@@ -5,6 +5,9 @@ import androidx.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import org.lndroid.framework.common.FieldInfo;
+import org.lndroid.framework.defaults.DefaultFieldMapper;
+
 public class WalletDataDecl {
 
     // NOTE: not using IXXX names bcs these are not meant to be
@@ -14,6 +17,10 @@ public class WalletDataDecl {
     // these.
 
     public interface EntityBase {
+        @FieldInfo(
+                name = "ID",
+                help = "Internal identifier"
+        )
         // all entities have an id
         long id();
     }
@@ -62,10 +69,23 @@ public class WalletDataDecl {
     }
 
     public interface User {
+        @FieldInfo(
+                name = "Authorizing user id",
+                help = "User id that authorized this user/application"
+        )
         long authUserId();
 
+        @FieldInfo(
+                name = "Create time",
+                help = "Time when this user/application was added",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long createTime();
 
+        @FieldInfo(
+                name = "Role",
+                help = "Role of this user record"
+        )
         @Nullable
         String role();
 
@@ -73,21 +93,33 @@ public class WalletDataDecl {
         @Nullable
         String authType();
 
-        // for some auth types nonce is required
         @Nullable
-        String nonce();
-
-        @Nullable
+        @FieldInfo(
+                name = "Local public key",
+                help = "Public key of this user's local key pair, used to authenticate user requests"
+        )
         String pubkey();
 
         // fields below are required for App roles only
         @Nullable
+        @FieldInfo(
+                name = "Application package name",
+                help = "Application package name, only applicable for users with 'app' role"
+        )
         String appPackageName();
 
         @Nullable
+        @FieldInfo(
+                name = "Application public key",
+                help = "Remote public key of application's key pair, used to authenticate application requests"
+        )
         String appPubkey();
 
         @Nullable
+        @FieldInfo(
+                name = "Application name",
+                help = "Name of the application as provided by Android package manager service"
+        )
         String appLabel();
     }
 
@@ -175,27 +207,61 @@ public class WalletDataDecl {
     }
 
     public interface Contact<RouteHint> {
+        @FieldInfo(
+                name = "User id",
+                help = "User that create the contact"
+        )
         long userId();
 
+        @FieldInfo(
+                name = "Auth user id",
+                help = "User that authorized the contact"
+        )
         long authUserId();
 
+        @FieldInfo(
+                name = "Create time",
+                help = "Time when contact was created",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long createTime();
 
+        @FieldInfo(
+                name = "Public key",
+                help = "Contact identity public key"
+        )
         @Nullable
         String pubkey();
 
+        @FieldInfo(
+                name = "Name",
+                help = "User-assigned name of the contact"
+        )
         @Nullable
         String name();
 
+        @FieldInfo(
+                name = "Description",
+                help = "User-assigned description"
+        )
         @Nullable
         String description();
 
+        @FieldInfo(
+                name = "URL",
+                help = "User-assigned URL address"
+        )
         @Nullable
         String url();
 
         @Nullable
         ImmutableList<RouteHint> routeHints();
 
+        @FieldInfo(
+                name = "Features",
+                help = "Contact node features",
+                convertors = {DefaultFieldMapper.ImmutableIntListConverter.class}
+        )
         @Nullable
         ImmutableList<Integer> features();
     }
@@ -405,55 +471,98 @@ public class WalletDataDecl {
     }
 
     public interface WalletInfo {
-        /// The identity appPubkey of the current node.
+        @FieldInfo(
+                name = "Public key",
+                help = "The identity appPubkey of the current node."
+        )
         @Nullable
         String identityPubkey();
 
-        /// If applicable, the alias of the current node, e.g. "bob"
+        @FieldInfo(
+                name = "Alias",
+                help = "If applicable, the alias of the current node, e.g. \"bob\""
+        )
         @Nullable
         String alias();
 
-        /// Number of pending channels
+        @FieldInfo(
+                name = "Pending channels",
+                help = "Number of pending channels"
+        )
         int numPendingChannels();
 
-        /// Number of active channels
+        @FieldInfo(
+                name = "Active channels",
+                help = "Number of active channels"
+        )
         int numActiveChannels();
 
-        /// Number of peers
+        @FieldInfo(
+                name = "Peers",
+                help = "Number of peers"
+        )
         int numPeers();
 
-        /// The node's current view of the height of the best block
+        @FieldInfo(
+                name = "Block height",
+                help = "The node's current view of the height of the best block"
+        )
         int blockHeight();
 
-        /// The node's current view of the hash of the best block
+        @FieldInfo(
+                name = "Block hash",
+                help = "The node's current view of the hash of the best block"
+        )
         @Nullable
         String blockHash();
 
-        /// Whether the wallet's view is synced to the main chain
+        @FieldInfo(
+                name = "Synched to blockchain",
+                help = "Whether the wallet's view is synced to the main chain"
+        )
         boolean syncedToChain();
 
-        /// The URIs of the current node.
+        @FieldInfo(
+                name = "URIs",
+                help = "The URIs of the current node."
+        )
         @Nullable
         ImmutableList<String> uris();
 
-        /// Timestamp of the block best known to the wallet
+        @FieldInfo(
+                name = "Best header time",
+                help = "Timestamp of the block best known to the wallet"
+        )
         long bestHeaderTimestamp();
 
-        /// The version of the LND software that the node is running.
+        @FieldInfo(
+                name = "LND version",
+                help = "The version of the LND software that the node is running."
+        )
         @Nullable
         String lndVersion();
 
-        /// Number of inactive channels
+        @FieldInfo(
+                name = "Inactive channels",
+                help = "Number of inactive channels"
+        )
         int numInactiveChannels();
 
         /// A list of active chains the node is connected to,
         //public List<String> chains;
 
         /// The color of the current node in hex code format
+        @FieldInfo(
+                name = "Color",
+                help = "Color of the node"
+        )
         @Nullable
         String color();
 
-        // Whether we consider ourselves synced with the public channel graph.
+        @FieldInfo(
+                name = "Synched to graph",
+                help = "Whether we consider ourselves synced with the public channel graph."
+        )
         boolean syncedToGraph();
     }
 
@@ -487,72 +596,108 @@ public class WalletDataDecl {
         @Nullable
         String txId(); // which tx created this invoice
 
-        // user that created the invoice
+        @FieldInfo(
+                name = "User id",
+                help = "User that created the invoice"
+        )
         long userId();
 
-        // who authed this invoice
+        @FieldInfo(
+                name = "Auth user id",
+                help = "User that authorized the invoice"
+        )
         long authUserId();
 
-        // internal description to be presented to the user,
-        // not included in the paymentRequest
+        @FieldInfo(
+                name = "Purpose",
+                help = "User-assigned internal description of the invoice, not included into the payment request"
+        )
         @Nullable
         String purpose();
 
         // ================
 
-        /**
-         * An optional memo to attach along with the invoice. Used for record keeping
-         * purposes for the invoice's creator, and will also be set in the description
-         * field of the encoded payment request if the description_hash field is not
-         * being used.
-         */
+        @FieldInfo(
+                name = "Description",
+                help = "An optional memo to attach along with the invoice. Used for record keeping "+
+                        "purposes for the invoice's creator, and will also be set in the description "+
+                        "field of the encoded payment request if the description_hash field is not" +
+                        "being used."
+        )
         @Nullable
         String description();
 
-        /**
-         * The hex-encoded preimage (32 byte) which will allow settling an incoming
-         * HTLC payable to this preimage
-         */
+        @FieldInfo(
+                name = "Pre-image",
+                help = "The hex-encoded preimage (32 byte) which will allow settling an incoming HTLC "+
+                        "payable to this preimage"
+        )
         @Nullable
         String preimageHex();
 
-        /// The hash of the preimage
+        @FieldInfo(
+                name = "Pre-image hash",
+                help = "The hash of the preimage"
+        )
         @Nullable
         String preimageHashHex();
 
-        /// The value of this invoice in satoshis
+        @FieldInfo(
+                name = "Amount, sats",
+                help = "The value of this invoice in satoshis"
+        )
         long valueSat();
 
-        /// When this invoice was created in ms
+        @FieldInfo(
+                name = "Create time",
+                help = "When this invoice was created",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long createTime();
 
-        /// When this invoice was settled, in ms
+        @FieldInfo(
+                name = "Settle time",
+                help = "When this invoice was settled",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long settleTime();
 
-        /**
-         * A bare-bones invoice for a payment within the Lightning Network.  With the
-         * details of the invoice, the sender has all the request necessary to authorized a
-         * payment to the recipient.
-         */
+        @FieldInfo(
+                name = "Payment request",
+                help = "A bare-bones invoice for a payment within the Lightning Network.  With the " +
+                        "details of the invoice, the sender has all the request necessary to authorized a " +
+                        "payment to the recipient."
+        )
         @Nullable
         String paymentRequest();
 
-        /**
-         * Hash (SHA-256) of a description of the payment. Used if the description of
-         * payment (memo) is too long to naturally fit within the description field
-         * of an encoded payment request.
-         */
+        @FieldInfo(
+                name = "Description hash",
+                help = "Hash (SHA-256) of a description of the payment. Used if the description of " +
+                        "payment (memo) is too long to naturally fit within the description field " +
+                        "of an encoded payment request."
+        )
         @Nullable
         String descriptionHashHex();
 
-        /// Payment request expiry time in seconds. Default is 3600 (1 hour).
+        @FieldInfo(
+                name = "Expiry",
+                help = "Time when the invoice expires."
+                // FIXME sec to datetime
+        )
         long expiry();
 
-        /// Fallback on-chain address.
+        @FieldInfo(
+                name = "Fallback address",
+                help = "Fallback on-chain address."
+        )
         @Nullable
         String fallbackAddr();
 
-        /// Delta to use for the time-lock of the CLTV extended to the final hop.
+        @FieldInfo(
+                name = "CLTV expiry",
+                help = "Delta to use for the time-lock of the CLTV extended to the final hop."
+        )
         long cltvExpiry();
 
         /**
@@ -562,7 +707,10 @@ public class WalletDataDecl {
         // not stored or exposed atm
         // public List<RouteHint> routeHints;
 
-        /// Whether this invoice should include routing hints for private channels.
+        @FieldInfo(
+                name = "Private",
+                help = "Whether this invoice should include routing hints for private channels."
+        )
         boolean isPrivate();
 
         /**
@@ -581,24 +729,34 @@ public class WalletDataDecl {
          */
         long settleIndex();
 
-        /**
-         * The amount that was accepted for this invoice, in millisatoshis. This will
-         * ONLY be set if this invoice has been settled. We provide this field as if
-         * the invoice was created with a zero value, then we need to record what
-         * amount was ultimately accepted. Additionally, it's possible that the sender
-         * paid MORE that was specified in the original invoice. So we'll record that
-         * here as well.
-         */
+        @FieldInfo(
+                name = "Amount paid, msat",
+                help = "The amount that was accepted for this invoice, in millisatoshis. This will " +
+                        "ONLY be set if this invoice has been settled. We provide this field as if " +
+                        "the invoice was created with a zero value, then we need to record what " +
+                        "amount was ultimately accepted. Additionally, it's possible that the sender " +
+                        "paid MORE that was specified in the original invoice. So we'll record that " +
+                        "here as well."
+        )
         long amountPaidMsat();
 
-        /**
-         * The state the invoice is in.
-         */
+        @FieldInfo(
+                name = "State",
+                help = "The state the invoice is in."
+                // FIXME add convertor
+        )
         int state();
 
-        /// Number of HTLCs paying to this invoice [EXPERIMENTAL].
+        @FieldInfo(
+                name = "HTLC count",
+                help = "Number of HTLCs paying to this invoice."
+        )
         int htlcsCount();
 
+        @FieldInfo(
+                name = "Keysend",
+                help = "Whether this invoice was generated as a result of incoming key-send payment"
+        )
         boolean isKeysend();
 
         // list of feature codes
@@ -674,35 +832,59 @@ public class WalletDataDecl {
 
     public interface Channel {
 
-        // userId who called openChannel, might be 0 if
-        // created by auto-pilot
+        @FieldInfo(
+                name = "User id",
+                help = "User that opened this channel, might be 0 if " +
+                        "created by auto-pilot or is inbound"
+        )
         long userId();
 
         // if created by user
         @Nullable
         String txId();
 
-        // user id who authed creation of this channel
+        @FieldInfo(
+                name = "User id",
+                help = "User that authorized the opening of this channel, might be 0 if " +
+                        "created by auto-pilot or is inbound"
+        )
         long authUserId();
 
-        // user-provided description
+        @FieldInfo(
+                name = "Description",
+                help = "User-assigned interal description of this channel"
+        )
         @Nullable
         String description();
 
-        // NOTE: copied from OpenChannelRequest
-        /// The target number of blocks that the funding transaction should be confirmed by.
+        @FieldInfo(
+                name = "Funding target confs",
+                help = "The target number of blocks that the funding transaction should be confirmed by."
+        )
         int targetConf();
 
-        /// A manual fee rate set in sat/byte that should be used when crafting the funding transaction.
+        @FieldInfo(
+                name = "Funding sats per byte",
+                help = "A manual fee rate set in sat/byte that should be used when crafting the funding transaction."
+        )
         long satPerByte();
 
-        /// The minimum value in millisatoshi we will require for incoming HTLCs on the channel.
+        @FieldInfo(
+                name = "Min HTLC msat",
+                help = "The minimum value in millisatoshi we will require for incoming HTLCs on the channel."
+        )
         long minHtlcMsat();
 
-        /// The minimum number of confirmations each one of your outputs used for the funding transaction must satisfy.
+        @FieldInfo(
+                name = "Min confs",
+                help = "The minimum number of confirmations each one of your outputs used for the funding transaction must satisfy."
+        )
         int minConfs();
 
-        /// Whether unconfirmed outputs should be used as inputs for the funding transaction.
+        @FieldInfo(
+                name = "Spend unconfirmed",
+                help = "Whether unconfirmed outputs should be used as inputs for the funding transaction."
+        )
         boolean spendUnconfirmed();
         // ============================
 
@@ -711,81 +893,149 @@ public class WalletDataDecl {
         @Nullable
         String chainHashHex();
 
-        /// The txid of the transaction which ultimately closed this channel.
+        @FieldInfo(
+                name = "Closing tx hash",
+                help = "The txid of the transaction which ultimately closed this channel."
+        )
         @Nullable
         String closingTxHashHex();
 
-        /// Height at which the funding transaction was spent.
+        @FieldInfo(
+                name = "Closing block height",
+                help = "Height at which the funding transaction was spent."
+        )
         int closeHeight();
 
-        /// Settled balance at the time of channel closure
+        @FieldInfo(
+                name = "Settled balance",
+                help = "Settled balance at the time of channel closure."
+        )
         long settledBalance();
 
-        /// The sum of all the time-locked outputs at the time of channel closure
+        @FieldInfo(
+                name = "Time-locked balance",
+                help = "The sum of all the time-locked outputs at the time of channel closure."
+        )
         long timeLockedBalance();
 
-        /// Details on how the channel was closed.
+        @FieldInfo(
+                name = "Close type",
+                help = "Details on how the channel was closed."
+                // FIXME add convertor
+        )
         int closeType();
         // =======================
 
         // see above
+        @FieldInfo(
+                name = "State",
+                help = "State of the channel"
+                // FIXME add convertor
+        )
         int state();
 
-        // error code if state=failed
+        @FieldInfo(
+                name = "Error code",
+                help = "Error code if channel opening failed"
+        )
         @Nullable
         String errorCode();
 
-        // error message by lndroid
+        @FieldInfo(
+                name = "Error message",
+                help = "Error message if channel opening failed"
+        )
         @Nullable
         String errorMessage();
 
+        @FieldInfo(
+                name = "Create time",
+                help = "Time when channel was created",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long createTime();
 
+        @FieldInfo(
+                name = "Open time",
+                help = "Time when channel was opened",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long openTime();
 
+        @FieldInfo(
+                name = "Close time",
+                help = "Time when channel was closed",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long closeTime();
 
         // ====================================
 
 
-        /// Whether this channel is active or not
+        @FieldInfo(
+                name = "Active",
+                help = "Whether this channel is ative or not"
+        )
         boolean active();
 
-        /// The identity appPubkey of the remote node
+        @FieldInfo(
+                name = "Remote pubkey",
+                help = "The identity appPubkey of the remote node"
+        )
         @Nullable
         String remotePubkey();
 
-        /**
-         * The outpoint (txid:index) of the funding transaction. With this value, Bob
-         * will be able to generate a signature for Alice's version of the commitment
-         * transaction.
-         */
+        @FieldInfo(
+                name = "Channel point",
+                help = "The outpoint (txid:index) of the funding transaction. With this value, Bob " +
+                        "will be able to generate a signature for Alice's version of the commitment " +
+                        "transaction."
+        )
         @Nullable
         String channelPoint();
 
-        /**
-         * The unique channel ID for the channel. The first 3 bytes are the block
-         * height, the next 3 the index within the block, and the last 2 bytes are the
-         * output index for the channel.
-         */
+        @FieldInfo(
+                name = "Channel id",
+                help = "The unique channel ID for the channel. The first 3 bytes are the block " +
+                        "height, the next 3 the index within the block, and the last 2 bytes are the " +
+                        "output index for the channel."
+        )
         long chanId();
 
-        /// The total amount of funds held in this channel
+        @FieldInfo(
+                name = "Capacity",
+                help = "The total amount of funds held in this channel."
+        )
         long capacity();
 
-        /// This node's current balance in this channel
+        @FieldInfo(
+                name = "Local balance",
+                help = "This node's current balance in this channel"
+        )
         long localBalance();
 
-        /// The counterparty's current balance in this channel
+        @FieldInfo(
+                name = "Remote balance",
+                help = "The counterparty's current balance in this channel"
+        )
         long remoteBalance();
 
-        /// The height at which this channel will be confirmed
+        @FieldInfo(
+                name = "Confirmation height",
+                help = "The height at which this channel will be confirmed"
+        )
         int confirmationHeight();
 
-        /// The balance in satoshis encumbered in this channel
+        @FieldInfo(
+                name = "Limbo balance",
+                help = "The balance in satoshis encumbered in this channel"
+        )
         long limboBalance();
 
-        /// The height at which funds can be swept into the wallet
+        @FieldInfo(
+                name = "Maturity height",
+                help = "The height at which funds can be swept into the wallet"
+        )
         int maturityHeight();
 
         /*
@@ -796,45 +1046,59 @@ public class WalletDataDecl {
         // calculate from current height
         // int blocksTilMaturity = 5 [ json_name = "blocks_til_maturity" ];
 
-        /// The total value of funds successfully recovered from this channel
+        @FieldInfo(
+                name = "Recovered balance",
+                help = "The total value of funds successfully recovered from this channel."
+        )
         long recoveredBalance();
 
         // repeated PendingHTLC pending_htlcs = 8 [ json_name = "pending_htlcs" ];
 
-        /**
-         * The amount calculated to be paid in fees for the current set of commitment
-         * transactions. The fee amount is persisted with the channel in order to
-         * allow the fee amount to be removed and recalculated with each channel state
-         * update, including updates that happen after a system restart.
-         */
+        @FieldInfo(
+                name = "Commit fee",
+                help = "The amount calculated to be paid in fees for the current set of commitment " +
+                        "transactions. The fee amount is persisted with the channel in order to " +
+                        "allow the fee amount to be removed and recalculated with each channel state " +
+                        "update, including updates that happen after a system restart."
+        )
         long commitFee();
 
-        /// The weight of the commitment transaction
+        @FieldInfo(
+                name = "Commit weight",
+                help = "The weight of the commitment transaction."
+        )
         long commitWeight();
 
-        /**
-         * The required number of satoshis per kilo-weight that the requester will pay
-         * at all times, for both the funding transaction and commitment transaction.
-         * This value can later be updated once the channel is open.
-         */
+        @FieldInfo(
+                name = "Fee per kw",
+                help = "The required number of satoshis per kilo-weight that the requester will pay " +
+                        "at all times, for both the funding transaction and commitment transaction. " +
+                        "This value can later be updated once the channel is open."
+        )
         long feePerKw();
 
-        /// The unsettled balance in this channel
+        @FieldInfo(
+                name = "Unsettled balance",
+                help = "The unsettled balance in this channel."
+        )
         long unsettledBalance();
 
-        /**
-         * The total number of satoshis we've sent within this channel.
-         */
+        @FieldInfo(
+                name = "Total sats sent",
+                help = "The total number of satoshis we've sent within this channel."
+        )
         long totalSatoshisSent();
 
-        /**
-         * The total number of satoshis we've received within this channel.
-         */
+        @FieldInfo(
+                name = "Total sats received",
+                help = "The total number of satoshis we've received within this channel."
+        )
         long totalSatoshisReceived();
 
-        /**
-         * The total number of updates conducted within this channel.
-         */
+        @FieldInfo(
+                name = "Number of updates",
+                help = "The total number of updates conducted within this channel."
+        )
         long numUpdates();
 
         /**
@@ -842,49 +1106,66 @@ public class WalletDataDecl {
          */
         // public List<HTLC> pendingHtlcs;
 
-        /**
-         * The CSV delay expressed in relative blocks. If the channel is force closed,
-         * we will need to wait for this many blocks before we can regain our funds.
-         */
+        @FieldInfo(
+                name = "CSV delay",
+                help = "The CSV delay expressed in relative blocks. If the channel is force closed, " +
+                        "we will need to wait for this many blocks before we can regain our funds."
+        )
         int csvDelay();
 
-        /// Whether this channel is advertised to the network or not.
+        @FieldInfo(
+                name = "Private",
+                help = "Whether this channel is advertised to the network or not."
+        )
         boolean isPrivate();
 
-        /// True if we were the ones that created the channel.
+        @FieldInfo(
+                name = "Initiator",
+                help = "True if we were the ones that created the channel."
+        )
         boolean initiator();
 
-        /// A set of flags showing the current state of the channel.
+        @FieldInfo(
+                name = "Status flags",
+                help = "A set of flags showing the current state of the channel."
+        )
         @Nullable
         String chanStatusFlags();
 
-        /// The minimum satoshis this node is required to reserve in its balance.
+        @FieldInfo(
+                name = "Local reserve sats",
+                help = "The minimum satoshis this node is required to reserve in its balance."
+        )
         long localChanReserveSat();
 
-        /**
-         * The minimum satoshis the other node is required to reserve in its balance.
-         */
+        @FieldInfo(
+                name = "Remote reserve sats",
+                help = "The minimum satoshis the other node is required to reserve in its balance."
+        )
         long remoteChanReserveSat();
 
-        /**
-         * If true, then this channel uses the modern commitment format where the key
-         * in the output of the remote party does not change each state. This makes
-         * back up and recovery easier as when the channel is closed, the funds go
-         * directly to that key.
-         */
+        @FieldInfo(
+                name = "Remote reserve sats",
+                help = "If true, then this channel uses the modern commitment format where the key " +
+                        "in the output of the remote party does not change each state. This makes " +
+                        "back up and recovery easier as when the channel is closed, the funds go " +
+                        "directly to that key."
+        )
         boolean staticRemoteKey();
 
-        /**
-         * The number of seconds that the channel has been monitored by the channel
-         * scoring system. Scores are currently not persisted, so this value may be
-         * less than the lifetime of the channel [EXPERIMENTAL].
-         */
+        @FieldInfo(
+                name = "Lifetime, sec",
+                help = "The number of seconds that the channel has been monitored by the channel " +
+                        "scoring system. Scores are currently not persisted, so this value may be " +
+                        "less than the lifetime of the channel."
+        )
         long lifetime();
 
-        /**
-         * The number of seconds that the remote peer has been observed as being online
-         * by the channel scoring system over the lifetime of the channel [EXPERIMENTAL].
-         */
+        @FieldInfo(
+                name = "Lifetime, sec",
+                help = "The number of seconds that the remote peer has been observed as being online " +
+                        "by the channel scoring system over the lifetime of the channel."
+        )
         long uptime();
 
     }
@@ -893,6 +1174,7 @@ public class WalletDataDecl {
         long userId();
 
         // all, open, pending, closed
+        @Nullable
         String stateFilter();
 
         // sort order: id
@@ -1134,102 +1416,165 @@ public class WalletDataDecl {
         @Nullable
         String txId();
 
-        // user that created the payment
+        @FieldInfo(
+                name = "User id",
+                help = "User who created this payment."
+        )
         long userId();
 
-        // who authed this payment
+        @FieldInfo(
+                name = "Auth user id",
+                help = "User who authorized this payment."
+        )
         long authUserId();
 
-        // internal description to be presented to the user
+        @FieldInfo(
+                name = "Purpose",
+                help = "User-assigned internal description, not sent to the payee."
+        )
         @Nullable
         String purpose();
 
-        // see at WalletData
+        @FieldInfo(
+                name = "State",
+                help = "State this payment is in"
+                //FIXME add convertor
+        )
         int state();
 
-        // error code if state=failed
+        @FieldInfo(
+                name = "Error code",
+                help = "Error code if payment failed"
+        )
         @Nullable
         String errorCode();
 
-        // error message by lndroid
+        @FieldInfo(
+                name = "Error message",
+                help = "Error message if payment failed"
+        )
         @Nullable
         String errorMessage();
 
-        // usually come from payreq
+        @FieldInfo(
+                name = "Invoice description",
+                help = "Description that was provided within the payment request"
+        )
         @Nullable
         String invoiceDescription();
 
+        @FieldInfo(
+                name = "Invoice description hash",
+                help = "Hash of the description that was provided within the payment request"
+        )
         @Nullable
         String invoiceDescriptionHashHex();
 
+        @FieldInfo(
+                name = "Invoice fallback address",
+                help = "Fallback address that was provided within the payment request"
+        )
         @Nullable
         String invoiceFallbackAddr();
 
-        // MPP payment addr from the invoice
+        @FieldInfo(
+                name = "Payment address",
+                help = "MPP payment addr that was provided within the payment request"
+        )
         @Nullable
         String paymentAddrHex();
 
+        @FieldInfo(
+                name = "Invoice timestamp",
+                help = "Time when invoice was created"
+                // FIXME convertor
+        )
         long invoiceTimestamp();
 
-        // expiry from payreq in relative sec, if any
+        @FieldInfo(
+                name = "Invoice expiry, sec",
+                help = "Invoice expiry interval"
+        )
         long invoiceExpiry();
 
         // lnd fields
 
-        /// The identity pubkey of the payment recipient
+        @FieldInfo(
+                name = "Destination public key",
+                help = "The identity pubkey of the payment recipient"
+        )
         @Nullable
         String destPubkey();
 
-        /// The value of the payment in milli-satoshis
+        @FieldInfo(
+                name = "Value, msat",
+                help = "The value of the payment in milli-satoshis"
+        )
         long valueMsat();
 
-        // valueMsat + feeMsat
+        @FieldInfo(
+                name = "Total value, msat",
+                help = "The total value (value+fee) of the payment in milli-satoshis"
+        )
         long totalValueMsat();
 
-        /// The hash to use within the payment's HTLC
+        @FieldInfo(
+                name = "Payment hash",
+                help = "The hash to use within the payment's HTLC"
+        )
         @Nullable
         String paymentHashHex();
 
-        /**
-         * A bare-bones invoice for a payment within the Lightning Network.  With the
-         * details of the invoice, the sender has all the request necessary to authorized a
-         * payment to the recipient.
-         */
+        @FieldInfo(
+                name = "Payment request",
+                help = "A bare-bones invoice for a payment within the Lightning Network. With the " +
+                        "details of the invoice, the sender has all the request necessary to authorized a " +
+                        "payment to the recipient."
+        )
         @Nullable
         String paymentRequest();
 
-        /**
-         * The CLTV delta from the current height that should be used to set the
-         * timelock for the final hop.
-         */
+        @FieldInfo(
+                name = "Final CLTV delta",
+                help = "The CLTV delta from the current height that should be used to set the " +
+                        "timelock for the final hop."
+        )
         int finalCltvDelta();
 
-        /**
-         * The maximum number of satoshis that will be paid as a fee of the payment.
-         * This value can be represented either as a percentage of the amount being
-         * sent, or as a fixed amount of the maximum fee the user is willing the pay to
-         * authorized the payment.
-         */
-        /// The fee limit expressed as a fixed amount of satoshis.
+        @FieldInfo(
+                name = "Fee limit fixed, msat",
+                help = "The fee limit expressed as a fixed amount of satoshis. "+
+                        "The maximum number of satoshis that will be paid as a fee of the payment. " +
+                        "This value can be represented either as a percentage of the amount being " +
+                        "sent, or as a fixed amount of the maximum fee the user is willing the pay to " +
+                        "authorized the payment."
+        )
         long feeLimitFixedMsat();
 
-        /// The fee limit expressed as a percentage of the payment amount.
+        @FieldInfo(
+                name = "Fee limit, %",
+                help = "The fee limit expressed as a percentage of the payment amount. "+
+                        "The maximum number of satoshis that will be paid as a fee of the payment. " +
+                        "This value can be represented either as a percentage of the amount being " +
+                        "sent, or as a fixed amount of the maximum fee the user is willing the pay to " +
+                        "authorized the payment."
+        )
         long feeLimitPercent();
 
-        /**
-         * The channel id of the channel that must be taken to the first hop. If zero,
-         * any channel may be used.
-         */
+        @FieldInfo(
+                name = "Outgoing channel id",
+                help = "The channel id of the channel that must be taken to the first hop. If zero, " +
+                        "any channel may be used."
+        )
         long outgoingChanId();
 
-        /**
-         * An optional maximum total time lock for the route. This should not exceed
-         * lnd's `--max-cltv-expiry` setting. If zero, then the value of
-         * `--max-cltv-expiry` is enforced.
-         */
+        @FieldInfo(
+                name = "CLTV limit",
+                help = "An optional maximum total time lock for the route. This should not exceed " +
+                        "lnd's `--max-cltv-expiry` setting. If zero, then the value of\n" +
+                        "`--max-cltv-expiry` is enforced."
+        )
         int cltvLimit();
-
-        // SendResponse fields
 
         /**
          * An optional field that can be used to pass an arbitrary set of TLV records
@@ -1239,9 +1584,17 @@ public class WalletDataDecl {
         @Nullable
         ImmutableMap<Long, byte[]> destCustomRecords();
 
+        @FieldInfo(
+                name = "Payment error",
+                help = "Error returned by lnd on the last payment attempt."
+        )
         @Nullable
         String paymentError();
 
+        @FieldInfo(
+                name = "Payment preimage",
+                help = "Payment preimage retrieved in exchange for the payment."
+        )
         @Nullable
         String paymentPreimageHex();
 
@@ -1256,78 +1609,148 @@ public class WalletDataDecl {
 
         // Payment fields
 
-        /// The time of this payment in ms
+        @FieldInfo(
+                name = "Create time",
+                help = "The time when this payment was created",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long createTime();
 
+        @FieldInfo(
+                name = "Send time",
+                help = "The time when this payment was sent",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long sendTime();
 
         /// The path this payment took
         // instead, store payment routes w/ hops etc
         // public List<String> path;
 
-        ///  The fee paid for this payment in milli-satoshis
+        @FieldInfo(
+                name = "Fee, msat",
+                help = "The fee paid for this payment in milli-satoshis"
+        )
         long feeMsat();
 
+        @FieldInfo(
+                name = "Contact public key",
+                help = "Public key of the contact if key-send to the contact was requested"
+        )
         @Nullable
         String contactPubkey();
 
+        @FieldInfo(
+                name = "Message",
+                help = "Message attached to the key-send payment"
+        )
         @Nullable
         String message();
 
         @Nullable
         String senderPubkey();
 
-        // send preimage as TLV to make invoiceless payment
+        @FieldInfo(
+                name = "Key-send",
+                help = "Whether this is key-send payment: send preimage as TLV to make invoiceless payment"
+        )
         boolean isKeysend();
     }
 
     public interface Peer {
-        /// The identity pubkey of the peer
+        @FieldInfo(
+                name = "Public key",
+                help = "The identity pubkey of the peer"
+        )
         @Nullable
         String pubkey();
 
-        /// Network address of the peer; eg `127.0.0.1:10011`
+        @FieldInfo(
+                name = "Address",
+                help = "Network address of the peer"
+        )
         @Nullable
         String address();
 
-        /// Bytes of data transmitted to this peer
+        @FieldInfo(
+                name = "Bytes sent",
+                help = "Bytes of data transmitted to this peer"
+        )
         long bytesSent();
 
-        /// Bytes of data transmitted from this peer
+        @FieldInfo(
+                name = "Bytes received",
+                help = "Bytes of data transmitted from this peer"
+        )
         long bytesRecv();
 
-        /// Satoshis sent to this peer
+        @FieldInfo(
+                name = "Sats sent",
+                help = "Satoshis sent to this peer"
+        )
         long satsSent();
 
-        /// Satoshis received from this peer
+        @FieldInfo(
+                name = "Sats received",
+                help = "Satoshis received from this peer"
+        )
         long satsRecv();
 
-        /// If connection was initiated by the peer
+        @FieldInfo(
+                name = "Inbound",
+                help = "If connection was initiated by the peer"
+        )
         boolean inbound();
 
-        /// Ping time to this peer
+        @FieldInfo(
+                name = "Ping time",
+                help = "Ping time to this peer"
+        )
         long pingTime();
 
-        // The type of sync we are currently performing with this peer.
+        @FieldInfo(
+                name = "Sync type",
+                help = "The type of sync we are currently performing with this peer.",
+                convertors = {DefaultFieldMapper.PeerSyncTypeConverter.class}
+        )
         int syncType();
 
-        /// Features advertised by the remote peer in their init message.
+        @FieldInfo(
+                name = "Features",
+                help = "Features advertised by the remote peer in their init message.",
+                convertors = {DefaultFieldMapper.ImmutableIntListConverter.class}
+        )
         @Nullable
         ImmutableList<Integer> features();
 
-        // if connection was requested to be permanent
+        @FieldInfo(
+                name = "Permanent",
+                help = "If connection was requested to be permanent"
+        )
         boolean perm();
 
-        // if connection is active
+        @FieldInfo(
+                name = "Online",
+                help = "If connection is active"
+        )
         boolean online();
 
-        // disconnect was requested
+        @FieldInfo(
+                name = "Disabled",
+                help = "If disconnection was requested"
+        )
         boolean disabled();
 
-        // last time the Connect was called, ms
+        @FieldInfo(
+                name = "Last connect time",
+                help = "Last time the Connect was called, ms"
+        )
         long lastConnectTime();
 
-        // last time the Disconnect was called, ms
+        @FieldInfo(
+                name = "Last disconnect time",
+                help = "Last time the Disconnect was called, ms"
+        )
         long lastDisconnectTime();
     }
 

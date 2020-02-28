@@ -77,7 +77,10 @@ public class UtxoWorker implements IPluginBackground {
         // mark, to avoid sending multiple requests
         updating_ = true;
 
-        Rpc.ListUnspentRequest r = Rpc.ListUnspentRequest.newBuilder().build();
+        Rpc.ListUnspentRequest r = Rpc.ListUnspentRequest.newBuilder()
+                .setMinConfs(0)
+                .setMaxConfs(100) // FIXME why? kinda 'we should have synched within 24h window'?
+                .build();
         lnd_.client().listUnspent(r, new ILightningCallback<Rpc.ListUnspentResponse>() {
             @Override
             public void onResponse(Rpc.ListUnspentResponse r) {

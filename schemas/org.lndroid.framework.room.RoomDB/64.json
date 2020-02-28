@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 64,
-    "identityHash": "bff3950454bead433140a46ff6306e82",
+    "identityHash": "77b640eb61f2da31e7619608e99c2be6",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -2372,7 +2372,7 @@
       },
       {
         "tableName": "User",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `role` TEXT, `authType` TEXT, `nonce` TEXT, `pubkey` TEXT, `appPackageName` TEXT, `appPubkey` TEXT, `appLabel` TEXT, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `role` TEXT, `authType` TEXT, `pubkey` TEXT, `appPackageName` TEXT, `appPubkey` TEXT, `appLabel` TEXT, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -2407,12 +2407,6 @@
           {
             "fieldPath": "data_.authType",
             "columnName": "authType",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "data_.nonce",
-            "columnName": "nonce",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -3573,7 +3567,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bff3950454bead433140a46ff6306e82')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '77b640eb61f2da31e7619608e99c2be6')"
     ]
   }
 }

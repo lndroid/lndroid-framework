@@ -11,9 +11,11 @@ import androidx.paging.PagedList;
 
 import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.common.IFieldMapper;
 import org.lndroid.framework.common.IResponseCallback;
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.client.IPluginClient;
+import org.lndroid.framework.defaults.DefaultFieldMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
 
     public GetData(IPluginClient client, String pluginId) {
         super(client, pluginId);
+
         setCallback(new IResponseCallback<DataType>() {
             @Override
             public void onResponse(DataType r) {
@@ -53,12 +56,12 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
         return error_;
     }
 
-    public Pager createPager(IFieldMapper<DataType> mapper) {
-        return new Pager(mapper);
+    public Pager createPager() {
+        return new Pager();
     }
 
-    public interface IFieldMapper<DataType> {
-        List<WalletData.Field> mapToFields(DataType t);
+    public Pager createPager(IFieldMapper<DataType> mapper) {
+        return new Pager(mapper);
     }
 
     public interface IPager<IdType> {
@@ -84,6 +87,10 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
 
         // request stored to reload data in case of invalidation
         private WalletDataDecl.GetRequestTmpl<IdType> request_;
+
+        private Pager() {
+            mapper_ = new DefaultFieldMapper<>();
+        }
 
         private Pager(IFieldMapper<DataType> mapper) {
             mapper_ = mapper;
@@ -143,13 +150,13 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
                 @Override
                 public void onResponse(DataType r) {
                     pagedList_.setValue(pagedList);
-                    setCallback(null);
+                    pagerCb_ = null;
                 }
 
                 @Override
                 public void onError(String code, String e) {
                     pagedList_.setValue(pagedList);
-                    setCallback(null);
+                    pagerCb_ = null;
                 }
             };
         }
@@ -227,8 +234,10 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
                 // save callback
                 initialCallback_ = callback;
 
-                GetData.this.setRequest(request_);
-                start();
+                if (!GetData.this.isActive()) {
+                    GetData.this.setRequest(request_);
+                    start();
+                }
             }
 
             @Override

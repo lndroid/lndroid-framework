@@ -50,8 +50,6 @@ public class WalletDataBuilders {
 
         Builder setAuthType(String authType);
 
-        Builder setNonce(String nonce);
-
         Builder setPubkey(String pubkey);
 
         Builder setAppPubkey(String appPubkey);

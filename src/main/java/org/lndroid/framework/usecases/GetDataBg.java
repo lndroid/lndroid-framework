@@ -41,6 +41,8 @@ public abstract class GetDataBg<DataType, /*optional*/IdType> {
     protected abstract Type getRequestType();
 
     public void start() {
+        if (cb_ == null)
+            throw new RuntimeException("Get callback not specified");
         if (tx_ != null)
             throw new RuntimeException("Tx already started");
 

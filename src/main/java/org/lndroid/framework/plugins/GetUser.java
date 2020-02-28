@@ -22,7 +22,7 @@ public class GetUser extends GetBase<Long> {
     private IDao dao_;
 
     public GetUser() {
-        super(DefaultPlugins.GET_APP_USER, DefaultTopics.USER_STATE);
+        super(DefaultPlugins.GET_USER, DefaultTopics.USER_STATE);
     }
 
     @Override

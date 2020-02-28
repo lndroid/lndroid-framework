@@ -259,7 +259,6 @@ public final class WalletData {
                 long createTime,
                 String role,
                 String authType,
-                String nonce,
                 String pubkey,
                 String appPubkey,
                 String appPackageName,
@@ -271,7 +270,6 @@ public final class WalletData {
                     .setCreateTime(createTime)
                     .setRole(role)
                     .setAuthType(authType)
-                    .setNonce(nonce)
                     .setPubkey(pubkey)
                     .setAppPubkey(appPubkey)
                     .setAppPackageName(appPackageName)
@@ -1284,37 +1282,6 @@ public final class WalletData {
                 WalletDataBuilders.IBuilder<CloseChannelRequest>,
                 WalletDataBuilders.CloseChannelRequestBuilder<Builder> {
         }
-    }
-
-    public static final class OnChainTransaction {
-        // primary key
-        /// The transaction hash
-        public String txHash;
-
-        /// The transaction amount, denominated in satoshis
-        public long amount;
-
-        /// The number of confirmations
-        public int numConfirmations;
-
-        /// The hash of the block this transaction was included in
-        public String blockHash;
-
-        /// The height of the block this transaction was included in
-        public int blockHeight;
-
-        /// Timestamp of this transaction
-        public long timeStamp;
-
-        /// Fees paid for this transaction
-        public long totalFees;
-
-        // will be serialized to db using a type-converter
-        /// Addresses that received funds for this transaction
-        public List<String> destAddresses;
-
-        /// The raw transaction hex.
-        public String rawTxHex;
     }
 
     @AutoValue
@@ -2491,6 +2458,7 @@ public final class WalletData {
                     .setUserId(0)
                     .setAuthUserId(0)
                     .setCreateTime(0)
+                    .setSendTime(0)
                     .setState(TRANSACTION_STATE_NEW)
                     .setTargetConf(0)
                     .setSatPerByte(0)

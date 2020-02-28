@@ -136,11 +136,11 @@ public class TransactionStateWorker implements IPluginBackground {
             }
         });
 
-        List<Job> jobs = dao_.getSendingJobs();
-        if (jobs == null || jobs.isEmpty()) {
-            synched_ = true;
-            return;
-        }
+//        List<Job> jobs = dao_.getSendingJobs();
+//        if (jobs == null || jobs.isEmpty()) {
+//            synched_ = true;
+//            return;
+//        }
 
         // initial sync protocol:
         // - subscribe to updates
