@@ -83,6 +83,7 @@ final class RoomData {
             // FIXME unique?
             @Index(value = {"addIndex"}),
             @Index(value = {"settleIndex"}),
+            @Index(value = {"settleTime", "notifyTime", "id"}),
     })
     @TypeConverters({RoomConverters.ImmutableIntListConverter.class})
     static class Invoice extends RoomEntityBase<WalletData.Invoice> {
@@ -209,6 +210,7 @@ final class RoomData {
     @Entity(indices = {
             @Index(unique = true, value = {"id"}),
             @Index(unique = true, value = {"txHash"}),
+            @Index(value = {"notifyTime"}),
     })
     @TypeConverters({
             RoomConverters.ImmutableStringLongMapConverter.class,

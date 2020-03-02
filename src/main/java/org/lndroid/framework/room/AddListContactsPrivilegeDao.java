@@ -62,7 +62,7 @@ class AddListContactsPrivilegeDao
             return r != null ? r.getData() : null;
         }
 
-        @Query("SELECT * FROM txListContactsPrivilege WHERE id = :id")
+        @Query("SELECT * FROM txListContactsPrivilege WHERE id_ = :id")
         abstract RoomTransactions.ListContactsPrivilege getRequestRoom(long id);
 
         @Override

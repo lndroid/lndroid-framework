@@ -473,7 +473,7 @@ public class WalletDataDecl {
     public interface WalletInfo {
         @FieldInfo(
                 name = "Public key",
-                help = "The identity appPubkey of the current node."
+                help = "The identity pubkey of the current node."
         )
         @Nullable
         String identityPubkey();
@@ -661,6 +661,10 @@ public class WalletDataDecl {
                 convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
         )
         long settleTime();
+
+        // when user was notified about this paid invoice, notifiedPaidInvoice method
+        // must be called to set this field
+        long notifyTime();
 
         @FieldInfo(
                 name = "Payment request",
@@ -1895,18 +1899,6 @@ public class WalletDataDecl {
         ImmutableList<Integer> features();
     }
 
-    interface SendManyRequest {
-        /// The map from addresses to amounts
-        @Nullable
-        ImmutableMap<String, Long> addrToAmount();
-
-        /// The target number of blocks that this transaction should be confirmed by.
-        int targetConf();
-
-        /// A manual fee rate set in sat/byte that should be used when crafting the transaction.
-        long satPerByte();
-    }
-
     interface SendCoinsRequest {
         // lndroid fields
 
@@ -1944,82 +1936,150 @@ public class WalletDataDecl {
         @Nullable
         String txId();
 
-        // user that created the tx
+        @FieldInfo(
+                name = "User id",
+                help = "User that created this transaction, or 0 if not created by this wallet."
+        )
         long userId();
 
-        // who authed the tx
+        @FieldInfo(
+                name = "User id",
+                help = "User that authorized this transaction."
+        )
         long authUserId();
 
-        // when was it created
+        @FieldInfo(
+                name = "Create time",
+                help = "Time when transaction was created.",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long createTime();
 
-        // when was it broadcasted
+        @FieldInfo(
+                name = "Send time",
+                help = "Time when transaction was broadcasted.",
+                convertors = {DefaultFieldMapper.DateTimeMsConverter.class}
+        )
         long sendTime();
 
-        // internal description to be presented to the user
+        // when user was notified about this tx, auto-filled for
+        // txs created by this wallet, for others notifiedTransaction method
+        // must be called to mark txs as notified
+        long notifyTime();
+
+        @FieldInfo(
+                name = "Purpose",
+                help = "User-assigned internal description of transaction."
+        )
         @Nullable
         String purpose();
 
-        // 0 - pending, 1 - sent, 2 - failed, 3 - sending, 4 - rejected by user
+        @FieldInfo(
+                name = "State",
+                help = "State of the transaction."
+                // FIXME convertor
+        )
         int state();
 
-        // error code if state=failed
+        @FieldInfo(
+                name = "Error code",
+                help = "Error code if transaction creation failed."
+        )
         @Nullable
         String errorCode();
 
-        // error message by lndroid
+        @FieldInfo(
+                name = "Error message",
+                help = "Error message if transaction creation failed."
+        )
         @Nullable
         String errorMessage();
 
         // request fields
 
-        /// The map from addresses to amounts
+        @FieldInfo(
+                convertors = {DefaultFieldMapper.TransactionConvertor.class}
+        )
         @Nullable
         ImmutableMap<String, Long> addrToAmount();
 
-        /// The target number of blocks that this transaction should be confirmed by.
+        @FieldInfo(
+                name = "Target conf blocks",
+                help = "The target number of blocks that this transaction should be confirmed by."
+        )
         int targetConf();
 
-        /// A manual fee rate set in sat/byte that should be used when crafting the transaction.
+        @FieldInfo(
+                name = "Sat per byte",
+                help = "A manual fee rate set in sat/byte that should be used when crafting the transaction."
+        )
         long satPerByte();
 
-        /**
-         If set, then the amount field will be ignored, and lnd will attempt to
-         send all the coins under control of the internal wallet to the specified
-         address. addrToAmount must contain a single address.
-         */
+        @FieldInfo(
+                name = "Send all",
+                help = "If set, then the amount field will be ignored, and lnd will attempt to " +
+                        "send all the coins under control of the internal wallet to the specified " +
+                        "address. addrToAmount must contain a single address."
+        )
         boolean sendAll();
 
 
         // lnd fields
 
-        /// The transaction hash
+        @FieldInfo(
+                name = "Tx hash",
+                help = "The on-chain transaction hash."
+        )
+        @Nullable
         String txHash();
 
-        /// The total transaction amount, denominated in satoshis
+        @FieldInfo(
+                name = "Amount, sat",
+                help = "The total transaction amount in sats."
+        )
         long amount();
 
-        /// The number of confirmations
+        @FieldInfo(
+                name = "Confirmations",
+                help = "The number of confirmations."
+        )
         int numConfirmations();
 
-        /// The hash of the block this transaction was included in
+        @FieldInfo(
+                name = "Block hash",
+                help = "The hash of the block this transaction was included in."
+        )
         @Nullable
         String blockHash();
 
-        /// The height of the block this transaction was included in
+        @FieldInfo(
+                name = "Block height",
+                help = "The height of the block this transaction was included in."
+        )
         int blockHeight();
 
-        /// Timestamp of this transaction
+        @FieldInfo(
+                name = "Timestamp",
+                help = "Timestamp of this transaction."
+        )
         long timestamp();
 
-        /// Fees paid for this transaction
+        @FieldInfo(
+                name = "Fee, sat",
+                help = "Fees paid for this transaction in sats."
+        )
         long totalFees();
 
-        /// Addresses that received funds for this transaction
+        @FieldInfo(
+                convertors = {DefaultFieldMapper.TransactionConvertor.class}
+        )
         @Nullable
         ImmutableList<String> destAddresses();
 
-        /// The raw transaction hex.
+        @FieldInfo(
+                name = "Tx hex",
+                help = "The raw transaction hex."
+        )
         @Nullable
         String rawTxHex();
     }
@@ -2055,25 +2115,47 @@ public class WalletDataDecl {
     }
 
     interface Utxo {
-        /// The type of address
+        @FieldInfo(
+                name = "Type",
+                help = "The type of address"
+                // FIXME convertor
+        )
         int type();
 
-        /// The address
+        @FieldInfo(
+                name = "Address",
+                help = "The address"
+        )
         String address();
 
-        /// The value of the unspent coin in satoshis
+        @FieldInfo(
+                name = "Value, sat",
+                help = "The value of the unspent coin in satoshis"
+        )
         long amountSat();
 
-        /// The pkscript in hex
+        @FieldInfo(
+                name = "Pkscript",
+                help = "The pkscript in hex"
+        )
         String pkScript();
 
-        /// Reversed, hex-encoded string representing the transaction id.
+        @FieldInfo(
+                name = "Tx hash",
+                help = "Reversed, hex-encoded string representing the transaction id."
+        )
         String txidHex();
 
-        /// The index of the output on the transaction.
+        @FieldInfo(
+                name = "Output index",
+                help = "The index of the output on the transaction."
+        )
         int outputIndex();
 
-        /// The number of confirmations for the Utxo
+        @FieldInfo(
+                name = "Confirmations",
+                help = "The number of confirmations for the Utxo."
+        )
         long confirmations();
     }
 
@@ -2115,5 +2197,22 @@ public class WalletDataDecl {
         boolean sortDesc();
     }
 
+    public interface NotifiedInvoicesRequest {
+        ImmutableList<Long> invoiceIds();
+    }
+
+    public interface NotifiedInvoicesResponse {
+    }
+
+    public interface SubscribeNewPaidInvoices {
+
+        boolean noAuth();
+
+        String protocolExtension();
+
+        // for broadcast-based notifications
+        String componentPackageName();
+        String componentClassName();
+    }
 
 }

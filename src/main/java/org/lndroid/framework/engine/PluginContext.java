@@ -1,5 +1,7 @@
 package org.lndroid.framework.engine;
 
+import android.content.ComponentName;
+
 import org.lndroid.framework.WalletData;
 
 // passed to plugin as calling transaction context,
@@ -38,4 +40,9 @@ public class PluginContext {
 
     // true if client is communicating over IPC
     public boolean ipc;
+
+    // for plugins that will send a broadcast to client
+    // when a send-failure happens - which implies that client
+    // has terminated and broadcast would wake it up.
+    public ComponentName broadcastComponent;
 }

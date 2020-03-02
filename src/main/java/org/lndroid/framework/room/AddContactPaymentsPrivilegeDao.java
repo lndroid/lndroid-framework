@@ -62,7 +62,7 @@ class AddContactPaymentsPrivilegeDao
             return r != null ? r.getData() : null;
         }
 
-        @Query("SELECT * FROM txContactPaymentsPrivilege WHERE id = :id")
+        @Query("SELECT * FROM txContactPaymentsPrivilege WHERE id_ = :id")
         abstract RoomTransactions.ContactPaymentsPrivilege getRequestRoom(long id);
 
         @Override

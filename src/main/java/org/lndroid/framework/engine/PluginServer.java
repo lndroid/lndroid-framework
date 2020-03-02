@@ -1,5 +1,6 @@
 package org.lndroid.framework.engine;
 
+import android.content.ComponentName;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -50,6 +51,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     private IAuthComponentProvider authComponentProvider_;
     private IKeyStore keyStore_;
     private IIdGenerator idGenerator_;
+    private IBroadcaster broadcaster_;
     private Map<Long,Integer> authRequestHistory_ = new HashMap<>();
     private List<AuthSub> authRequestSubscribers_ = new ArrayList<>();
     private List<AuthSub> walletStateSubscribers_ = new ArrayList<>();
@@ -98,7 +100,8 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                  ICodecProvider ipcCodecProvider,
                  IAuthComponentProvider authComponentProvider,
                  IKeyStore keyStore,
-                 IIdGenerator idGenerator
+                 IIdGenerator idGenerator,
+                 IBroadcaster broadcaster
     ){
         pluginProvider_ = pluginProvider;
         daoConfig_ = daoConfig;
@@ -108,6 +111,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         authComponentProvider_ = authComponentProvider;
         keyStore_ = keyStore;
         idGenerator_ = idGenerator;
+        broadcaster_ = broadcaster;
     }
 
     @Override
@@ -1064,18 +1068,26 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         }
     }
 
+    private void sendBroadcast(String pluginId, String txId, ComponentName component) {
+        if (broadcaster_ != null)
+            broadcaster_.sendBroadcast(pluginId, txId, component);
+    }
+
     // helper to send response to clients
     private void sendTxReply(PluginContext pc, PluginData.PluginMessage pm) {
         Caller c = callers_.get(pc.user.id());
         Contexts ctxs = c.pluginContexts.get(pm.pluginId());
         Context ctx = ctxs.contexts.get(pc.txId);
 
-            // restored timed-out sessions might have empty client
+        // restored timed-out sessions might have empty client
         if (ctx != null && ctx.client != null) {
             Messenger client = ctx.client.get();
-            // client might be GCed if caller was closed by OS
+            // client might be GCed if local caller was terminated by OS
             if (client != null) {
-                sendTxMessage(pm, ctx.ctx.ipc, client, ctx.ctx.user);
+                final boolean sent = sendTxMessage(pm, ctx.ctx.ipc, client, ctx.ctx.user);
+                if (!sent && ctx.ctx.broadcastComponent != null) {
+                    sendBroadcast(pm.pluginId(), pc.txId, ctx.ctx.broadcastComponent);
+                }
             } else {
                 Log.i(TAG, "client lost due to GC");
             }

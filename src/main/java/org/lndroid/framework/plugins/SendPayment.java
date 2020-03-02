@@ -154,14 +154,12 @@ public class SendPayment implements IPluginForeground {
         p = dao_.commitTransaction(ctx.user.id(), ctx.txId, authUserId, p, req.maxTries(), req.expiry());
 
         // notify other plugins
-        PluginData.PluginNotification n = new PluginData.PluginNotification();
-        n.pluginId = id();
-        n.entityId = p.sourceId();
-        engine_.onSignal(id(), DefaultTopics.NEW_SEND_PAYMENT, n);
-        engine_.onSignal(id(), DefaultTopics.SEND_PAYMENT_STATE, n);
+        WalletData.SendPayment sp = p.sendPayments().entrySet().iterator().next().getValue();
+        engine_.onSignal(id(), DefaultTopics.NEW_SEND_PAYMENT, sp);
+        engine_.onSignal(id(), DefaultTopics.SEND_PAYMENT_STATE, sp);
 
         // response to client
-        engine_.onReply(id(), ctx, p.sendPayments().entrySet().iterator().next().getValue(), WalletData.SendPayment.class);
+        engine_.onReply(id(), ctx, sp, WalletData.SendPayment.class);
         engine_.onDone(id(), ctx, true);
     }
 

@@ -1,24 +1,23 @@
 package org.lndroid.framework.plugins;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
-import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
-import org.lndroid.framework.common.PluginData;
 
-public class SubscribeSendPayments implements IPluginForeground {
+import java.io.IOException;
+import java.util.List;
+
+public class SubscribeNewPaidInvoices implements IPluginForeground {
 
     public interface IDao {
-        WalletData.SendPayment getPayment(long id);
-        List<WalletData.SendPayment> getActivePayments(long userId);
+        WalletData.Payment getPayment(String protocol, long invoiceId);
+        List<WalletData.Payment> getPayments(String protocol);
     }
 
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
@@ -28,7 +27,7 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public String id() {
-        return DefaultPlugins.SUBSCRIBE_SEND_PAYMENTS;
+        return DefaultPlugins.SUBSCRIBE_NEW_PAID_INVOICES;
     }
 
     @Override
@@ -44,8 +43,8 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public void start(PluginContext ctx, IPluginData in) {
-        in.assignDataType(WalletData.SubscribeRequest.class);
-        WalletData.SubscribeRequest req = null;
+        in.assignDataType(WalletData.SubscribeNewPaidInvoices.class);
+        WalletData.SubscribeNewPaidInvoices req = null;
         try {
             req = in.getData();
         } catch (IOException e) {}
@@ -70,9 +69,9 @@ public class SubscribeSendPayments implements IPluginForeground {
                 engine_.onAuth(id(), ctx);
         } else {
             // send all active payments upon subscription
-            List<WalletData.SendPayment> payments = dao_.getActivePayments(req.onlyOwn() ? ctx.user.id() : 0);
-            for (WalletData.SendPayment p: payments)
-                engine_.onReply(id(), ctx, p, WalletData.SendPayment.class);
+            List<WalletData.Payment> ps = dao_.getPayments(req.protocolExtension());
+            for (WalletData.Payment p: ps)
+                engine_.onReply(id(), ctx, p, WalletData.Payment.class);
         }
     }
 
@@ -98,25 +97,28 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public boolean isUserPrivileged(PluginContext ctx, WalletData.User user) {
-        WalletData.SubscribeRequest req = (WalletData.SubscribeRequest)ctx.request;
-        return user.isRoot() || req.onlyOwn();
+        WalletData.SubscribeNewPaidInvoices req = (WalletData.SubscribeNewPaidInvoices)ctx.request;
+        // FIXME only messages are supported atm
+        return user.isRoot() || !WalletData.PROTOCOL_MESSAGES.equals(req.protocolExtension());
     }
 
     @Override
     public void getSubscriptions(List<String> topics) {
-        topics.add(DefaultTopics.SEND_PAYMENT_STATE);
+        topics.add(DefaultTopics.INVOICE_STATE);
     }
 
     @Override
     public void notify(PluginContext ctx, String topic, Object data) {
-        WalletData.SendPayment p = (WalletData.SendPayment)data;
+        WalletData.Invoice in = (WalletData.Invoice)data;
+        if (in == null)
+            return;
+
+        WalletData.SubscribeNewPaidInvoices req = (WalletData.SubscribeNewPaidInvoices)ctx.request;
+        WalletData.Payment p = dao_.getPayment(req.protocolExtension(), in.id());
         if (p == null)
             return;
 
-        WalletData.SubscribeRequest req = (WalletData.SubscribeRequest)ctx.request;
-        if (req.onlyOwn() && p.userId() != ctx.user.id())
-            return;
-
-        engine_.onReply(id(), ctx, p, WalletData.SendPayment.class);
+        engine_.onReply(id(), ctx, p, WalletData.Payment.class);
     }
 }
+

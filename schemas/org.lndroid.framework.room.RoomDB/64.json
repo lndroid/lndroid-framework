@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 64,
-    "identityHash": "77b640eb61f2da31e7619608e99c2be6",
+    "identityHash": "343555e06a5724b9a19e21e918d54988",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -727,7 +727,7 @@
       },
       {
         "tableName": "Invoice",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `description` TEXT, `preimageHex` TEXT, `preimageHashHex` TEXT, `valueSat` INTEGER, `createTime` INTEGER, `settleTime` INTEGER, `paymentRequest` TEXT, `descriptionHashHex` TEXT, `expiry` INTEGER, `fallbackAddr` TEXT, `cltvExpiry` INTEGER, `isPrivate` INTEGER, `addIndex` INTEGER, `settleIndex` INTEGER, `amountPaidMsat` INTEGER, `state` INTEGER, `htlcsCount` INTEGER, `isKeysend` INTEGER, `features` TEXT, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `description` TEXT, `preimageHex` TEXT, `preimageHashHex` TEXT, `valueSat` INTEGER, `createTime` INTEGER, `settleTime` INTEGER, `notifyTime` INTEGER, `paymentRequest` TEXT, `descriptionHashHex` TEXT, `expiry` INTEGER, `fallbackAddr` TEXT, `cltvExpiry` INTEGER, `isPrivate` INTEGER, `addIndex` INTEGER, `settleIndex` INTEGER, `amountPaidMsat` INTEGER, `state` INTEGER, `htlcsCount` INTEGER, `isKeysend` INTEGER, `features` TEXT, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -798,6 +798,12 @@
           {
             "fieldPath": "data_.settleTime",
             "columnName": "settleTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.notifyTime",
+            "columnName": "notifyTime",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -926,6 +932,16 @@
               "settleIndex"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_settleIndex` ON `${TABLE_NAME}` (`settleIndex`)"
+          },
+          {
+            "name": "index_Invoice_settleTime_notifyTime_id",
+            "unique": false,
+            "columnNames": [
+              "settleTime",
+              "notifyTime",
+              "id"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_settleTime_notifyTime_id` ON `${TABLE_NAME}` (`settleTime`, `notifyTime`, `id`)"
           }
         ],
         "foreignKeys": []
@@ -2055,7 +2071,7 @@
       },
       {
         "tableName": "Transaction",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `sendTime` INTEGER, `purpose` TEXT, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `addrToAmount` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `sendAll` INTEGER, `txHash` TEXT, `amount` INTEGER, `numConfirmations` INTEGER, `blockHash` TEXT, `blockHeight` INTEGER, `timestamp` INTEGER, `totalFees` INTEGER, `destAddresses` TEXT, `rawTxHex` TEXT, PRIMARY KEY(`id_`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `sendTime` INTEGER, `notifyTime` INTEGER, `purpose` TEXT, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `addrToAmount` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `sendAll` INTEGER, `txHash` TEXT, `amount` INTEGER, `numConfirmations` INTEGER, `blockHash` TEXT, `blockHeight` INTEGER, `timestamp` INTEGER, `totalFees` INTEGER, `destAddresses` TEXT, `rawTxHex` TEXT, PRIMARY KEY(`id_`))",
         "fields": [
           {
             "fieldPath": "id_",
@@ -2096,6 +2112,12 @@
           {
             "fieldPath": "data_.sendTime",
             "columnName": "sendTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.notifyTime",
+            "columnName": "notifyTime",
             "affinity": "INTEGER",
             "notNull": false
           },
@@ -2224,6 +2246,14 @@
               "txHash"
             ],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Transaction_txHash` ON `${TABLE_NAME}` (`txHash`)"
+          },
+          {
+            "name": "index_Transaction_notifyTime",
+            "unique": false,
+            "columnNames": [
+              "notifyTime"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Transaction_notifyTime` ON `${TABLE_NAME}` (`notifyTime`)"
           }
         ],
         "foreignKeys": []
@@ -3218,6 +3248,32 @@
         "foreignKeys": []
       },
       {
+        "tableName": "txNotifiedInvoicesRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `invoiceIds` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.invoiceIds",
+            "columnName": "invoiceIds",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "txOpenChannelRequest",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `description` TEXT, `nodePubkey` TEXT, `localFundingAmount` INTEGER, `pushSat` INTEGER, `targetConf` INTEGER, `satPerByte` INTEGER, `isPrivate` INTEGER, `minHtlcMsat` INTEGER, `remoteCsvDelay` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER)",
         "fields": [
@@ -3567,7 +3623,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '77b640eb61f2da31e7619608e99c2be6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '343555e06a5724b9a19e21e918d54988')"
     ]
   }
 }

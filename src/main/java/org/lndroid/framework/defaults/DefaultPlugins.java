@@ -37,6 +37,8 @@ public final class DefaultPlugins {
     public static final String INVOICE_STATE_WORKER = "org.lndroid.plugins.INVOICE_STATE_WORKER";
     public static final String LIST_INVOICES = "org.lndroid.plugins.LIST_INVOICES";
     public static final String GET_INVOICE = "org.lndroid.plugins.GET_INVOICE";
+    public static final String SET_NOTIFIED_INVOICES = "org.lndroid.plugins.SET_NOTIFIED_INVOICES";
+    public static final String SUBSCRIBE_NEW_PAID_INVOICES = "org.lndroid.plugins.SUBSCRIBE_NEW_PAID_INVOICES";
 
     public static final String OPEN_CHANNEL = "org.lndroid.plugins.OPEN_CHANNEL";
     public static final String OPEN_CHANNEL_WORKER = "org.lndroid.plugins.OPEN_CHANNEL_WORKER";

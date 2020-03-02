@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface FieldInfo {
-    String name();
-    String help();
-    Class<? extends IFieldConvertor>[] convertors() default {};
+    String name() default "";
+    String help() default "";
+    Class<?>[] convertors() default {};
 }

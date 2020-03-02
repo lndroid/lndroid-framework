@@ -57,7 +57,9 @@ import org.lndroid.framework.plugins.SendCoins;
 import org.lndroid.framework.plugins.SendCoinsWorker;
 import org.lndroid.framework.plugins.SendPayment;
 import org.lndroid.framework.plugins.SendPaymentWorker;
+import org.lndroid.framework.plugins.SetNotifiedInvoices;
 import org.lndroid.framework.plugins.ShareContact;
+import org.lndroid.framework.plugins.SubscribeNewPaidInvoices;
 import org.lndroid.framework.plugins.SubscribeSendPayments;
 import org.lndroid.framework.plugins.TransactionStateWorker;
 import org.lndroid.framework.plugins.UtxoWorker;
@@ -158,6 +160,8 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.INVOICE_STATE_WORKER, new BackgroundPlugin(new InvoiceStateWorker()));
         plugins_.put(DefaultPlugins.LIST_INVOICES, new ForegroundPlugin(new ListInvoices()));
         plugins_.put(DefaultPlugins.GET_INVOICE, new ForegroundPlugin(new GetInvoice()));
+        plugins_.put(DefaultPlugins.SET_NOTIFIED_INVOICES, new ForegroundPlugin(new SetNotifiedInvoices()));
+        plugins_.put(DefaultPlugins.SUBSCRIBE_NEW_PAID_INVOICES, new ForegroundPlugin(new SubscribeNewPaidInvoices()));
 
         plugins_.put(DefaultPlugins.OPEN_CHANNEL, new ForegroundPlugin(new OpenChannel()));
         plugins_.put(DefaultPlugins.OPEN_CHANNEL_WORKER, new BackgroundPlugin(new OpenChannelWorker()));

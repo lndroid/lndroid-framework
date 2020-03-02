@@ -270,6 +270,7 @@ public class WalletDataBuilders {
         Builder setPreimageHashHex(String preimageHashHex);
         Builder setValueSat(long valueSat);
         Builder setCreateTime(long createTime);
+        Builder setNotifyTime(long notifyTime);
         Builder setSettleTime(long settleTime);
         Builder setPaymentRequest(String paymentRequest);
         Builder setDescriptionHashHex(String descriptionHashHex);
@@ -572,6 +573,7 @@ public class WalletDataBuilders {
         Builder setUserId(long userId);
         Builder setAuthUserId(long authUserId);
         Builder setCreateTime(long createTime);
+        Builder setNotifyTime(long notifyTime);
         Builder setSendTime(long sendTime);
         Builder setPurpose(String purpose);
         Builder setState(int state);
@@ -665,6 +667,20 @@ public class WalletDataBuilders {
         Builder setRole(String role);
         Builder setSort(String sort);
         Builder setSortDesc(boolean sortDesc);
+    }
+
+    interface NotifiedInvoicesRequestBuilder<Builder> {
+        Builder setInvoiceIds(ImmutableList<Long> invoiceIds);
+    }
+
+    interface NotifiedInvoicesResponseBuilder<Builder> {
+    }
+
+    public interface SubscribeNewPaidInvoicesBuilder<Builder> {
+        Builder setNoAuth(boolean noAuth);
+        Builder setProtocolExtension(String protocolExtension);
+        Builder setComponentPackageName(String componentPackageName);
+        Builder setComponentClassName(String componentClassName);
     }
 
 }

@@ -27,6 +27,7 @@ public class PluginServerStarter {
     private IAuthComponentProvider authComponentProvider_;
     private IKeyStore keyStore_;
     private IIdGenerator idGenerator_;
+    private IBroadcaster broadcaster_;
 
     static class Future extends FutureTask<Messenger> {
 
@@ -64,7 +65,8 @@ public class PluginServerStarter {
                     ipcCodecProvider_,
                     authComponentProvider_,
                     keyStore_,
-                    idGenerator_);
+                    idGenerator_,
+                    broadcaster_);
 
             server.init();
             future_.setMessenger(new Messenger(server));
@@ -104,6 +106,11 @@ public class PluginServerStarter {
 
     public PluginServerStarter setIdGenerator(IIdGenerator idg) {
         idGenerator_ = idg;
+        return this;
+    }
+
+    public PluginServerStarter setBroadcaster(IBroadcaster b) {
+        broadcaster_ = b;
         return this;
     }
 

@@ -75,6 +75,35 @@ final class RoomConverters {
         }
     }
 
+    static class ImmutableLongListConverter {
+
+        @TypeConverter
+        public static String fromIntList(List<Long> list) {
+            if (list == null)
+                return null;
+
+            StringBuffer b = new StringBuffer();
+            for (Long v: list) {
+                b.append(v.toString());
+                b.append("\n");
+            }
+            return b.toString();
+        }
+
+        @TypeConverter
+        public static ImmutableList<Long> toImmutableLongList(String lines) {
+            if (lines == null)
+                return null;
+
+            ImmutableList.Builder<Long> b = ImmutableList.builder();
+            for (String line : lines.split("\\r?\\n")) {
+                if (!line.isEmpty())
+                    b.add(Long.valueOf(line));
+            }
+            return b.build();
+        }
+    }
+
     static class ImmutableStringLongMapConverter {
 
         @TypeConverter

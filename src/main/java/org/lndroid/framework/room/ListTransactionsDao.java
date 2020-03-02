@@ -47,11 +47,13 @@ class ListTransactionsDao implements
         if (req.onlyOwn())
             where = and(where, "userId = "+user.id());
 
-        String sort = "id_"; // NOTE, id_ not id
+        String sort = "id";
         if ("createTime".equals(req.sort()))
             sort = "createTime";
         else if ("amount".equals(req.sort()))
             sort = "amount";
+        else if ("blockHeight".equals(req.sort()))
+            sort = "blockHeight";
 
         final String desc = req.sortDesc() ? "DESC" : "ASC";
         final String query = "SELECT id_ FROM 'Transaction' "+where+

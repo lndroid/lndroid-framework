@@ -39,6 +39,7 @@ import androidx.room.RoomDatabase;
         RoomTransactions.EstimateFeeRequest.class,
         RoomTransactions.ListContactsPrivilege.class,
         RoomTransactions.NewAddressRequest.class,
+        RoomTransactions.NotifiedInvoicesRequest.class,
         RoomTransactions.OpenChannelRequest.class,
         RoomTransactions.PayReqString.class,
         RoomTransactions.SendCoinsRequest.class,
@@ -78,6 +79,8 @@ abstract class RoomDB extends RoomDatabase {
     abstract InvoiceStateWorkerDao.DaoRoom invoiceStateWorkerDao();
     abstract ListInvoicesDao.DaoRoom listInvoicesDao();
     abstract GetInvoiceDao.DaoRoom getInvoiceDao();
+    abstract SetNotifiedInvoicesDao.DaoRoom setNotifiedInvoicesDao();
+    abstract SubscribeNewPaidInvoicesDao.DaoRoom subscribeNewPaidInvoicesDao();
 
     abstract OpenChannelDao.DaoRoom openChannelDao();
     abstract OpenChannelWorkerDao.DaoRoom openChannelWorkerDao();

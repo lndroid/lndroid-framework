@@ -28,9 +28,11 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
     protected abstract boolean isValidUser(WalletData.User user);
     protected abstract Request getRequestData(IPluginData in);
     protected IActionDao.OnResponseMerge<Response> getMerger() { return null; }
+    protected boolean isAuthNotSupported() { return false; }
 
     protected IPluginForegroundCallback engine() { return engine_; };
     protected IPluginServer server() { return server_; }
+    protected IActionDao<Request, Response> dao() { return dao_; }
 
     public ActionBase() {
     }
@@ -60,6 +62,9 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
             } else if (isUserPrivileged(tx.request, ctx.user)) {
                 // - tx not executed, auth not required,
                 commit(tx.request, ctx, 0);
+            } else if (isAuthNotSupported()) {
+                dao_.rejectTransaction(ctx.user.id(), ctx.txId, 0);
+                engine_.onError(id(), ctx, Errors.FORBIDDEN, Errors.errorMessage(Errors.FORBIDDEN));
             } else {
                 // - tx not executed, auth required, auth request not created
                 engine_.onAuth(id(), ctx);
@@ -150,11 +155,18 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
         ctx.deadline = tx.tx.deadlineTime;
         ctx.request = tx.request;
 
+        boolean needAuth = !isUserPrivileged(tx.request, ctx.user);
+
+        if (needAuth && isAuthNotSupported()) {
+            engine_.onError(id(), ctx, Errors.FORBIDDEN, Errors.errorMessage(Errors.FORBIDDEN));
+            return;
+        }
+
         // store tx to be able to restore it
         dao_.startTransaction(tx);
 
         // do we need auth?
-        if (!isUserPrivileged(tx.request, ctx.user)) {
+        if (needAuth) {
             // tell engine we need user auth
             engine_.onAuth(id(), ctx);
             return;

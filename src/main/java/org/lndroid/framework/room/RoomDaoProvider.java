@@ -95,6 +95,10 @@ public class RoomDaoProvider implements IDBDaoProvider {
                 db_.listInvoicesDao()));
         pluginDaos_.put(DefaultPlugins.GET_INVOICE, new GetInvoiceDao(
                 db_.getInvoiceDao()));
+        pluginDaos_.put(DefaultPlugins.SET_NOTIFIED_INVOICES, new SetNotifiedInvoicesDao(
+                db_.setNotifiedInvoicesDao(), db_.txDao()));
+        pluginDaos_.put(DefaultPlugins.SUBSCRIBE_NEW_PAID_INVOICES, new SubscribeNewPaidInvoicesDao(
+                db_.subscribeNewPaidInvoicesDao()));
 
         pluginDaos_.put(DefaultPlugins.SEND_PAYMENT, new SendPaymentDao(
                 db_.sendPaymentDao(), db_.txDao(), db_.routeHintsDao()));

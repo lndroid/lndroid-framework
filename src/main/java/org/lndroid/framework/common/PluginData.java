@@ -12,6 +12,10 @@ import org.lndroid.framework.WalletData;
 
 public class PluginData {
 
+    public static final String BROADCAST_ACTION = "org.lndroid.framework.broadcast.ACTION_PLUGIN_REPLY_READY";
+    public static final String BROADCAST_PLUGIN = "org.lndroid.framework.broadcast.EXTRA_PLUGIN";
+    public static final String BROADCAST_TX = "org.lndroid.framework.broadcast.EXTRA_TX";
+
     // message 'what's: remote, local tx, local auth?
     public static final int MESSAGE_WHAT_IPC_TX = 0;
     public static final int MESSAGE_WHAT_LOCAL_TX = 1;
@@ -20,7 +24,6 @@ public class PluginData {
     // ipc Bundle keys
     public static final String IPC_VERSION = "ver";
     public static final String IPC_MESSAGE = "msg";
-    public static final String IPC_PUBKEY = "pk";
     public static final String IPC_SIGNATURE = "sign";
 
     // current IPC Bundle format version
@@ -180,12 +183,4 @@ public class PluginData {
             public abstract PluginMessage build();
         }
     }
-
-    // used by plugins to exchange events with each other,
-    // public to be usable by plugins in other packages
-    public static final class PluginNotification {
-        public String pluginId;
-        public long entityId;
-    }
-
 }

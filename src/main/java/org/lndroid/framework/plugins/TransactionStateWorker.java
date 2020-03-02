@@ -76,7 +76,9 @@ public class TransactionStateWorker implements IPluginBackground {
                 for (String a: u.destAddresses)
                     addressesMatch &= t.addrToAmount().containsKey(a);
                 // FIXME check this!
-                boolean timestampMatch = u.timeStamp >= (job.job.lastTryTime / 1000);
+                boolean timestampMatch = u.timeStamp >= (j.job.lastTryTime / 1000);
+                // FIXME problem is a)amount will be negative, b) amount will include fees which are
+                //  not known in advance!
                 boolean amountMatch = t.sendAll() || amount == t.amount();
 
                 Log.i(TAG, "maybe tx "+t+" addressesMatch "+addressesMatch+

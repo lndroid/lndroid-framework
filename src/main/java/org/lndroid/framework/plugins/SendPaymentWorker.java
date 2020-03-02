@@ -95,10 +95,7 @@ public class SendPaymentWorker implements IPluginBackground {
             dao_.updatePayment(job, sp);
         }
 
-        PluginData.PluginNotification n = new PluginData.PluginNotification();
-        n.pluginId = id();
-        n.entityId = sp.id();
-        engine_.onSignal(id(), DefaultTopics.SEND_PAYMENT_STATE, n);
+        engine_.onSignal(id(), DefaultTopics.SEND_PAYMENT_STATE, sp);
     }
 
     private void deletePayments() {

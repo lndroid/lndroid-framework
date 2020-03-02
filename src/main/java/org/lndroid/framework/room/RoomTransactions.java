@@ -125,6 +125,13 @@ public class RoomTransactions {
     static class EstimateFeeRequest extends TransactionRequestBase<WalletData.EstimateFeeRequest> {
     }
 
+    @Entity(tableName = "txNotifiedInvoicesRequest")
+    @TypeConverters({
+            RoomConverters.ImmutableLongListConverter.class,
+    })
+    static class NotifiedInvoicesRequest extends TransactionRequestBase<WalletData.NotifiedInvoicesRequest> {
+    }
+
     @Dao
     abstract static class TransactionDao implements ITransactionDao {
         @Override

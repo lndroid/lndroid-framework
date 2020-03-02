@@ -819,6 +819,7 @@ public final class WalletData {
                 String preimageHashHex,
                 long valueSat,
                 long createTime,
+                long notifyTime,
                 long settleTime,
                 String paymentRequest,
                 String descriptionHashHex,
@@ -845,6 +846,7 @@ public final class WalletData {
                     .setPreimageHashHex(preimageHashHex)
                     .setValueSat(valueSat)
                     .setCreateTime(createTime)
+                    .setNotifyTime(notifyTime)
                     .setSettleTime(settleTime)
                     .setPaymentRequest(paymentRequest)
                     .setDescriptionHashHex(descriptionHashHex)
@@ -869,6 +871,7 @@ public final class WalletData {
                     .setAuthUserId(0)
                     .setValueSat(0)
                     .setCreateTime(0)
+                    .setNotifyTime(0)
                     .setSettleTime(0)
                     .setExpiry(0)
                     .setCltvExpiry(0)
@@ -2406,6 +2409,7 @@ public final class WalletData {
                 long userId,
                 long authUserId,
                 long createTime,
+                long notifyTime,
                 long sendTime,
                 String purpose,
                 int state,
@@ -2431,6 +2435,7 @@ public final class WalletData {
                     .setUserId(userId)
                     .setAuthUserId(authUserId)
                     .setCreateTime(createTime)
+                    .setNotifyTime(notifyTime)
                     .setSendTime(sendTime)
                     .setPurpose(purpose)
                     .setState(state)
@@ -2458,6 +2463,7 @@ public final class WalletData {
                     .setUserId(0)
                     .setAuthUserId(0)
                     .setCreateTime(0)
+                    .setNotifyTime(0)
                     .setSendTime(0)
                     .setState(TRANSACTION_STATE_NEW)
                     .setTargetConf(0)
@@ -2901,5 +2907,79 @@ public final class WalletData {
                 WalletDataBuilders.ListResultTmplBuilder<User, Builder> {
         }
     }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_NotifiedInvoicesRequest.class)
+    public static abstract class NotifiedInvoicesRequest implements WalletDataDecl.NotifiedInvoicesRequest {
+
+        public static NotifiedInvoicesRequest create(
+                ImmutableList<Long> invoiceIds
+        ) {
+            return builder()
+                    .setInvoiceIds(invoiceIds)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_NotifiedInvoicesRequest.Builder();
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.NotifiedInvoicesRequest,
+                WalletDataBuilders.IBuilder<NotifiedInvoicesRequest>,
+                WalletDataBuilders.NotifiedInvoicesRequestBuilder<Builder> {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_NotifiedInvoicesResponse.class)
+    public static abstract class NotifiedInvoicesResponse implements WalletDataDecl.NotifiedInvoicesResponse {
+
+        public static NotifiedInvoicesResponse create(
+        ) {
+            return builder()
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_NotifiedInvoicesResponse.Builder();
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.NotifiedInvoicesResponse,
+                WalletDataBuilders.IBuilder<NotifiedInvoicesResponse>,
+                WalletDataBuilders.NotifiedInvoicesResponseBuilder<Builder> {
+        }
+    }
+
+    public static final String PROTOCOL_MESSAGES = "org.lndroid.protocol.MESSAGES";
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_SubscribeNewPaidInvoices.class)
+    public static abstract class SubscribeNewPaidInvoices implements WalletDataDecl.SubscribeNewPaidInvoices {
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_SubscribeNewPaidInvoices.Builder()
+                    // defaults
+                    .setNoAuth(false)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.SubscribeNewPaidInvoices,
+                WalletDataBuilders.IBuilder<SubscribeNewPaidInvoices>,
+                WalletDataBuilders.SubscribeNewPaidInvoicesBuilder<Builder> {
+        }
+    }
+
 
 }
