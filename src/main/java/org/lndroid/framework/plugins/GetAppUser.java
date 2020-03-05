@@ -38,7 +38,7 @@ public class GetAppUser extends GetBase<String> {
 
     @Override
     protected boolean isUserPrivileged(PluginContext ctx, WalletDataDecl.GetRequestTmpl req, WalletData.User user) {
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override

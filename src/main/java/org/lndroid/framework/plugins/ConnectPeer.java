@@ -85,7 +85,7 @@ public class ConnectPeer extends
 
     @Override
     protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.ConnectPeerRequest> tx) {
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override

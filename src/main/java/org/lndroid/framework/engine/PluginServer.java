@@ -417,9 +417,12 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                     msg.getData(), user.appPubkey(), keyStore_.getVerifier());
 
             if (code != null) {
-                Log.e(TAG, "bad ipc message " + msg + " from "+user+" code " + code);
+                Log.e(TAG, "bad ipc message " + msg + " from " + user + " code " + code);
                 return code;
             }
+        } else if (user.isAnonymous()) {
+            // anon is always authentic
+            return null;
         } else {
             // bg role should be able to run in locked device!
 //            if (!WalletData.USER_ROLE_BG.equals(user.role()) && keyStore_.isDeviceLocked()){
@@ -458,11 +461,10 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         if (pm.userIdentity() == null)
             throw new RuntimeException("User identity not provided");
 
-        if (pm.userIdentity().userId() == 0)
-            throw new RuntimeException("User id not provided");
-
-        if (pm.sessionToken() == null)
-            throw new RuntimeException("User session not provided");
+        if (pm.userIdentity().userId() != 0) {
+            if (pm.sessionToken() == null)
+                throw new RuntimeException("User session not provided");
+        }
 
         return true;
     }
@@ -553,8 +555,15 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 ? daoProvider_.getAuthDao().getByAppPubkey(pm.userIdentity().appPubkey())
                 : daoProvider_.getAuthDao().get(pm.userIdentity().userId());
         if (user == null) {
-            sendTxError(pm, ipc, Errors.UNKNOWN_CALLER, msg.replyTo);
-            return;
+            if (!ipc && pm.userIdentity().userId() == 0) {
+                // anonymous
+                user = WalletData.User.builder()
+                        .setRole(WalletData.USER_ROLE_ANON)
+                        .build();
+            } else {
+                sendTxError(pm, ipc, Errors.UNKNOWN_CALLER, msg.replyTo);
+                return;
+            }
         }
 
         final String authCode = checkAuthenticPluginMessage(user, msg, pm, ipc);

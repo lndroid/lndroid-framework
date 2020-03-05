@@ -55,6 +55,8 @@ class ListInvoicesDao implements
             where = and(where, "preimageHashHex = "+DatabaseUtils.sqlEscapeString(req.preimageHashHex()));
         if (req.authUserId() != 0)
             where = and(where, "authUserId = "+req.authUserId());
+        if (req.noKeysend())
+            where = and(where, "isKeysend = 0");
         if (req.createFrom() != 0)
             where = and(where, "createTime >= "+req.createFrom());
         if (req.createTill() != 0)
@@ -63,6 +65,10 @@ class ListInvoicesDao implements
             where = and(where, "settleTime <= "+req.settleFrom());
         if (req.settleTill() != 0)
             where = and(where, "settleTime <= "+req.settleTill());
+        if (req.notifyFrom() != 0)
+            where = and(where, "notifyTime >= "+req.notifyFrom());
+        if (req.notifyTill() != 0)
+            where = and(where, "notifyTime <= "+req.notifyTill());
         if (req.description() != null && !req.description().equals(""))
             where = and(where, "description LIKE '%"+ DatabaseUtils.sqlEscapeString(req.description())+"%'");
         if (req.purpose() != null && !req.purpose().equals(""))

@@ -1,6 +1,7 @@
 package org.lndroid.framework.room;
 
 import org.lndroid.framework.dao.IActionDao;
+import org.lndroid.framework.plugins.Transaction;
 
 abstract class RoomJobDaoBase<Request, Response> extends RoomActionDaoBase<Request, Response>{
 
@@ -21,10 +22,11 @@ abstract class RoomJobDaoBase<Request, Response> extends RoomActionDaoBase<Reque
         final long id = insertResponse(r);
 
         // update tx state: confirm and commit
-        txDao().initTransactionJob(pluginId(), userId, txId, maxTries, maxTryTime);
+        txDao().initTransactionJob(pluginId(), userId, txId,
+                Transaction.JOB_STATE_NEW, maxTries, maxTryTime);
         txDao().confirmTransaction(pluginId(), userId, txId, txAuthUserId, time);
         txDao().commitTransaction(pluginId(), userId, txId,
-                org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED,
+                Transaction.TX_STATE_COMMITTED,
                 time, r.getClass().getName(), id);
 
         return r;

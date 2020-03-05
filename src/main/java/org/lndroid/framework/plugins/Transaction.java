@@ -9,12 +9,13 @@ public class Transaction<Request> {
     public static final int TX_STATE_TIMEDOUT = 3;
     public static final int TX_STATE_ERROR = 4;
 
-    public static final int JOB_STATE_NEW = 0;
+    public static final int JOB_STATE_NONE = 0;
     public static final int JOB_STATE_EXECUTING = 1;
     public static final int JOB_STATE_DONE = 2;
     public static final int JOB_STATE_LOST = 3;
     public static final int JOB_STATE_RETRY = 4;
     public static final int JOB_STATE_FAILED = 5;
+    public static final int JOB_STATE_NEW = 6;
 
     public static class TransactionData {
         @NonNull

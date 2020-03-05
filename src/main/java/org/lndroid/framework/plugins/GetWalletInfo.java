@@ -38,8 +38,8 @@ public class GetWalletInfo extends GetBase<Long> {
 
     @Override
     protected boolean isUserPrivileged(PluginContext ctx, WalletDataDecl.GetRequestTmpl req, WalletData.User user) {
-        // FIXME or anyone who has proper limits
-        return user.isRoot();
+        // NOTE: anonym is allowed
+        return !user.isApp();
     }
 
     @Override

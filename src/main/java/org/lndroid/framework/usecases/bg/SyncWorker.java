@@ -27,6 +27,7 @@ public abstract class SyncWorker extends androidx.work.Worker {
 
     // NOTE: override to provide plugin client instance to the worker when it starts
     public abstract IPluginClient getPluginClient();
+    public abstract ISyncNotificationManager getNotificationManager();
 
     @Override
     @NonNull
@@ -34,10 +35,16 @@ public abstract class SyncWorker extends androidx.work.Worker {
         Log.i(TAG, "starting");
 
         SyncWorkerImpl impl = new SyncWorkerImpl(getPluginClient(), TAG);
+        getNotificationManager().showNotification(ISyncNotificationManager.SYNC_TYPE_GRAPH_CHAIN);
+        Result r;
         if (impl.execute(SYNC_TIME, SYNC_TIME))
-            return Result.success();
+            r = Result.success();
         else
-            return Result.retry();
+            r = Result.retry();
+        getNotificationManager().hideNotification(ISyncNotificationManager.SYNC_TYPE_GRAPH_CHAIN);
+
+        Log.i(TAG, "done "+r);
+        return r;
     }
 
     public static <Worker extends SyncWorker>

@@ -94,7 +94,7 @@ public class ChannelStateWorkerDao implements
 
         @androidx.room.Transaction
         public List<Job> getJobs(String pluginId, int state, long now) {
-            List<RoomTransactions.RoomTransaction> txs = txDao.getJobTransactions(
+            List<RoomTransactions.RoomTransaction> txs = txDao.getReadyJobTransactions(
                     pluginId, state, now);
 
             List<Job> jobs = new ArrayList<>();

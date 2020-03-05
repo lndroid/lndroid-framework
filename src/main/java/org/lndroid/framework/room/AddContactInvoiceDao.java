@@ -30,7 +30,7 @@ class AddContactInvoiceDao
     }
 
     public String getWalletContactName() {
-        return "Contact name"; //dao_.getWalletContactName();
+        return "Shared contact"; //dao_.getWalletContactName();
     }
 
     public String getWalletPubkey() {

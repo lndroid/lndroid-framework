@@ -99,6 +99,8 @@ public class RoomDaoProvider implements IDBDaoProvider {
                 db_.setNotifiedInvoicesDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.SUBSCRIBE_NEW_PAID_INVOICES, new SubscribeNewPaidInvoicesDao(
                 db_.subscribeNewPaidInvoicesDao()));
+        pluginDaos_.put(DefaultPlugins.SUBSCRIBE_PAID_INVOICES_EVENTS, new SubscribePaidInvoicesEventsDao(
+                db_.subscribePaidInvoicesEventsDao()));
 
         pluginDaos_.put(DefaultPlugins.SEND_PAYMENT, new SendPaymentDao(
                 db_.sendPaymentDao(), db_.txDao(), db_.routeHintsDao()));
@@ -106,8 +108,8 @@ public class RoomDaoProvider implements IDBDaoProvider {
                 db_.sendPaymentWorkerDao(), db_.txDao(), db_.routeHintsDao()));
         pluginDaos_.put(DefaultPlugins.GET_SEND_PAYMENT, new GetSendPaymentDao(
                 db_.getSendPaymentDao()));
-        pluginDaos_.put(DefaultPlugins.SUBSCRIBE_SEND_PAYMENTS, new SubscribeSendPaymentsDao(
-                db_.subscribeSendPaymentsDao()));
+        pluginDaos_.put(DefaultPlugins.SUBSCRIBE_BACKGROUND_INFO, new SubscribeBackgroundInfoDao(
+                db_.subscribeSendPaymentsDao(), db_.txDao()));
 
         pluginDaos_.put(DefaultPlugins.OPEN_CHANNEL, new OpenChannelDao(
                 db_.openChannelDao(), db_.txDao()));

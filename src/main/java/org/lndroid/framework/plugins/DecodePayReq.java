@@ -57,7 +57,7 @@ public class DecodePayReq extends LndActionBase<String, Data.PayReqString, Walle
 
     @Override
     protected boolean isUserPrivileged(WalletData.User user, Transaction<String> tx) {
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override

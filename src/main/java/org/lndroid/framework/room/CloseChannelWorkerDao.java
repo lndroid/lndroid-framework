@@ -72,7 +72,7 @@ public class CloseChannelWorkerDao implements CloseChannelWorker.IDao, IPluginDa
 
         @androidx.room.Transaction
         public List<Job> getJobs(int state, long now) {
-            List<RoomTransactions.RoomTransaction> txs = txDao.getJobTransactions(
+            List<RoomTransactions.RoomTransaction> txs = txDao.getReadyJobTransactions(
                     DefaultPlugins.CLOSE_CHANNEL, state, now);
 
             List<Job> jobs = new ArrayList<>();

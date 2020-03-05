@@ -71,7 +71,7 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
 
     @Override
     protected boolean isValidUser(WalletData.User user) {
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class AddUser extends ActionBase<WalletData.AddUserRequest, WalletData.Us
                         return null;
 
                     // fall through
-                case WalletData.USER_ROLE_BG:
+                case WalletData.USER_ROLE_ANON:
                     if (r.authType() != null && !r.authType().equals(WalletData.AUTH_TYPE_NONE))
                         return null;
 

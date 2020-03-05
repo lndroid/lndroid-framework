@@ -92,7 +92,7 @@ public abstract class ActionBase<Request, Response> implements IPluginForeground
 
         // send response
         engine_.onReply(id(), ctx, response, getResponseType());
-        engine_.onDone(id(), ctx, true);
+        engine_.onDone(id(), ctx, false);
     }
 
     @Override

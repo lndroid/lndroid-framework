@@ -72,7 +72,7 @@ public class ChannelBackupWorker implements IPluginBackground {
 
             @Override
             public void onResponse(Data.ChanBackupSnapshot b) {
-                Log.e(TAG, "subscribe channel backup snapshot");
+                Log.i(TAG, "subscribe channel backup snapshot");
                 onUpdate(b);
             }
 

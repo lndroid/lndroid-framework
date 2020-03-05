@@ -61,7 +61,8 @@ import org.lndroid.framework.plugins.SendPaymentWorker;
 import org.lndroid.framework.plugins.SetNotifiedInvoices;
 import org.lndroid.framework.plugins.ShareContact;
 import org.lndroid.framework.plugins.SubscribeNewPaidInvoices;
-import org.lndroid.framework.plugins.SubscribeSendPayments;
+import org.lndroid.framework.plugins.SubscribeBackgroundInfo;
+import org.lndroid.framework.plugins.SubscribePaidInvoicesEvents;
 import org.lndroid.framework.plugins.TransactionStateWorker;
 import org.lndroid.framework.plugins.UtxoWorker;
 import org.lndroid.framework.plugins.WalletBalanceWorker;
@@ -163,6 +164,8 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.GET_INVOICE, new ForegroundPlugin(new GetInvoice()));
         plugins_.put(DefaultPlugins.SET_NOTIFIED_INVOICES, new ForegroundPlugin(new SetNotifiedInvoices()));
         plugins_.put(DefaultPlugins.SUBSCRIBE_NEW_PAID_INVOICES, new ForegroundPlugin(new SubscribeNewPaidInvoices()));
+        plugins_.put(DefaultPlugins.SUBSCRIBE_PAID_INVOICES_EVENTS,
+                new ForegroundPlugin(new SubscribePaidInvoicesEvents()));
 
         plugins_.put(DefaultPlugins.OPEN_CHANNEL, new ForegroundPlugin(new OpenChannel()));
         plugins_.put(DefaultPlugins.OPEN_CHANNEL_WORKER, new BackgroundPlugin(new OpenChannelWorker()));
@@ -175,7 +178,7 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.SEND_PAYMENT, new ForegroundPlugin(new SendPayment()));
         plugins_.put(DefaultPlugins.SEND_PAYMENT_WORKER, new BackgroundPlugin(new SendPaymentWorker()));
         plugins_.put(DefaultPlugins.GET_SEND_PAYMENT, new ForegroundPlugin(new GetSendPayment()));
-        plugins_.put(DefaultPlugins.SUBSCRIBE_SEND_PAYMENTS, new ForegroundPlugin(new SubscribeSendPayments()));
+        plugins_.put(DefaultPlugins.SUBSCRIBE_BACKGROUND_INFO, new ForegroundPlugin(new SubscribeBackgroundInfo()));
 
         plugins_.put(DefaultPlugins.LIST_PAYMENTS, new ForegroundPlugin(new ListPayments()));
 

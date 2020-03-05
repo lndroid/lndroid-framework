@@ -143,11 +143,10 @@ public class RoomTransactions {
 
         @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId "+
                 "AND jobState = :state AND nextTryTime <= :now")
-        public abstract List<RoomTransaction> getJobTransactions(String pluginId, int state, long now);
+        public abstract List<RoomTransaction> getReadyJobTransactions(String pluginId, int state, long now);
 
-        @Query("SELECT * FROM RoomTransaction WHERE pluginId IN (:pluginIds) "+
-                "AND jobState = :state AND nextTryTime <= :now")
-        public abstract List<RoomTransaction> getJobTransactions(String[] pluginIds, int state, long now);
+        @Query("SELECT * FROM RoomTransaction WHERE jobState IN (:states)")
+        public abstract List<RoomTransaction> getJobTransactions(int[] states);
 
         @Query("SELECT * FROM RoomTransaction WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
         public abstract RoomTransactions.RoomTransaction getTransaction(String pluginId, long userId, String txId);
@@ -162,10 +161,10 @@ public class RoomTransactions {
         public abstract void updateTransaction(RoomTransaction tx);
 
         @Query("UPDATE RoomTransaction " +
-                "SET maxTries = :maxTries, maxTryTime = :maxTryTime " +
+                "SET jobState = :jobState, maxTries = :maxTries, maxTryTime = :maxTryTime " +
                 "WHERE pluginId = :pluginId AND userId = :userId AND txId = :txId")
         public abstract void initTransactionJob(String pluginId, long userId, String txId,
-                                                int maxTries, long maxTryTime);
+                                                int jobState, int maxTries, long maxTryTime);
 
         @Query("UPDATE RoomTransaction " +
                 "SET authTime = :time, authUserId = :authUserId " +

@@ -10,6 +10,7 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.SendPayment;
+import org.lndroid.framework.plugins.Transaction;
 
 public class SendPaymentDao
         extends ActionDaoBase<WalletData.SendPaymentRequest, WalletData.SendPayment>
@@ -194,10 +195,11 @@ public class SendPaymentDao
             insertPayment(rp);
 
             // update tx state: confirm and commit
-            txDao().initTransactionJob(PLUGIN_ID, txUserId, txId, maxTries, maxTryTime);
+            txDao().initTransactionJob(PLUGIN_ID, txUserId, txId,
+                    Transaction.JOB_STATE_NEW, maxTries, maxTryTime);
             txDao().confirmTransaction(PLUGIN_ID, txUserId, txId, txAuthUserId, time);
             txDao().commitTransaction(PLUGIN_ID, txUserId, txId,
-                    org.lndroid.framework.plugins.Transaction.TX_STATE_COMMITTED,
+                    Transaction.TX_STATE_COMMITTED,
                     time, sp.getClass().getName(), sp.id());
 
             return payment;

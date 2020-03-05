@@ -9,7 +9,6 @@ public class WalletDataBuilders {
         T build();
     }
 
-
     interface FieldBuilder<Builder> {
         Builder setId(String id);
         Builder setName(String name);
@@ -161,11 +160,14 @@ public class WalletDataBuilders {
         Builder setTxId(String txId);
         Builder setPreimageHex(String preimageHex);
         Builder setPreimageHashHex(String preimageHashHex);
+        Builder setNoKeysend(boolean noKeysend);
         Builder setAuthUserId(long authUserId);
         Builder setCreateFrom(long createFrom);
         Builder setCreateTill(long createTill);
         Builder setSettleFrom(long settleFrom);
         Builder setSettleTill(long settleTill);
+        Builder setNotifyFrom(long notifyFrom);
+        Builder setNotifyTill(long notifyTill);
         Builder setStates(ImmutableList<Integer> states);
         Builder setDescription(String description);
         Builder setPurpose(String purpose);
@@ -683,11 +685,25 @@ public class WalletDataBuilders {
     interface NotifiedInvoicesResponseBuilder<Builder> {
     }
 
-    public interface SubscribeNewPaidInvoicesBuilder<Builder> {
+    interface SubscribeNewPaidInvoicesBuilder<Builder> {
         Builder setNoAuth(boolean noAuth);
         Builder setProtocolExtension(String protocolExtension);
         Builder setComponentPackageName(String componentPackageName);
         Builder setComponentClassName(String componentClassName);
     }
 
+    interface BackgroundInfoBuilder<Builder> {
+        Builder setIsActive(boolean isActive);
+        Builder setActiveSendPaymentCount(long activeSendPaymentCount);
+        Builder setActiveOpenChannelCount(long activeOpenChannelCount);
+        Builder setActiveCloseChannelCount(long activeCloseChannelCount);
+        Builder setActiveSendCoinCount(long activeSendCoinCount);
+        Builder setPendingChannelCount(long pendingChannelCount);
+    }
+
+    interface PaidInvoicesEventBuilder<Builder> {
+        Builder setInvoiceIds(ImmutableList<Long> invoiceIds);
+        Builder setSatsReceived(long satsReceived);
+        Builder setInvoicesCount(long invoicesCount);
+    }
 }

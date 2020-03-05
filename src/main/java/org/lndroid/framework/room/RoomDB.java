@@ -81,6 +81,7 @@ abstract class RoomDB extends RoomDatabase {
     abstract GetInvoiceDao.DaoRoom getInvoiceDao();
     abstract SetNotifiedInvoicesDao.DaoRoom setNotifiedInvoicesDao();
     abstract SubscribeNewPaidInvoicesDao.DaoRoom subscribeNewPaidInvoicesDao();
+    abstract SubscribePaidInvoicesEventsDao.DaoRoom subscribePaidInvoicesEventsDao();
 
     abstract OpenChannelDao.DaoRoom openChannelDao();
     abstract OpenChannelWorkerDao.DaoRoom openChannelWorkerDao();
@@ -93,7 +94,7 @@ abstract class RoomDB extends RoomDatabase {
     abstract SendPaymentDao.DaoRoom sendPaymentDao();
     abstract SendPaymentWorkerDao.DaoRoom sendPaymentWorkerDao();
     abstract GetSendPaymentDao.DaoRoom getSendPaymentDao();
-    abstract SubscribeSendPaymentsDao.DaoRoom subscribeSendPaymentsDao();
+    abstract SubscribeBackgroundInfoDao.DaoRoom subscribeSendPaymentsDao();
 
     abstract ListPaymentsDao.DaoRoom listPaymentsDao();
 

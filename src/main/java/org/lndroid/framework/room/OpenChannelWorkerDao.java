@@ -75,7 +75,7 @@ class OpenChannelWorkerDao implements OpenChannelWorker.IDao, IPluginDao {
 
         @androidx.room.Transaction
         public List<Job> getJobs(int state, long now) {
-            List<RoomTransactions.RoomTransaction> txs = txDao.getJobTransactions(
+            List<RoomTransactions.RoomTransaction> txs = txDao.getReadyJobTransactions(
                     DefaultPlugins.OPEN_CHANNEL, state, now);
 
             List<Job> jobs = new ArrayList<>();

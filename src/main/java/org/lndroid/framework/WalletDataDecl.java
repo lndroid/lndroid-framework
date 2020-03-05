@@ -375,6 +375,12 @@ public class WalletDataDecl {
 
         long settleTill();
 
+        long notifyFrom();
+
+        long notifyTill();
+
+        boolean noKeysend();
+
         @Nullable
         ImmutableList<Integer> states();
 
@@ -2243,4 +2249,19 @@ public class WalletDataDecl {
         String componentClassName();
     }
 
+    public interface BackgroundInfo {
+        boolean isActive();
+        long activeSendPaymentCount();
+        long activeOpenChannelCount();
+        long activeCloseChannelCount();
+        long activeSendCoinCount();
+        long pendingChannelCount();
+    }
+
+    public interface PaidInvoicesEvent {
+        @Nullable
+        ImmutableList<Long> invoiceIds();
+        long satsReceived();
+        long invoicesCount();
+    }
 }

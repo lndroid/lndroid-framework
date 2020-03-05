@@ -1,24 +1,25 @@
 package org.lndroid.framework.plugins;
 
-import java.io.IOException;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 import org.lndroid.framework.WalletData;
-import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.common.Errors;
+import org.lndroid.framework.common.IPluginData;
+import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginForeground;
 import org.lndroid.framework.engine.IPluginForegroundCallback;
-import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.engine.PluginContext;
-import org.lndroid.framework.common.PluginData;
 
-public class SubscribeSendPayments implements IPluginForeground {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class SubscribePaidInvoicesEvents implements IPluginForeground {
 
     public interface IDao {
-        WalletData.SendPayment getPayment(long id);
-        List<WalletData.SendPayment> getActivePayments(long userId);
+        List<WalletData.Invoice> getNewPaidInvoices();
     }
 
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
@@ -28,7 +29,7 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public String id() {
-        return DefaultPlugins.SUBSCRIBE_SEND_PAYMENTS;
+        return DefaultPlugins.SUBSCRIBE_PAID_INVOICES_EVENTS;
     }
 
     @Override
@@ -44,8 +45,8 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public void start(PluginContext ctx, IPluginData in) {
-        in.assignDataType(WalletData.SubscribeRequest.class);
-        WalletData.SubscribeRequest req = null;
+        in.assignDataType(WalletData.SubscribePaidInvoicesEventsRequest.class);
+        WalletData.SubscribePaidInvoicesEventsRequest req = null;
         try {
             req = in.getData();
         } catch (IOException e) {}
@@ -63,16 +64,10 @@ public class SubscribeSendPayments implements IPluginForeground {
         ctx.deadline = System.currentTimeMillis() + timeout;
 
         if (!isUserPrivileged(ctx, ctx.user)) {
-            // tell engine we need user auth
-            if (req.noAuth())
-                engine_.onError(id(), ctx, Errors.FORBIDDEN, Errors.errorMessage(Errors.FORBIDDEN));
-            else
-                engine_.onAuth(id(), ctx);
+            // auth not supported
+            engine_.onError(id(), ctx, Errors.FORBIDDEN, Errors.errorMessage(Errors.FORBIDDEN));
         } else {
-            // send all active payments upon subscription
-            List<WalletData.SendPayment> payments = dao_.getActivePayments(req.onlyOwn() ? ctx.user.id() : 0);
-            for (WalletData.SendPayment p: payments)
-                engine_.onReply(id(), ctx, p, WalletData.SendPayment.class);
+            sendEvent(ctx);
         }
     }
 
@@ -98,25 +93,36 @@ public class SubscribeSendPayments implements IPluginForeground {
 
     @Override
     public boolean isUserPrivileged(PluginContext ctx, WalletData.User user) {
-        WalletData.SubscribeRequest req = (WalletData.SubscribeRequest)ctx.request;
-        return user.isRoot() || req.onlyOwn();
+        return !user.isApp();
     }
 
     @Override
     public void getSubscriptions(List<String> topics) {
-        topics.add(DefaultTopics.SEND_PAYMENT_STATE);
+        topics.add(DefaultTopics.INVOICE_STATE);
+    }
+
+    private void sendEvent(PluginContext ctx) {
+        List<WalletData.Invoice> list = dao_.getNewPaidInvoices();
+        if (list.isEmpty())
+            return;
+
+        long sats = 0;
+        ImmutableList.Builder<Long> ib = ImmutableList.builder();
+        for(WalletData.Invoice i: list) {
+            ib.add(i.id());
+            sats += i.amountPaidMsat() / 1000;
+        }
+        WalletData.PaidInvoicesEvent e = WalletData.PaidInvoicesEvent.builder()
+                .setInvoiceIds(ib.build())
+                .setSatsReceived(sats)
+                .setInvoicesCount(list.size())
+                .build();
+        engine_.onReply(id(), ctx, e, WalletData.PaidInvoicesEvent.class);
     }
 
     @Override
     public void notify(PluginContext ctx, String topic, Object data) {
-        WalletData.SendPayment p = (WalletData.SendPayment)data;
-        if (p == null)
-            return;
-
-        WalletData.SubscribeRequest req = (WalletData.SubscribeRequest)ctx.request;
-        if (req.onlyOwn() && p.userId() != ctx.user.id())
-            return;
-
-        engine_.onReply(id(), ctx, p, WalletData.SendPayment.class);
+        sendEvent(ctx);
     }
 }
+

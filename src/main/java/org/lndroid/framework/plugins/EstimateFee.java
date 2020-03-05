@@ -63,7 +63,7 @@ public class EstimateFee extends
     protected boolean isUserPrivileged(
             WalletData.User user, Transaction<WalletData.EstimateFeeRequest> tx) {
 
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override

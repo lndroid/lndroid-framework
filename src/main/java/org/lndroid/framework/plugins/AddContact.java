@@ -78,7 +78,7 @@ public class AddContact extends ActionBase<WalletData.AddContactRequest, WalletD
 
     @Override
     protected boolean isValidUser(WalletData.User user) {
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override

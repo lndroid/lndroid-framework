@@ -41,6 +41,7 @@ public class ChannelStateWorker implements IPluginBackground {
     private boolean openSynched_;
     private boolean closedSynched_;
     private boolean pendingSynched_;
+    private boolean pendingRetry_;
     private List<Data.ChannelEventUpdate> buffer_ = new ArrayList<>();
 
     @Override
@@ -154,8 +155,11 @@ public class ChannelStateWorker implements IPluginBackground {
         if (!lnd_.isRpcReady())
             return;
 
-        if (started_)
+        if (started_) {
+            if (pendingRetry_)
+                syncPendingChannels();
             return;
+        }
 
         started_ = true;
 
@@ -298,6 +302,7 @@ public class ChannelStateWorker implements IPluginBackground {
                 for(Rpc.PendingChannelsResponse.WaitingCloseChannel c: d.getWaitingCloseChannelsList())
                     onWaitingCloseChannel(c);
 
+                pendingRetry_ = false;
                 pendingSynched_ = true;
                 maybeSynched();
             }
@@ -305,7 +310,12 @@ public class ChannelStateWorker implements IPluginBackground {
             @Override
             public void onError(int i, String s) {
                 Log.e(TAG, "PendingChannels error "+i+" err "+s);
-                throw new RuntimeException("PendingChannels failed");
+                if (s != null && s.contains("unable to find arbitrator")) {
+                    Log.w(TAG, "will retry to get pending channels");
+                    pendingRetry_ = true;
+                } else {
+                    throw new RuntimeException("PendingChannels failed");
+                }
             }
         });
     }

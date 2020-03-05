@@ -37,9 +37,8 @@ public class SetNotifiedInvoices
 
     @Override
     protected boolean isUserPrivileged(WalletData.NotifiedInvoicesRequest req, WalletData.User user) {
-        // FIXME where is the privilege? Only select invoice types must be allowed to be notified as
-        // per privilege, and thus this method needs to ask dao if user has privilege for these invoices
-        return user.isRoot();
+        // FIXME open method, except for app, which must have some privilege?
+        return !user.isApp();
     }
 
     protected IDao dao() { return (IDao)super.dao();}
@@ -64,7 +63,7 @@ public class SetNotifiedInvoices
 
     @Override
     protected boolean isValidUser(WalletData.User user) {
-        return user.isApp();
+        return true;
     }
 
     @Override

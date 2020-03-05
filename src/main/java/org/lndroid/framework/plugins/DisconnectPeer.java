@@ -100,7 +100,7 @@ public class DisconnectPeer extends
 
     @Override
     protected boolean isUserPrivileged(WalletData.User user, Transaction<WalletData.DisconnectPeerRequest> tx) {
-        return !user.isApp();
+        return !user.isApp() && !user.isAnonymous();
     }
 
     @Override

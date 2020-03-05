@@ -122,8 +122,10 @@ class PluginClient extends Handler implements IPluginClient {
     }
 
     private boolean canSend() {
-        return (ipc_ && bound_)
-                || (!ipc_ && sessionToken_ != null);
+        if (ipc_)
+            return bound_;
+        else
+            return sessionToken_ != null || userId_.userId() == 0;
     }
 
     private void sendQueuedMessages() {
@@ -285,7 +287,7 @@ class PluginClient extends Handler implements IPluginClient {
     }
 
     private boolean sendLocal(PluginTransaction tx, PluginData.PluginMessage msg) {
-        if (msg.sessionToken() != null || sessionToken_ != null) {
+        if (msg.sessionToken() != null || canSend()) {
             if (msg.sessionToken() == null)
                 msg.assignSessionToken(sessionToken_);
 
@@ -300,7 +302,7 @@ class PluginClient extends Handler implements IPluginClient {
 
     private boolean sendIpc(PluginTransaction tx, PluginData.PluginMessage msg) {
 
-        if (bound_) {
+        if (canSend()) {
             Bundle b = PluginUtils.encodePluginMessageIpc(msg, ipcCodecProvider_, ipcPluginMessageCodec_, signer_);
 
             // prepare message with the bundle

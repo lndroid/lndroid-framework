@@ -232,7 +232,7 @@ public final class WalletData {
     public static final String USER_ROLE_ROOT = "root";
     public static final String USER_ROLE_USER = "user";
     public static final String USER_ROLE_APP = "app";
-    public static final String USER_ROLE_BG = "bg";
+    public static final String USER_ROLE_ANON = "anon";
 
     public static final String AUTH_TYPE_NONE = "none";
     public static final String AUTH_TYPE_PASSWORD = "password";
@@ -248,9 +248,11 @@ public final class WalletData {
         public boolean isRoot() {
             return role().equals(USER_ROLE_ROOT);
         }
-
         public boolean isApp() {
             return role().equals(USER_ROLE_APP);
+        }
+        public boolean isAnonymous() {
+            return role().equals(USER_ROLE_ANON);
         }
 
         public static User create(
@@ -736,10 +738,13 @@ public final class WalletData {
                     .setUserId(0)
                     .setInvoiceId(0)
                     .setAuthUserId(0)
+                    .setNoKeysend(false)
                     .setCreateFrom(0)
                     .setCreateTill(0)
                     .setSettleFrom(0)
                     .setSettleTill(0)
+                    .setNotifyFrom(0)
+                    .setNotifyTill(0)
                     .setOnlyOwn(false)
                     .setNoAuth(false)
                     .setEnablePaging(false)
@@ -2997,5 +3002,84 @@ public final class WalletData {
         }
     }
 
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_BackgroundInfo.class)
+    public static abstract class BackgroundInfo implements WalletDataDecl.BackgroundInfo{
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_BackgroundInfo.Builder()
+                    .setIsActive(false)
+                    .setActiveSendPaymentCount(0)
+                    .setActiveOpenChannelCount(0)
+                    .setActiveCloseChannelCount(0)
+                    .setActiveSendCoinCount(0)
+                    .setPendingChannelCount(0)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.BackgroundInfo,
+                WalletDataBuilders.IBuilder<BackgroundInfo>,
+                WalletDataBuilders.BackgroundInfoBuilder<Builder> {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_PaidInvoicesEvent.class)
+    public static abstract class PaidInvoicesEvent implements WalletDataDecl.PaidInvoicesEvent{
+
+        public static PaidInvoicesEvent create(
+                ImmutableList<Long> invoiceIds,
+                long satsReceived,
+                long invoicesCount
+        ) {
+            return builder()
+                    .setInvoiceIds(invoiceIds)
+                    .setSatsReceived(satsReceived)
+                    .setInvoicesCount(invoicesCount)
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_PaidInvoicesEvent.Builder()
+                    .setSatsReceived(0)
+                    .setInvoicesCount(0)
+                    ;
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataDecl.PaidInvoicesEvent,
+                WalletDataBuilders.IBuilder<PaidInvoicesEvent>,
+                WalletDataBuilders.PaidInvoicesEventBuilder<Builder> {
+        }
+    }
+
+    @AutoValue
+    @AutoValueClass(className = AutoValue_WalletData_SubscribePaidInvoicesEventsRequest.class)
+    public static abstract class SubscribePaidInvoicesEventsRequest {
+
+        public static SubscribePaidInvoicesEventsRequest create(
+        ) {
+            return builder()
+                    .build();
+        }
+
+        public static Builder builder() {
+            return new AutoValue_WalletData_SubscribePaidInvoicesEventsRequest.Builder();
+        }
+
+        public abstract Builder toBuilder();
+
+        @AutoValue.Builder
+        public abstract static class Builder implements
+                WalletDataBuilders.IBuilder<SubscribePaidInvoicesEventsRequest> {
+        }
+    }
 
 }

@@ -114,7 +114,7 @@ public class SendPaymentWorkerDao implements SendPaymentWorker.IDao, IPluginDao 
 
         @androidx.room.Transaction
         public List<Job> getJobs(int state, long now) {
-            List<RoomTransactions.RoomTransaction> txs = txDao.getJobTransactions(
+            List<RoomTransactions.RoomTransaction> txs = txDao.getReadyJobTransactions(
                     DefaultPlugins.SEND_PAYMENT, state, now);
 
             List<Job> jobs = new ArrayList<>();
