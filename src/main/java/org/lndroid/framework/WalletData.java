@@ -833,7 +833,9 @@ public final class WalletData {
                 int state,
                 int htlcsCount,
                 boolean isKeysend,
-                ImmutableList<Integer> features
+                ImmutableList<Integer> features,
+                String message,
+                String senderPubkey
         ) {
             return builder()
                     .setId(id)
@@ -861,6 +863,8 @@ public final class WalletData {
                     .setHtlcsCount(htlcsCount)
                     .setIsKeysend(isKeysend)
                     .setFeatures(features)
+                    .setMessage(message)
+                    .setSenderPubkey(senderPubkey)
                     .build();
         }
 
@@ -1776,19 +1780,23 @@ public final class WalletData {
 
     @AutoValue
     @AutoValueClass(className = AutoValue_WalletData_AddContactRequest.class)
-    public static abstract class AddContactRequest implements WalletDataDecl.AddContactRequest {
+    public static abstract class AddContactRequest implements WalletDataDecl.AddContactRequest<RouteHint> {
 
         public static AddContactRequest create(
                 String pubkey,
                 String name,
                 String description,
-                String url
+                String url,
+                ImmutableList<RouteHint> routeHints,
+                ImmutableList<Integer> features
         ) {
             return builder()
                     .setPubkey(pubkey)
                     .setName(name)
                     .setDescription(description)
                     .setUrl(url)
+                    .setRouteHints(routeHints)
+                    .setFeatures(features)
                     .build();
         }
 
@@ -1800,9 +1808,9 @@ public final class WalletData {
 
         @AutoValue.Builder
         public abstract static class Builder implements
-                WalletDataDecl.AddContactRequest,
+                WalletDataDecl.AddContactRequest<RouteHint>,
                 WalletDataBuilders.IBuilder<AddContactRequest>,
-                WalletDataBuilders.AddContactRequestBuilder<Builder> {
+                WalletDataBuilders.AddContactRequestBuilder<RouteHint, Builder> {
         }
     }
 
@@ -1810,8 +1818,16 @@ public final class WalletData {
     @AutoValueClass(className = AutoValue_WalletData_AddAppContactRequest.class)
     public static abstract class AddAppContactRequest implements WalletDataDecl.AddAppContactRequest {
 
-        public static AddAppContactRequest create() {
-            return builder().build();
+        public static AddAppContactRequest create(
+                String name,
+                String description,
+                String url
+        ) {
+            return builder()
+                    .setName(name)
+                    .setDescription(description)
+                    .setUrl(url)
+                    .build();
         }
 
         public static Builder builder() {

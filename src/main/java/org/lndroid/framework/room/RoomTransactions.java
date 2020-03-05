@@ -16,6 +16,7 @@ import org.lndroid.framework.dao.ITransactionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.Transaction;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class RoomTransactions {
@@ -49,12 +50,12 @@ public class RoomTransactions {
     static class AddUserRequest extends TransactionRequestBase<WalletData.AddUserRequest> {
     }
 
-    @Entity(tableName = "txContact")
+    @Entity(tableName = "txAddContactRequest")
     @TypeConverters({
             RoomConverters.TransientRouteHintsConverter.class,
             RoomConverters.ImmutableIntListConverter.class,
     })
-    static class Contact extends TransactionRequestBase<WalletData.Contact> {
+    static class AddContactRequest extends TransactionRequestBase<WalletData.AddContactRequest> {
     }
 
     @Entity(tableName = "txNewAddressRequest")
@@ -201,7 +202,7 @@ public class RoomTransactions {
         }
 
         @Override
-        public <T> T getTransactionRequest(String pluginId, long userId, String txId) {
+        public <T> T getTransactionRequest(String pluginId, long userId, String txId, Class<T> cls) {
             if (pluginId == null)
                 return null;
 
@@ -226,6 +227,8 @@ public class RoomTransactions {
                 r = getOpenChannelRequest(id);
             else if (pluginId.equals(DefaultPlugins.ADD_APP_CONTACT))
                 r = getAddAppContactRequest(id);
+            else if (pluginId.equals(DefaultPlugins.ADD_CONTACT))
+                r = getAddContactRequest(id);
             else if (pluginId.equals(DefaultPlugins.ADD_LIST_CONTACTS_PRIVILEGE))
                 r = getAddListContactsPrivilegeRequest(id);
             else if (pluginId.equals(DefaultPlugins.ADD_CONTACT_PAYMENTS_PRIVILEGE))
@@ -239,8 +242,23 @@ public class RoomTransactions {
             else if (pluginId.equals(DefaultPlugins.ADD_CONTACT_INVOICE))
                 r = getAddContactInvoiceRequest(id);
 
+            // r.data might be null if all fields of the instance were
+            // null (in which case Room doesn't instanciate the fields)
             if (r == null)
                 return null;
+
+            if (r.data == null) {
+                try {
+                    Object builder = cls.getMethod("builder").invoke(null);
+                    return (T)builder.getClass().getMethod("build").invoke(builder);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException("Tx request builder not supported");
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Tx request builder failed");
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException("Tx request builder failed");
+                }
+            }
 
             if (!r.data.getClass().getName().equals(tx.txData.requestClass))
                 return null;
@@ -260,8 +278,10 @@ public class RoomTransactions {
         abstract RoomTransactions.SendPaymentRequest getSendPaymentRequest(long id);
         @Query("SELECT * FROM txOpenChannelRequest WHERE id_ = :id")
         abstract RoomTransactions.OpenChannelRequest getOpenChannelRequest(long id);
-        @Query("SELECT * FROM txContact WHERE id_ = :id")
-        abstract RoomTransactions.Contact getAddAppContactRequest(long id);
+        @Query("SELECT * FROM txAddContactRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddContactRequest getAddAppContactRequest(long id);
+        @Query("SELECT * FROM txAddContactRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddContactRequest getAddContactRequest(long id);
         @Query("SELECT * FROM txListContactsPrivilege WHERE id_ = :id")
         abstract RoomTransactions.ListContactsPrivilege getAddListContactsPrivilegeRequest(long id);
         @Query("SELECT * FROM txContactPaymentsPrivilege WHERE id_ = :id")

@@ -6,8 +6,6 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 
-import java.util.List;
-
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
@@ -98,20 +96,24 @@ public class ConnectPeerDao
         }
 
         @Override
-        protected long insertResponse(
+        protected WalletData.Peer mergeExisting(
                 WalletData.Peer peer, ILndActionDao.OnResponseMerge<WalletData.Peer> merger) {
-
             // make sure we replace existing peer w/ same pubkey
             RoomData.Peer ri = getPeerByPubkey(peer.pubkey());
-            if (ri == null) {
-                ri = new RoomData.Peer();
-            } else {
-                // merge existing record w/ new one
-                if (merger != null)
-                    peer = merger.merge(ri.getData(), peer);
-                else
-                    peer = peer.toBuilder().setId(ri.getData().id()).build();
-            }
+            if (ri == null)
+                return peer;
+
+            // merge existing record w/ new one
+            if (merger != null)
+                return merger.merge(ri.getData(), peer);
+            else
+                return peer.toBuilder().setId(ri.getData().id()).build();
+        }
+
+        @Override
+        protected long insertResponse(WalletData.Peer peer) {
+
+            RoomData.Peer ri = new RoomData.Peer();
             ri.setData(peer);
 
             // update

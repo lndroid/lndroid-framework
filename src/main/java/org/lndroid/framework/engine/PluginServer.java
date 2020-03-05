@@ -782,7 +782,15 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
     }
 
     private void onGetAuthTxRequest(AuthData.AuthMessage src, Messenger client) {
-        Object o = daoProvider_.getTxDao().getTransactionRequest(src.pluginId(), src.userId(), src.txId());
+        WalletData.AuthRequest ar = daoProvider_.getAuthRequestDao().get(src.authId());
+        if (ar == null) {
+            Log.e(TAG, "unknown auth request "+src.authId());
+            replyAuthError(src, Errors.AUTH_INPUT, client);
+            return;
+        }
+
+        Object o = daoProvider_.getTxDao().getTransactionRequest(
+                ar.pluginId(), ar.userId(), ar.txId(), (Class<?>)src.data());
         if (o == null) {
             Log.e(TAG, "unknown auth request transaction u "+src.userId()+" tx "+src.txId());
             replyAuthError(src, Errors.AUTH_INPUT, client);

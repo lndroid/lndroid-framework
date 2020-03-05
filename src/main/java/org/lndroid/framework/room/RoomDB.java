@@ -3,7 +3,7 @@ package org.lndroid.framework.room;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-@Database(version = 64, exportSchema = true, entities = {
+@Database(version = 66, exportSchema = true, entities = {
         RoomData.AuthRequest.class,
         RoomData.Channel.class,
         RoomData.ChannelBalance.class,
@@ -28,7 +28,7 @@ import androidx.room.RoomDatabase;
         RoomData.User.class,
         RoomData.Utxo.class,
         RoomTransactions.RoomTransaction.class,
-        RoomTransactions.Contact.class,
+        RoomTransactions.AddContactRequest.class,
         RoomTransactions.AddContactInvoiceRequest.class,
         RoomTransactions.AddInvoiceRequest.class,
         RoomTransactions.AddUserRequest.class,
@@ -97,7 +97,7 @@ abstract class RoomDB extends RoomDatabase {
 
     abstract ListPaymentsDao.DaoRoom listPaymentsDao();
 
-    abstract AddAppContactDao.DaoRoom addContactDao();
+    abstract AddContactDao.DaoRoom addContactDao();
     abstract GetContactDao.DaoRoom getContactDao();
     abstract ListContactsDao.DaoRoom listContactsDao();
 

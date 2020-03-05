@@ -68,8 +68,7 @@ class CloseChannelDao
         }
 
         @Override
-        protected long insertResponse(WalletData.Channel v,
-                                      IActionDao.OnResponseMerge<WalletData.Channel> merger) {
+        protected long insertResponse(WalletData.Channel v) {
             // it's already stored and not modified by this job request
             return v.id();
         }

@@ -2,19 +2,12 @@ package org.lndroid.framework.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
-import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.OpenChannel;
-import org.lndroid.framework.plugins.Transaction;
 
 class OpenChannelDao
         extends JobDaoBase<WalletData.OpenChannelRequest, WalletData.Channel>
@@ -81,8 +74,7 @@ class OpenChannelDao
         abstract void setFakeChannelPoint(long id, String cp);
 
         @Override
-        protected long insertResponse(WalletData.Channel v,
-                                      IActionDao.OnResponseMerge<WalletData.Channel> merger) {
+        protected long insertResponse(WalletData.Channel v) {
             RoomData.Channel r = new RoomData.Channel();
             r.setData(v);
 

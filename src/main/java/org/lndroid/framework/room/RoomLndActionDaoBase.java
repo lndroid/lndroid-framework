@@ -1,5 +1,6 @@
 package org.lndroid.framework.room;
 
+import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.plugins.Transaction;
 
@@ -19,8 +20,13 @@ abstract class RoomLndActionDaoBase<Request, Response> {
 
     protected abstract long insertRequest(Request req);
     protected abstract void updateRequest(long id, Request req);
-    protected abstract long insertResponse(
-            Response r, ILndActionDao.OnResponseMerge<Response> merger);
+    protected Response mergeExisting(Response r, ILndActionDao.OnResponseMerge<Response> merger) {
+        // by default no merging is required
+        if (merger != null)
+            throw new RuntimeException("Merger not supported");
+        return r;
+    }
+    protected abstract long insertResponse(Response r);
 
     public abstract Request getRequest(long id);
     public abstract Response getResponse(long id);
@@ -70,7 +76,10 @@ abstract class RoomLndActionDaoBase<Request, Response> {
     protected Response commitTransactionImpl(
             long userId, String txId, Response r, long time,
             ILndActionDao.OnResponseMerge<Response> merger) {
-        final long id = insertResponse(r, merger);
+
+        r = mergeExisting(r, merger);
+
+        final long id = insertResponse(r);
 
         // update tx state
         txDao_.commitTransaction(pluginId_, userId, txId,

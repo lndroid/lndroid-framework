@@ -2,11 +2,8 @@ package org.lndroid.framework.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
-
-import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
@@ -74,8 +71,7 @@ class AddUserDao
         abstract void insertResponseRoom(RoomData.User r);
 
         @Override
-        protected long insertResponse(WalletData.User v,
-                                      IActionDao.OnResponseMerge<WalletData.User> merger) {
+        protected long insertResponse(WalletData.User v) {
 
             RoomData.User ru = new RoomData.User();
             ru.setData(v);

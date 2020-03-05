@@ -6,8 +6,6 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 
-import java.util.List;
-
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
@@ -82,8 +80,7 @@ class AddInvoiceDao
         }
 
         @Override
-        protected long insertResponse(WalletData.Invoice r,
-                                      ILndActionDao.OnResponseMerge<WalletData.Invoice> merger) {
+        protected long insertResponse(WalletData.Invoice r) {
             RoomData.Invoice ri = new RoomData.Invoice();
             ri.setData(r);
 

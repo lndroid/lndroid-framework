@@ -11,8 +11,6 @@ import org.lndroid.framework.dao.ILndActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.EstimateFee;
 
-import java.util.List;
-
 public class EstimateFeeDao
         extends LndActionDaoBase<WalletData.EstimateFeeRequest, WalletData.EstimateFeeResponse>
         implements EstimateFee.IDao
@@ -76,8 +74,7 @@ public class EstimateFeeDao
         }
 
         @Override
-        protected long insertResponse(WalletData.EstimateFeeResponse r,
-                                      ILndActionDao.OnResponseMerge<WalletData.EstimateFeeResponse> merger) {
+        protected long insertResponse(WalletData.EstimateFeeResponse r) {
             // not stored
             return 0;
         }

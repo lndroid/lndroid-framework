@@ -108,6 +108,7 @@ public class InvoiceStateWorker implements IPluginBackground {
             // merge htlc update
             WalletData.InvoiceHTLC.Builder hb = htlc.toBuilder();
             LightningCodec.InvoiceHTLCConverter.decode(rh, hb);
+            htlc = hb.build();
 
             // ensure htlc payment
             if (payment == null) {
@@ -128,8 +129,17 @@ public class InvoiceStateWorker implements IPluginBackground {
                     .setTime(htlc.senderTime() != 0 ? htlc.senderTime() : htlc.acceptTime())
                     .build();
 
+            // update invoice,
+            // FIXME many messages per invoice are possible!
+            if (htlc.message() != null || htlc.senderPubkey() != null) {
+                invoice = invoice.toBuilder()
+                        .setMessage(htlc.message())
+                        .setSenderPubkey(htlc.senderPubkey())
+                        .build();
+            }
+
             // move back to list
-            htlcs.add(hb.build());
+            htlcs.add(htlc);
             payments.add(payment);
         }
 

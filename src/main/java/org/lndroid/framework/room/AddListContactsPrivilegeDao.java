@@ -6,8 +6,6 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 
-import java.util.List;
-
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
@@ -77,22 +75,28 @@ class AddListContactsPrivilegeDao
         @Insert(onConflict = OnConflictStrategy.REPLACE)
         abstract void upsert(RoomData.ListContactsPrivilege r);
 
+
         @Override
-        protected long insertResponse(
+        protected WalletData.ListContactsPrivilege mergeExisting(
                 WalletData.ListContactsPrivilege v,
                 IActionDao.OnResponseMerge<WalletData.ListContactsPrivilege> merger) {
 
             RoomData.ListContactsPrivilege rv = getExisting(v.userId());
-            if (rv == null) {
-                rv = new RoomData.ListContactsPrivilege();
-            } else {
-                // merge
-                if (merger != null)
-                    v = merger.merge(rv.getData(), v);
-                else
-                    v = v.toBuilder().setId(rv.getData().id()).build();
-            }
+            if (rv == null)
+                return v;
 
+            // merge
+            if (merger != null)
+                return merger.merge(rv.getData(), v);
+            else
+                return v.toBuilder().setId(rv.getData().id()).build();
+        }
+
+        @Override
+        protected long insertResponse(
+                WalletData.ListContactsPrivilege v) {
+
+            RoomData.ListContactsPrivilege rv = new RoomData.ListContactsPrivilege();
             rv.setData(v);
 
             // write

@@ -24,6 +24,7 @@ public interface IAuthClient {
     void subscribeBackgroundAuthRequests(IResponseCallback<WalletData.AuthRequest> cb);
 
     // check if user has privileges to auth the tx
+    //FIXME remove pluginId from here, authId should be enough
     void isUserPrivileged(String pluginId, long authUserId, long authId, IResponseCallback<Boolean> cb);
 
     // tell server about user's tx authorization results
@@ -33,6 +34,10 @@ public interface IAuthClient {
     void getAuthRequest(long id, IResponseCallback<WalletData.AuthRequest> cb);
 
     // get auth tx request, used by auth activities
-    <T> void getTransactionRequest(String pluginId, long userId, String txId, IResponseCallback<T> cb);
+    <T> void getAuthTransactionRequest(long authId, Class<T> cls, IResponseCallback<T> cb);
+
+    // supposedly would be used to display list of user txs,
+    // but for now left for later!
+//    <T> void getTransactionRequest(String pluginId, long userId, String txId, IResponseCallback<T> cb);
 
 }

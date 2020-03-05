@@ -19,7 +19,13 @@ abstract class RoomActionDaoBase<Request, Response> {
     }
 
     protected abstract long insertRequest(Request req);
-    protected abstract long insertResponse(Response rep, IActionDao.OnResponseMerge<Response> merger);
+    protected abstract long insertResponse(Response rep);
+    protected Response mergeExisting(Response r, IActionDao.OnResponseMerge<Response> merger) {
+        // by default no merging is required
+        if (merger != null)
+            throw new RuntimeException("Merger not supported");
+        return r;
+    }
 
     public abstract Request getRequest(long id);
     public abstract Response getResponse(long id);
@@ -58,7 +64,10 @@ abstract class RoomActionDaoBase<Request, Response> {
     protected Response commitTransactionImpl(
             long userId, String txId, long txAuthUserId, Response r, long time,
             IActionDao.OnResponseMerge<Response> merger) {
-        final long id = insertResponse(r, merger);
+
+        r = mergeExisting(r, merger);
+
+        final long id = insertResponse(r);
 
         // update tx state: confirm and commit
         txDao_.confirmTransaction(pluginId_, userId, txId, txAuthUserId, time);

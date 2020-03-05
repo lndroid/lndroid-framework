@@ -2,19 +2,12 @@ package org.lndroid.framework.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
-import org.lndroid.framework.dao.IJobDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
-import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.SendCoins;
-import org.lndroid.framework.plugins.Transaction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SendCoinsDao
         extends JobDaoBase<WalletData.SendCoinsRequest, WalletData.Transaction>
@@ -84,8 +77,7 @@ public class SendCoinsDao
         public abstract void insertResponseRoom(RoomData.Transaction i);
 
         @Override
-        protected long insertResponse(WalletData.Transaction v,
-                                      IActionDao.OnResponseMerge<WalletData.Transaction> merger) {
+        protected long insertResponse(WalletData.Transaction v) {
             RoomData.Transaction r = new RoomData.Transaction();
             r.setData(v);
             insertResponseRoom(r);

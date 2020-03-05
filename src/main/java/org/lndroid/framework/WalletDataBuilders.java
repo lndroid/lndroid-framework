@@ -126,14 +126,19 @@ public class WalletDataBuilders {
         Builder setFeatures(ImmutableList<Integer> features);
     }
 
-    interface AddContactRequestBuilder<Builder>{
+    interface AddContactRequestBuilder<RouteHint, Builder>{
         Builder setPubkey(String pubkey);
         Builder setName(String name);
         Builder setDescription(String description);
         Builder setUrl(String url);
+        Builder setRouteHints(ImmutableList<RouteHint> routeHints);
+        Builder setFeatures(ImmutableList<Integer> features);
     }
 
     interface AddAppContactRequestBuilder<Builder> {
+        Builder setName(String name);
+        Builder setDescription(String description);
+        Builder setUrl(String url);
     }
 
     interface ListPageBuilder<Builder> {
@@ -285,6 +290,8 @@ public class WalletDataBuilders {
         Builder setHtlcsCount(int htlcsCount);
         Builder setIsKeysend(boolean isKeysend);
         Builder setFeatures(ImmutableList<Integer> features);
+        Builder setMessage(String message);
+        Builder setSenderPubkey(String senderPubkey);
     }
 
     interface InvoiceHTLCBuilder<Builder> {

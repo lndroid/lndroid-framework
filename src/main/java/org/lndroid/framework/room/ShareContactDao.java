@@ -2,11 +2,8 @@ package org.lndroid.framework.room;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
-
-import java.util.List;
 
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
@@ -68,8 +65,7 @@ class ShareContactDao
         }
 
         @Override
-        protected long insertResponse(WalletData.ShareContactResponse v,
-                                      IActionDao.OnResponseMerge<WalletData.ShareContactResponse> merger) {
+        protected long insertResponse(WalletData.ShareContactResponse v) {
             // not stored
             return 0;
         }

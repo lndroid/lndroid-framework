@@ -12,6 +12,7 @@ import org.lndroid.framework.engine.IPluginForegroundCallback;
 import org.lndroid.framework.engine.IPluginProvider;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.framework.plugins.AddAppContact;
+import org.lndroid.framework.plugins.AddContact;
 import org.lndroid.framework.plugins.AddContactInvoice;
 import org.lndroid.framework.plugins.AddContactPaymentsPrivilege;
 import org.lndroid.framework.plugins.AddInvoice;
@@ -178,6 +179,7 @@ public class DefaultPluginProvider implements IPluginProvider {
 
         plugins_.put(DefaultPlugins.LIST_PAYMENTS, new ForegroundPlugin(new ListPayments()));
 
+        plugins_.put(DefaultPlugins.ADD_CONTACT, new ForegroundPlugin(new AddContact()));
         plugins_.put(DefaultPlugins.ADD_APP_CONTACT, new ForegroundPlugin(new AddAppContact()));
         plugins_.put(DefaultPlugins.GET_CONTACT, new ForegroundPlugin(new GetContact()));
         plugins_.put(DefaultPlugins.LIST_CONTACTS, new ForegroundPlugin(new ListContacts()));

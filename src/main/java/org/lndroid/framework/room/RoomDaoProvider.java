@@ -127,8 +127,9 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.LIST_PAYMENTS, new ListPaymentsDao(
                 db_.listPaymentsDao()));
 
-        pluginDaos_.put(DefaultPlugins.ADD_APP_CONTACT, new AddAppContactDao(
+        pluginDaos_.put(DefaultPlugins.ADD_CONTACT, new AddContactDao(
                 db_.addContactDao(), db_.txDao(), db_.routeHintsDao()));
+        pluginDaos_.put(DefaultPlugins.ADD_APP_CONTACT, pluginDaos_.get(DefaultPlugins.ADD_CONTACT));
         pluginDaos_.put(DefaultPlugins.GET_CONTACT, new GetContactDao(
                 db_.getContactDao(), db_.routeHintsDao()));
         pluginDaos_.put(DefaultPlugins.LIST_CONTACTS, new ListContactsDao(
@@ -172,7 +173,7 @@ public class RoomDaoProvider implements IDBDaoProvider {
 
     @Override
     public void insertUser(WalletData.User user) {
-        db_.userAddDao().insertResponse(user, null);
+        db_.userAddDao().insertResponse(user);
     }
 
     @Override

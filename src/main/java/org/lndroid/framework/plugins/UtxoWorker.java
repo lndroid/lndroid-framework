@@ -13,12 +13,15 @@ import org.lndroid.framework.lnd.LightningCodec;
 import org.lndroid.lnd.daemon.ILightningCallback;
 
 import java.util.List;
+import java.util.Set;
 
 import lnrpc.Rpc;
 
 public class UtxoWorker implements IPluginBackground {
 
     public interface IDao {
+        Set<Long> getUtxoIds();
+        void deleteUtxo(Set<Long> utxos);
         WalletData.Utxo getByOutpoint(String txidHex, int outputIndex);
         void update(WalletData.Utxo utxo);
     }
@@ -86,6 +89,7 @@ public class UtxoWorker implements IPluginBackground {
             public void onResponse(Rpc.ListUnspentResponse r) {
                 Log.i(TAG, "list unspent update "+r);
                 boolean updated = false;
+                Set<Long> utxos = dao_.getUtxoIds();
                 for(Rpc.Utxo u: r.getUtxosList()) {
                     WalletData.Utxo.Builder b = WalletData.Utxo.builder();
                     LightningCodec.UtxoConverter.decode(u, b);
@@ -96,6 +100,9 @@ public class UtxoWorker implements IPluginBackground {
                     } else {
                         // make sure ids match
                         b.setId(existing.id());
+
+                        // remove from the list of existing ones
+                        utxos.remove(existing.id());
                     }
 
                     // build
@@ -107,6 +114,8 @@ public class UtxoWorker implements IPluginBackground {
                         updated = true;
                     }
                 }
+
+                dao_.deleteUtxo(utxos);
 
                 if (updated)
                     engine_.onSignal(id(), DefaultTopics.UTXO_STATE, null);

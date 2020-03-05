@@ -139,8 +139,8 @@ public class SendPayment implements IPluginForeground {
                 .setUserId(sp.userId())
                 .setTime(sp.createTime())
                 .setSendPayments(spb.build())
-                .setPeerPubkey(req.destPubkey())
-                .setMessage(req.message())
+                .setPeerPubkey(sp.destPubkey())
+                .setMessage(sp.message())
                 .build();
     }
 

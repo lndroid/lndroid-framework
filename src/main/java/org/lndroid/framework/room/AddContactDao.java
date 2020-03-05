@@ -8,29 +8,28 @@ import androidx.room.Transaction;
 
 import com.google.common.collect.ImmutableList;
 
-import java.util.List;
-
 import org.lndroid.framework.WalletData;
 import org.lndroid.framework.dao.IActionDao;
 import org.lndroid.framework.defaults.DefaultPlugins;
 import org.lndroid.framework.plugins.AddAppContact;
 
 
-class AddAppContactDao
-        extends ActionDaoBase<WalletData.Contact, WalletData.Contact>
+class AddContactDao
+        extends ActionDaoBase<WalletData.AddContactRequest, WalletData.Contact>
         implements AddAppContact.IDao
 {
 
     static final String PLUGIN_ID = DefaultPlugins.ADD_APP_CONTACT;
 
-    AddAppContactDao(DaoRoom dao, RoomTransactions.TransactionDao txDao, RouteHintsDaoRoom routeDao) {
+    AddContactDao(DaoRoom dao, RoomTransactions.TransactionDao txDao, RouteHintsDaoRoom routeDao) {
         super(dao);
         dao.init(PLUGIN_ID, txDao);
         dao.routeDao = routeDao;
     }
 
     @Dao
-    abstract static class DaoRoom extends RoomActionDaoBase<WalletData.Contact, WalletData.Contact>{
+    abstract static class DaoRoom
+            extends RoomActionDaoBase<WalletData.AddContactRequest, WalletData.Contact>{
 
         RouteHintsDaoRoom routeDao;
 
@@ -43,21 +42,21 @@ class AddAppContactDao
         }
 
         @Override @Transaction
-        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.Contact req){
+        public void createTransaction(RoomTransactions.RoomTransaction tx, WalletData.AddContactRequest req){
             createTransactionImpl(tx, req);
         }
 
         @Insert
-        abstract long insertRequest(RoomTransactions.Contact i);
+        abstract long insertRequest(RoomTransactions.AddContactRequest i);
 
         private String routeHintsRequestParentId(long id) {
-            return "AddAppContact:"+id;
+            return "AddContact:"+id;
         }
 
         @Override
-        protected long insertRequest(WalletData.Contact req) {
+        protected long insertRequest(WalletData.AddContactRequest req) {
             // convert request to room object
-            RoomTransactions.Contact r = new RoomTransactions.Contact();
+            RoomTransactions.AddContactRequest r = new RoomTransactions.AddContactRequest();
             r.data = req;
 
             // insert request
@@ -78,47 +77,55 @@ class AddAppContactDao
         @Query("SELECT * FROM Contact WHERE id = :id")
         abstract RoomData.Contact getResponseRoom(long id);
 
+        WalletData.Contact addRouteHintsResponse(WalletData.Contact c) {
+            ImmutableList<WalletData.RouteHint> routeHints = routeDao.getRouteHints(
+                    RoomData.routeHintsParentId(c));
+            return c.toBuilder().setRouteHints(routeHints).build();
+        }
+
         @Override
         public WalletData.Contact getResponse(long id) {
             RoomData.Contact r = getResponseRoom(id);
             if (r == null)
                 return null;
 
-            return addRouteHints(id, r.getData());
+            return addRouteHintsResponse(r.getData());
         }
 
-        @Query("SELECT * FROM txContact WHERE id_ = :id")
-        abstract RoomTransactions.Contact getRequestRoom(long id);
+        @Query("SELECT * FROM txAddContactRequest WHERE id_ = :id")
+        abstract RoomTransactions.AddContactRequest getRequestRoom(long id);
 
-        WalletData.Contact addRouteHints(long id, WalletData.Contact c) {
+        WalletData.AddContactRequest addRouteHintsRequest(long id, WalletData.AddContactRequest c) {
             ImmutableList<WalletData.RouteHint> routeHints = routeDao.getRouteHints(
                     routeHintsRequestParentId(id));
             return c.toBuilder().setRouteHints(routeHints).build();
         }
 
         @Override
-        public WalletData.Contact getRequest(long id) {
-            RoomTransactions.Contact r = getRequestRoom(id);
+        public WalletData.AddContactRequest getRequest(long id) {
+            RoomTransactions.AddContactRequest r = getRequestRoom(id);
             if (r == null)
                 return null;
 
-            return addRouteHints(id, r.data);
+            return addRouteHintsRequest(id, r.data);
+        }
+
+        protected WalletData.Contact mergeExisting(
+                WalletData.Contact r, IActionDao.OnResponseMerge<WalletData.Contact> merger) {
+            RoomData.Contact ri = getContactByPubkey(r.pubkey());
+            if (ri == null)
+                return r;
+
+             if (merger != null)
+                return merger.merge(ri.getData(), r);
+            else
+                return r.toBuilder().setId(ri.getData().id()).build();
         }
 
         @Override
-        protected long insertResponse(WalletData.Contact contact,
-                                      IActionDao.OnResponseMerge<WalletData.Contact> merger) {
+        protected long insertResponse(WalletData.Contact contact) {
             // make sure we replace existing contact w/ same pubkey
-            RoomData.Contact ri = getContactByPubkey(contact.pubkey());
-            if (ri == null) {
-                ri = new RoomData.Contact();
-            } else {
-                // merge
-                if (merger != null)
-                    contact = merger.merge(ri.getData(), contact);
-                else
-                    contact = contact.toBuilder().setId(ri.getData().id()).build();
-            }
+            RoomData.Contact ri = new RoomData.Contact();
             ri.setData(contact);
 
             // update

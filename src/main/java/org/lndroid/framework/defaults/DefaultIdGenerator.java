@@ -6,7 +6,7 @@ import org.lndroid.framework.engine.IIdGenerator;
 public class DefaultIdGenerator implements IIdGenerator {
 
     private IDaoProvider daos_;
-    private long nextId_ = 1;
+    private long nextId_ = 2; // 1 is reserved for root-user
 
     public DefaultIdGenerator(IDaoProvider daos) {
         daos_ = daos;
@@ -22,7 +22,7 @@ public class DefaultIdGenerator implements IIdGenerator {
 
     @Override
     public void init() {
-        daos_.getRawQueryDao().execute("INSERT OR IGNORE INTO NextId (pk_, id) VALUES (0, 1)");
+        daos_.getRawQueryDao().execute("INSERT OR IGNORE INTO NextId (pk_, id) VALUES (0, "+nextId_+")");
         nextId_ = getNextId();
     }
 

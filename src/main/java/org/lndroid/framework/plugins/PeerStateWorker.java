@@ -88,7 +88,7 @@ public class PeerStateWorker implements IPluginBackground {
 
                 @Override
                 public void onResponse(Rpc.PeerEvent e) {
-                    Log.e(TAG, "peer event "+e);
+                    Log.i(TAG, "peer event "+e);
                     onEvent(e);
                 }
 
@@ -110,7 +110,7 @@ public class PeerStateWorker implements IPluginBackground {
 
             @Override
             public void onResponse(Rpc.ListPeersResponse r) {
-                Log.e(TAG, "list peers: "+r.getPeersCount());
+                Log.i(TAG, "list peers: "+r.getPeersCount());
                 for(Rpc.Peer p:r.getPeersList())
                     onUpdate(p);
 

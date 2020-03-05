@@ -9,12 +9,26 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.UtxoWorker;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class UtxoWorkerDao implements UtxoWorker.IDao, IPluginDao {
 
     private DaoRoom dao_;
 
     UtxoWorkerDao(DaoRoom dao) {
         dao_ = dao;
+    }
+
+    @Override
+    public Set<Long> getUtxoIds() {
+        return new HashSet<Long>(dao_.getUtxoIds());
+    }
+
+    @Override
+    public void deleteUtxo(Set<Long> utxos) {
+        dao_.deleteUtxo(utxos);
     }
 
     @Override
@@ -37,6 +51,12 @@ public class UtxoWorkerDao implements UtxoWorker.IDao, IPluginDao {
 
     @Dao
     interface DaoRoom {
+        @Query("SELECT id FROM Utxo")
+        List<Long> getUtxoIds();
+
+        @Query("DELETE FROM Utxo WHERE id IN (:ids)")
+        void deleteUtxo(Set<Long> ids);
+
         @Query("SELECT * FROM Utxo WHERE txidHex = :txidHex AND outputIndex = :outputIndex")
         RoomData.Utxo getByOutpoint(String txidHex, int outputIndex);
 

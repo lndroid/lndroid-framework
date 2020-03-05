@@ -82,8 +82,7 @@ public class SetNotifiedInvoicesDao
 
         @Override
         protected long insertResponse(
-                WalletData.NotifiedInvoicesResponse v,
-                IActionDao.OnResponseMerge<WalletData.NotifiedInvoicesResponse> merger) {
+                WalletData.NotifiedInvoicesResponse v) {
             // not stored
             return 0;
         }

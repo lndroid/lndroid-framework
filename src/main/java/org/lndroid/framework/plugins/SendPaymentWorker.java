@@ -263,7 +263,8 @@ public class SendPaymentWorker implements IPluginBackground {
                     Log.e(TAG, "queryRoutes no route");
 
                     WalletData.SendPayment.Builder b = p.toBuilder();
-                    b.setPaymentError("no route found");
+                    b.setErrorCode(Errors.LND_ERROR);
+                    b.setErrorMessage("no route found");
                     onFailure(job, b);
                     onUpdate(job, b.build());
                 }
@@ -273,11 +274,11 @@ public class SendPaymentWorker implements IPluginBackground {
             public void onError(int i, String s) {
                 Log.e(TAG, "queryRoutes error "+i+" err "+s);
 
-                onUpdate(job, p.toBuilder()
-                        .setErrorCode(Errors.LND_ERROR)
-                        .setErrorMessage(s)
-                        .setState(WalletData.SEND_PAYMENT_STATE_FAILED)
-                        .build());
+                WalletData.SendPayment.Builder b = p.toBuilder();
+                b.setErrorCode(Errors.LND_ERROR);
+                b.setErrorMessage(s);
+                onFailure(job, b);
+                onUpdate(job, b.build());
             }
         });
     }

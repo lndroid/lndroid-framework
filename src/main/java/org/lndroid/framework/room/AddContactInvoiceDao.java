@@ -119,8 +119,7 @@ class AddContactInvoiceDao
 
         @Override
         protected long insertResponse(
-                WalletData.AddContactInvoiceResponse r,
-                ILndActionDao.OnResponseMerge<WalletData.AddContactInvoiceResponse> merger) {
+                WalletData.AddContactInvoiceResponse r) {
             // not stored
             return 0;
         }

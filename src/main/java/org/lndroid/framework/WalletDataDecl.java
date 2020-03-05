@@ -254,6 +254,7 @@ public class WalletDataDecl {
         @Nullable
         String url();
 
+        // FIXME add FieldInfo w/ convertor
         @Nullable
         ImmutableList<RouteHint> routeHints();
 
@@ -266,7 +267,7 @@ public class WalletDataDecl {
         ImmutableList<Integer> features();
     }
 
-    public interface AddContactRequest {
+    public interface AddContactRequest<RouteHint> {
         @Nullable
         String pubkey();
 
@@ -278,10 +279,23 @@ public class WalletDataDecl {
 
         @Nullable
         String url();
+
+        @Nullable
+        ImmutableList<RouteHint> routeHints();
+
+        @Nullable
+        ImmutableList<Integer> features();
     }
 
     public interface AddAppContactRequest {
-        // empty for now
+        @Nullable
+        String name();
+
+        @Nullable
+        String description();
+
+        @Nullable
+        String url();
     }
 
     public interface ListPage {
@@ -766,6 +780,20 @@ public class WalletDataDecl {
         // list of feature codes
         @Nullable
         ImmutableList<Integer> features();
+
+        @FieldInfo(
+                name = "Message",
+                help = "Message attached to the key-send payment."
+        )
+        @Nullable
+        String message();
+
+        @FieldInfo(
+                name = "Sender public key",
+                help = "Public key of the sender, if provided."
+        )
+        @Nullable
+        String senderPubkey();
     }
 
     public interface InvoiceHTLC {

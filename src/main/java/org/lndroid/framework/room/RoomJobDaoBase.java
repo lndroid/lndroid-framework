@@ -16,7 +16,9 @@ abstract class RoomJobDaoBase<Request, Response> extends RoomActionDaoBase<Reque
             int maxTries, long maxTryTime,
             IActionDao.OnResponseMerge<Response> merger)
     {
-        final long id = insertResponse(r, merger);
+        r = mergeExisting(r, merger);
+
+        final long id = insertResponse(r);
 
         // update tx state: confirm and commit
         txDao().initTransactionJob(pluginId(), userId, txId, maxTries, maxTryTime);

@@ -1,0 +1,3641 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 65,
+    "identityHash": "508fcbe321142f04a021fcae97fe0fa2",
+    "entities": [
+      {
+        "tableName": "AuthRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `createTime` INTEGER, `background` INTEGER, `pluginId` TEXT, `txId` TEXT, `type` TEXT, `componentClassName` TEXT, `componentPackageName` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.background",
+            "columnName": "background",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pluginId",
+            "columnName": "pluginId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.componentClassName",
+            "columnName": "componentClassName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.componentPackageName",
+            "columnName": "componentPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_AuthRequest_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_AuthRequest_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_AuthRequest_userId_txId",
+            "unique": true,
+            "columnNames": [
+              "userId",
+              "txId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_AuthRequest_userId_txId` ON `${TABLE_NAME}` (`userId`, `txId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Channel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `txId` TEXT, `authUserId` INTEGER, `description` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `minHtlcMsat` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER, `chainHashHex` TEXT, `closingTxHashHex` TEXT, `closeHeight` INTEGER, `settledBalance` INTEGER, `timeLockedBalance` INTEGER, `closeType` INTEGER, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `createTime` INTEGER, `openTime` INTEGER, `closeTime` INTEGER, `active` INTEGER, `remotePubkey` TEXT, `channelPoint` TEXT, `chanId` INTEGER, `capacity` INTEGER, `localBalance` INTEGER, `remoteBalance` INTEGER, `confirmationHeight` INTEGER, `limboBalance` INTEGER, `maturityHeight` INTEGER, `recoveredBalance` INTEGER, `commitFee` INTEGER, `commitWeight` INTEGER, `feePerKw` INTEGER, `unsettledBalance` INTEGER, `totalSatoshisSent` INTEGER, `totalSatoshisReceived` INTEGER, `numUpdates` INTEGER, `csvDelay` INTEGER, `isPrivate` INTEGER, `initiator` INTEGER, `chanStatusFlags` TEXT, `localChanReserveSat` INTEGER, `remoteChanReserveSat` INTEGER, `staticRemoteKey` INTEGER, `lifetime` INTEGER, `uptime` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satPerByte",
+            "columnName": "satPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.minHtlcMsat",
+            "columnName": "minHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.minConfs",
+            "columnName": "minConfs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.spendUnconfirmed",
+            "columnName": "spendUnconfirmed",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chainHashHex",
+            "columnName": "chainHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closingTxHashHex",
+            "columnName": "closingTxHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closeHeight",
+            "columnName": "closeHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.settledBalance",
+            "columnName": "settledBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.timeLockedBalance",
+            "columnName": "timeLockedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closeType",
+            "columnName": "closeType",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorMessage",
+            "columnName": "errorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.openTime",
+            "columnName": "openTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.closeTime",
+            "columnName": "closeTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.remotePubkey",
+            "columnName": "remotePubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.channelPoint",
+            "columnName": "channelPoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanId",
+            "columnName": "chanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.capacity",
+            "columnName": "capacity",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.localBalance",
+            "columnName": "localBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.remoteBalance",
+            "columnName": "remoteBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.confirmationHeight",
+            "columnName": "confirmationHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.limboBalance",
+            "columnName": "limboBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maturityHeight",
+            "columnName": "maturityHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.recoveredBalance",
+            "columnName": "recoveredBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.commitFee",
+            "columnName": "commitFee",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.commitWeight",
+            "columnName": "commitWeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feePerKw",
+            "columnName": "feePerKw",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.unsettledBalance",
+            "columnName": "unsettledBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalSatoshisSent",
+            "columnName": "totalSatoshisSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalSatoshisReceived",
+            "columnName": "totalSatoshisReceived",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.numUpdates",
+            "columnName": "numUpdates",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.csvDelay",
+            "columnName": "csvDelay",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isPrivate",
+            "columnName": "isPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.initiator",
+            "columnName": "initiator",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanStatusFlags",
+            "columnName": "chanStatusFlags",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.localChanReserveSat",
+            "columnName": "localChanReserveSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.remoteChanReserveSat",
+            "columnName": "remoteChanReserveSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.staticRemoteKey",
+            "columnName": "staticRemoteKey",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lifetime",
+            "columnName": "lifetime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.uptime",
+            "columnName": "uptime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Channel_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Channel_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Channel_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Channel_state` ON `${TABLE_NAME}` (`state`)"
+          },
+          {
+            "name": "index_Channel_chanId",
+            "unique": false,
+            "columnNames": [
+              "chanId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Channel_chanId` ON `${TABLE_NAME}` (`chanId`)"
+          },
+          {
+            "name": "index_Channel_channelPoint",
+            "unique": true,
+            "columnNames": [
+              "channelPoint"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Channel_channelPoint` ON `${TABLE_NAME}` (`channelPoint`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ChannelBalance",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `balance` INTEGER, `pendingOpenBalance` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.balance",
+            "columnName": "balance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pendingOpenBalance",
+            "columnName": "pendingOpenBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ChannelEdge",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `channelId` INTEGER, `chanPoint` TEXT, `node1Pubkey` TEXT, `node2Pubkey` TEXT, `capacity` INTEGER, `node1Policy` TEXT, `node2Policy` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.channelId",
+            "columnName": "channelId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanPoint",
+            "columnName": "chanPoint",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node1Pubkey",
+            "columnName": "node1Pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node2Pubkey",
+            "columnName": "node2Pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.capacity",
+            "columnName": "capacity",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node1Policy",
+            "columnName": "node1Policy",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.node2Policy",
+            "columnName": "node2Policy",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ChannelEdge_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ChannelEdge_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_ChannelEdge_channelId",
+            "unique": true,
+            "columnNames": [
+              "channelId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ChannelEdge_channelId` ON `${TABLE_NAME}` (`channelId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Contact",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `pubkey` TEXT, `name` TEXT, `description` TEXT, `url` TEXT, `routeHints` TEXT, `features` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.routeHints",
+            "columnName": "routeHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Contact_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Contact_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Contact_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Contact_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ContactPaymentsPrivilege",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `contactId` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.contactId",
+            "columnName": "contactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ContactPaymentsPrivilege_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ContactPaymentsPrivilege_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_ContactPaymentsPrivilege_userId_contactId",
+            "unique": true,
+            "columnNames": [
+              "userId",
+              "contactId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ContactPaymentsPrivilege_userId_contactId` ON `${TABLE_NAME}` (`userId`, `contactId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Invoice",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `description` TEXT, `preimageHex` TEXT, `preimageHashHex` TEXT, `valueSat` INTEGER, `createTime` INTEGER, `settleTime` INTEGER, `notifyTime` INTEGER, `paymentRequest` TEXT, `descriptionHashHex` TEXT, `expiry` INTEGER, `fallbackAddr` TEXT, `cltvExpiry` INTEGER, `isPrivate` INTEGER, `addIndex` INTEGER, `settleIndex` INTEGER, `amountPaidMsat` INTEGER, `state` INTEGER, `htlcsCount` INTEGER, `isKeysend` INTEGER, `features` TEXT, `message` TEXT, `senderPubkey` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.preimageHex",
+            "columnName": "preimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.preimageHashHex",
+            "columnName": "preimageHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.valueSat",
+            "columnName": "valueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.settleTime",
+            "columnName": "settleTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.notifyTime",
+            "columnName": "notifyTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentRequest",
+            "columnName": "paymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.descriptionHashHex",
+            "columnName": "descriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.expiry",
+            "columnName": "expiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.fallbackAddr",
+            "columnName": "fallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.cltvExpiry",
+            "columnName": "cltvExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isPrivate",
+            "columnName": "isPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.addIndex",
+            "columnName": "addIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.settleIndex",
+            "columnName": "settleIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amountPaidMsat",
+            "columnName": "amountPaidMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.htlcsCount",
+            "columnName": "htlcsCount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isKeysend",
+            "columnName": "isKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderPubkey",
+            "columnName": "senderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Invoice_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Invoice_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Invoice_preimageHashHex",
+            "unique": true,
+            "columnNames": [
+              "preimageHashHex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Invoice_preimageHashHex` ON `${TABLE_NAME}` (`preimageHashHex`)"
+          },
+          {
+            "name": "index_Invoice_preimageHex",
+            "unique": true,
+            "columnNames": [
+              "preimageHex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Invoice_preimageHex` ON `${TABLE_NAME}` (`preimageHex`)"
+          },
+          {
+            "name": "index_Invoice_addIndex",
+            "unique": false,
+            "columnNames": [
+              "addIndex"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_addIndex` ON `${TABLE_NAME}` (`addIndex`)"
+          },
+          {
+            "name": "index_Invoice_settleIndex",
+            "unique": false,
+            "columnNames": [
+              "settleIndex"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_settleIndex` ON `${TABLE_NAME}` (`settleIndex`)"
+          },
+          {
+            "name": "index_Invoice_settleTime_notifyTime_id",
+            "unique": false,
+            "columnNames": [
+              "settleTime",
+              "notifyTime",
+              "id"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Invoice_settleTime_notifyTime_id` ON `${TABLE_NAME}` (`settleTime`, `notifyTime`, `id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "InvoiceHTLC",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `invoiceId` INTEGER, `chanId` INTEGER, `htlcIndex` INTEGER, `amountMsat` INTEGER, `acceptHeight` INTEGER, `acceptTime` INTEGER, `resolveTime` INTEGER, `expiryHeight` INTEGER, `state` INTEGER, `message` TEXT, `senderPubkey` TEXT, `senderTime` INTEGER, `customRecords` BLOB, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceId",
+            "columnName": "invoiceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanId",
+            "columnName": "chanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.htlcIndex",
+            "columnName": "htlcIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amountMsat",
+            "columnName": "amountMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.acceptHeight",
+            "columnName": "acceptHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.acceptTime",
+            "columnName": "acceptTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.resolveTime",
+            "columnName": "resolveTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.expiryHeight",
+            "columnName": "expiryHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderPubkey",
+            "columnName": "senderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderTime",
+            "columnName": "senderTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.customRecords",
+            "columnName": "customRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_InvoiceHTLC_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_InvoiceHTLC_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_InvoiceHTLC_chanId_htlcIndex",
+            "unique": true,
+            "columnNames": [
+              "chanId",
+              "htlcIndex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_InvoiceHTLC_chanId_htlcIndex` ON `${TABLE_NAME}` (`chanId`, `htlcIndex`)"
+          },
+          {
+            "name": "index_InvoiceHTLC_invoiceId",
+            "unique": false,
+            "columnNames": [
+              "invoiceId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_InvoiceHTLC_invoiceId` ON `${TABLE_NAME}` (`invoiceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "HopHint",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `routeHintId` INTEGER, `index` INTEGER, `nodeId` TEXT, `chanId` INTEGER, `feeBaseMsat` INTEGER, `feeProportionalMillionths` INTEGER, `cltvExpiryDelta` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.routeHintId",
+            "columnName": "routeHintId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.nodeId",
+            "columnName": "nodeId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.chanId",
+            "columnName": "chanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeBaseMsat",
+            "columnName": "feeBaseMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeProportionalMillionths",
+            "columnName": "feeProportionalMillionths",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.cltvExpiryDelta",
+            "columnName": "cltvExpiryDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_HopHint_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_HopHint_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_HopHint_routeHintId",
+            "unique": false,
+            "columnNames": [
+              "routeHintId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_HopHint_routeHintId` ON `${TABLE_NAME}` (`routeHintId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "HTLCAttempt",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `sendPaymentId` INTEGER, `state` INTEGER, `attemptTime` INTEGER, `resolveTime` INTEGER, `totalAmountMsat` INTEGER, `totalFeeMsat` INTEGER, `totalTimeLock` INTEGER, `destCustomRecords` BLOB, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendPaymentId",
+            "columnName": "sendPaymentId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.attemptTime",
+            "columnName": "attemptTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.resolveTime",
+            "columnName": "resolveTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalAmountMsat",
+            "columnName": "totalAmountMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalFeeMsat",
+            "columnName": "totalFeeMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalTimeLock",
+            "columnName": "totalTimeLock",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destCustomRecords",
+            "columnName": "destCustomRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_HTLCAttempt_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_HTLCAttempt_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_HTLCAttempt_sendPaymentId",
+            "unique": false,
+            "columnNames": [
+              "sendPaymentId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_HTLCAttempt_sendPaymentId` ON `${TABLE_NAME}` (`sendPaymentId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "LightningNode",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `lastUpdate` INTEGER, `pubkey` TEXT, `alias` TEXT, `color` TEXT, `features` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastUpdate",
+            "columnName": "lastUpdate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.alias",
+            "columnName": "alias",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_LightningNode_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LightningNode_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_LightningNode_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LightningNode_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ListContactsPrivilege",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_ListContactsPrivilege_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ListContactsPrivilege_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_ListContactsPrivilege_userId",
+            "unique": true,
+            "columnNames": [
+              "userId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ListContactsPrivilege_userId` ON `${TABLE_NAME}` (`userId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "NextId",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pk_` INTEGER NOT NULL, `id` INTEGER NOT NULL, PRIMARY KEY(`pk_`))",
+        "fields": [
+          {
+            "fieldPath": "pk_",
+            "columnName": "pk_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "pk_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SendPayment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `purpose` TEXT, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `invoiceDescription` TEXT, `invoiceDescriptionHashHex` TEXT, `invoiceFallbackAddr` TEXT, `paymentAddrHex` TEXT, `invoiceTimestamp` INTEGER, `invoiceExpiry` INTEGER, `destPubkey` TEXT, `valueMsat` INTEGER, `totalValueMsat` INTEGER, `paymentHashHex` TEXT, `paymentRequest` TEXT, `finalCltvDelta` INTEGER, `feeLimitFixedMsat` INTEGER, `feeLimitPercent` INTEGER, `outgoingChanId` INTEGER, `cltvLimit` INTEGER, `destCustomRecords` BLOB, `paymentError` TEXT, `paymentPreimageHex` TEXT, `routeHints` TEXT, `features` TEXT, `createTime` INTEGER, `sendTime` INTEGER, `feeMsat` INTEGER, `contactPubkey` TEXT, `message` TEXT, `senderPubkey` TEXT, `isKeysend` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorMessage",
+            "columnName": "errorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceDescription",
+            "columnName": "invoiceDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceDescriptionHashHex",
+            "columnName": "invoiceDescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceFallbackAddr",
+            "columnName": "invoiceFallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentAddrHex",
+            "columnName": "paymentAddrHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceTimestamp",
+            "columnName": "invoiceTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceExpiry",
+            "columnName": "invoiceExpiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destPubkey",
+            "columnName": "destPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.valueMsat",
+            "columnName": "valueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalValueMsat",
+            "columnName": "totalValueMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentHashHex",
+            "columnName": "paymentHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentRequest",
+            "columnName": "paymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.finalCltvDelta",
+            "columnName": "finalCltvDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeLimitFixedMsat",
+            "columnName": "feeLimitFixedMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeLimitPercent",
+            "columnName": "feeLimitPercent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.outgoingChanId",
+            "columnName": "outgoingChanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.cltvLimit",
+            "columnName": "cltvLimit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destCustomRecords",
+            "columnName": "destCustomRecords",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentError",
+            "columnName": "paymentError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.paymentPreimageHex",
+            "columnName": "paymentPreimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.routeHints",
+            "columnName": "routeHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendTime",
+            "columnName": "sendTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeMsat",
+            "columnName": "feeMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.contactPubkey",
+            "columnName": "contactPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.senderPubkey",
+            "columnName": "senderPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.isKeysend",
+            "columnName": "isKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_SendPayment_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_SendPayment_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_SendPayment_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SendPayment_state` ON `${TABLE_NAME}` (`state`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Payment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `type` INTEGER, `sourceId` INTEGER, `sourceHTLCId` INTEGER, `sendPayments` TEXT, `HTLCAttempts` TEXT, `invoices` TEXT, `invoiceHTLCs` TEXT, `userId` INTEGER, `time` INTEGER, `peerPubkey` TEXT, `message` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sourceId",
+            "columnName": "sourceId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sourceHTLCId",
+            "columnName": "sourceHTLCId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendPayments",
+            "columnName": "sendPayments",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.HTLCAttempts",
+            "columnName": "HTLCAttempts",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoices",
+            "columnName": "invoices",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.invoiceHTLCs",
+            "columnName": "invoiceHTLCs",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.peerPubkey",
+            "columnName": "peerPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Payment_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Payment_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Payment_type_sourceId",
+            "unique": true,
+            "columnNames": [
+              "type",
+              "sourceId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Payment_type_sourceId` ON `${TABLE_NAME}` (`type`, `sourceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Peer",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `pubkey` TEXT, `address` TEXT, `bytesSent` INTEGER, `bytesRecv` INTEGER, `satsSent` INTEGER, `satsRecv` INTEGER, `inbound` INTEGER, `pingTime` INTEGER, `syncType` INTEGER, `features` TEXT, `perm` INTEGER, `online` INTEGER, `disabled` INTEGER, `lastConnectTime` INTEGER, `lastDisconnectTime` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.bytesSent",
+            "columnName": "bytesSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.bytesRecv",
+            "columnName": "bytesRecv",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satsSent",
+            "columnName": "satsSent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satsRecv",
+            "columnName": "satsRecv",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.inbound",
+            "columnName": "inbound",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pingTime",
+            "columnName": "pingTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.syncType",
+            "columnName": "syncType",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.perm",
+            "columnName": "perm",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.online",
+            "columnName": "online",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.disabled",
+            "columnName": "disabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastConnectTime",
+            "columnName": "lastConnectTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastDisconnectTime",
+            "columnName": "lastDisconnectTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Peer_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Peer_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Peer_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Peer_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          },
+          {
+            "name": "index_Peer_address",
+            "unique": false,
+            "columnNames": [
+              "address"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Peer_address` ON `${TABLE_NAME}` (`address`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoutingPolicy",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `channelId` INTEGER, `reverse` INTEGER, `timeLockDelta` INTEGER, `minHtlc` INTEGER, `feeBaseMsat` INTEGER, `feeRateMilliMsat` INTEGER, `disabled` INTEGER, `maxHtlcMsat` INTEGER, `lastUpdate` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.channelId",
+            "columnName": "channelId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.reverse",
+            "columnName": "reverse",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.timeLockDelta",
+            "columnName": "timeLockDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.minHtlc",
+            "columnName": "minHtlc",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeBaseMsat",
+            "columnName": "feeBaseMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.feeRateMilliMsat",
+            "columnName": "feeRateMilliMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.disabled",
+            "columnName": "disabled",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.maxHtlcMsat",
+            "columnName": "maxHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.lastUpdate",
+            "columnName": "lastUpdate",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_RoutingPolicy_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_RoutingPolicy_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_RoutingPolicy_channelId_reverse",
+            "unique": true,
+            "columnNames": [
+              "channelId",
+              "reverse"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_RoutingPolicy_channelId_reverse` ON `${TABLE_NAME}` (`channelId`, `reverse`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RouteHint",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `parentId` TEXT, `hopHints` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.parentId",
+            "columnName": "parentId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.hopHints",
+            "columnName": "hopHints",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_RouteHint_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_RouteHint_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_RouteHint_parentId",
+            "unique": false,
+            "columnNames": [
+              "parentId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_RouteHint_parentId` ON `${TABLE_NAME}` (`parentId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Transaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `txId` TEXT, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `sendTime` INTEGER, `notifyTime` INTEGER, `purpose` TEXT, `state` INTEGER, `errorCode` TEXT, `errorMessage` TEXT, `addrToAmount` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `sendAll` INTEGER, `txHash` TEXT, `amount` INTEGER, `numConfirmations` INTEGER, `blockHash` TEXT, `blockHeight` INTEGER, `timestamp` INTEGER, `totalFees` INTEGER, `destAddresses` TEXT, `rawTxHex` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendTime",
+            "columnName": "sendTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.notifyTime",
+            "columnName": "notifyTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.errorMessage",
+            "columnName": "errorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.addrToAmount",
+            "columnName": "addrToAmount",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.satPerByte",
+            "columnName": "satPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.sendAll",
+            "columnName": "sendAll",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txHash",
+            "columnName": "txHash",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amount",
+            "columnName": "amount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.numConfirmations",
+            "columnName": "numConfirmations",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.blockHash",
+            "columnName": "blockHash",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.blockHeight",
+            "columnName": "blockHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.totalFees",
+            "columnName": "totalFees",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.destAddresses",
+            "columnName": "destAddresses",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.rawTxHex",
+            "columnName": "rawTxHex",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Transaction_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Transaction_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Transaction_txHash",
+            "unique": true,
+            "columnNames": [
+              "txHash"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Transaction_txHash` ON `${TABLE_NAME}` (`txHash`)"
+          },
+          {
+            "name": "index_Transaction_notifyTime",
+            "unique": false,
+            "columnNames": [
+              "notifyTime"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Transaction_notifyTime` ON `${TABLE_NAME}` (`notifyTime`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "WalletBalance",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `totalBalance` INTEGER, `confirmedBalance` INTEGER, `unconfirmedBalance` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.totalBalance",
+            "columnName": "totalBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.confirmedBalance",
+            "columnName": "confirmedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.unconfirmedBalance",
+            "columnName": "unconfirmedBalance",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "WalletInfo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `identityPubkey` TEXT, `alias` TEXT, `numPendingChannels` INTEGER, `numActiveChannels` INTEGER, `numPeers` INTEGER, `blockHeight` INTEGER, `blockHash` TEXT, `syncedToChain` INTEGER, `uris` TEXT, `bestHeaderTimestamp` INTEGER, `lndVersion` TEXT, `numInactiveChannels` INTEGER, `color` TEXT, `syncedToGraph` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.identityPubkey",
+            "columnName": "identityPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.alias",
+            "columnName": "alias",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numPendingChannels",
+            "columnName": "numPendingChannels",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numActiveChannels",
+            "columnName": "numActiveChannels",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numPeers",
+            "columnName": "numPeers",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.blockHeight",
+            "columnName": "blockHeight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.blockHash",
+            "columnName": "blockHash",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.syncedToChain",
+            "columnName": "syncedToChain",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.uris",
+            "columnName": "uris",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.bestHeaderTimestamp",
+            "columnName": "bestHeaderTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.lndVersion",
+            "columnName": "lndVersion",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.numInactiveChannels",
+            "columnName": "numInactiveChannels",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.syncedToGraph",
+            "columnName": "syncedToGraph",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `role` TEXT, `authType` TEXT, `pubkey` TEXT, `appPackageName` TEXT, `appPubkey` TEXT, `appLabel` TEXT, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.authType",
+            "columnName": "authType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.appPackageName",
+            "columnName": "appPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.appPubkey",
+            "columnName": "appPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.appLabel",
+            "columnName": "appLabel",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_User_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_User_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_User_appPubkey",
+            "unique": false,
+            "columnNames": [
+              "appPubkey"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_User_appPubkey` ON `${TABLE_NAME}` (`appPubkey`)"
+          },
+          {
+            "name": "index_User_appPackageName",
+            "unique": false,
+            "columnNames": [
+              "appPackageName"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_User_appPackageName` ON `${TABLE_NAME}` (`appPackageName`)"
+          },
+          {
+            "name": "index_User_pubkey",
+            "unique": true,
+            "columnNames": [
+              "pubkey"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_User_pubkey` ON `${TABLE_NAME}` (`pubkey`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Utxo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER NOT NULL, `id` INTEGER, `type` INTEGER, `address` TEXT, `amountSat` INTEGER, `pkScript` TEXT, `txidHex` TEXT, `outputIndex` INTEGER, `confirmations` INTEGER, PRIMARY KEY(`id_`))",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data_.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.amountSat",
+            "columnName": "amountSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.pkScript",
+            "columnName": "pkScript",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.txidHex",
+            "columnName": "txidHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.outputIndex",
+            "columnName": "outputIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data_.confirmations",
+            "columnName": "confirmations",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_Utxo_id",
+            "unique": true,
+            "columnNames": [
+              "id"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Utxo_id` ON `${TABLE_NAME}` (`id`)"
+          },
+          {
+            "name": "index_Utxo_txidHex_outputIndex",
+            "unique": true,
+            "columnNames": [
+              "txidHex",
+              "outputIndex"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Utxo_txidHex_outputIndex` ON `${TABLE_NAME}` (`txidHex`, `outputIndex`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "RoomTransaction",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pluginId` TEXT NOT NULL, `userId` INTEGER NOT NULL, `txId` TEXT NOT NULL, `state` INTEGER NOT NULL, `createTime` INTEGER NOT NULL, `deadlineTime` INTEGER NOT NULL, `doneTime` INTEGER NOT NULL, `authUserId` INTEGER NOT NULL, `authTime` INTEGER NOT NULL, `errorCode` TEXT, `errorMessage` TEXT, `requestClass` TEXT, `requestId` INTEGER NOT NULL, `responseClass` TEXT, `responseId` INTEGER NOT NULL, `tries` INTEGER NOT NULL, `maxTries` INTEGER NOT NULL, `maxTryTime` INTEGER NOT NULL, `lastTryTime` INTEGER NOT NULL, `nextTryTime` INTEGER NOT NULL, `jobState` INTEGER NOT NULL, `jobErrorCode` TEXT, `jobErrorMessage` TEXT, PRIMARY KEY(`pluginId`, `userId`, `txId`))",
+        "fields": [
+          {
+            "fieldPath": "txData.pluginId",
+            "columnName": "pluginId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.txId",
+            "columnName": "txId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.deadlineTime",
+            "columnName": "deadlineTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.doneTime",
+            "columnName": "doneTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.authTime",
+            "columnName": "authTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.errorMessage",
+            "columnName": "errorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.requestClass",
+            "columnName": "requestClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.requestId",
+            "columnName": "requestId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "txData.responseClass",
+            "columnName": "responseClass",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "txData.responseId",
+            "columnName": "responseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.tries",
+            "columnName": "tries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.lastTryTime",
+            "columnName": "lastTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.nextTryTime",
+            "columnName": "nextTryTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.jobState",
+            "columnName": "jobState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobData.jobErrorCode",
+            "columnName": "jobErrorCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "jobData.jobErrorMessage",
+            "columnName": "jobErrorMessage",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "pluginId",
+            "userId",
+            "txId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_RoomTransaction_pluginId_state",
+            "unique": false,
+            "columnNames": [
+              "pluginId",
+              "state"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_RoomTransaction_pluginId_state` ON `${TABLE_NAME}` (`pluginId`, `state`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txContact",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `pubkey` TEXT, `name` TEXT, `description` TEXT, `url` TEXT, `routeHints` TEXT, `features` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.routeHints",
+            "columnName": "routeHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txAddContactInvoiceRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txAddInvoiceRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `preimageHex` TEXT, `valueSat` INTEGER, `description` TEXT, `descriptionHashHex` TEXT, `fallbackAddr` TEXT, `expiry` INTEGER, `purpose` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.preimageHex",
+            "columnName": "preimageHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.valueSat",
+            "columnName": "valueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.descriptionHashHex",
+            "columnName": "descriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.fallbackAddr",
+            "columnName": "fallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.expiry",
+            "columnName": "expiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txAddUserRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `role` TEXT, `authType` TEXT, `password` TEXT, `appPubkey` TEXT, `appPackageName` TEXT, `appLabel` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.authType",
+            "columnName": "authType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.password",
+            "columnName": "password",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.appPubkey",
+            "columnName": "appPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.appPackageName",
+            "columnName": "appPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.appLabel",
+            "columnName": "appLabel",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txCloseChannelRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `channelId` INTEGER, `force` INTEGER, `targetConf` INTEGER, `satPerByte` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.channelId",
+            "columnName": "channelId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.force",
+            "columnName": "force",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.satPerByte",
+            "columnName": "satPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txConnectPeerRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pubkey` TEXT, `address` TEXT, `perm` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.perm",
+            "columnName": "perm",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txContactPaymentsPrivilege",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER, `contactId` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.contactId",
+            "columnName": "contactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txDisconnectPeerRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `contactId` INTEGER, `pubkey` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.contactId",
+            "columnName": "contactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pubkey",
+            "columnName": "pubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txEstimateFeeRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `addrToAmount` TEXT, `targetConf` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.addrToAmount",
+            "columnName": "addrToAmount",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txListContactsPrivilege",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` INTEGER, `userId` INTEGER, `authUserId` INTEGER, `createTime` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.authUserId",
+            "columnName": "authUserId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txNewAddressRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txNotifiedInvoicesRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `invoiceIds` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.invoiceIds",
+            "columnName": "invoiceIds",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txOpenChannelRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `description` TEXT, `nodePubkey` TEXT, `localFundingAmount` INTEGER, `pushSat` INTEGER, `targetConf` INTEGER, `satPerByte` INTEGER, `isPrivate` INTEGER, `minHtlcMsat` INTEGER, `remoteCsvDelay` INTEGER, `minConfs` INTEGER, `spendUnconfirmed` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.nodePubkey",
+            "columnName": "nodePubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.localFundingAmount",
+            "columnName": "localFundingAmount",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.pushSat",
+            "columnName": "pushSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.satPerByte",
+            "columnName": "satPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.isPrivate",
+            "columnName": "isPrivate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.minHtlcMsat",
+            "columnName": "minHtlcMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.remoteCsvDelay",
+            "columnName": "remoteCsvDelay",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.minConfs",
+            "columnName": "minConfs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.spendUnconfirmed",
+            "columnName": "spendUnconfirmed",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txPayReqString",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txSendCoinsRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `purpose` TEXT, `maxTries` INTEGER, `maxTryTime` INTEGER, `addrToAmount` TEXT, `targetConf` INTEGER, `satPerByte` INTEGER, `sendAll` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.maxTryTime",
+            "columnName": "maxTryTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.addrToAmount",
+            "columnName": "addrToAmount",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.targetConf",
+            "columnName": "targetConf",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.satPerByte",
+            "columnName": "satPerByte",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.sendAll",
+            "columnName": "sendAll",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txSendPaymentRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `purpose` TEXT, `invoiceDescription` TEXT, `invoiceDescriptionHashHex` TEXT, `invoiceFallbackAddr` TEXT, `invoiceTimestamp` INTEGER, `expiry` INTEGER, `maxTries` INTEGER, `destPubkey` TEXT, `valueSat` INTEGER, `paymentHashHex` TEXT, `paymentRequest` TEXT, `finalCltvDelta` INTEGER, `feeLimitFixedMsat` INTEGER, `feeLimitPercent` INTEGER, `outgoingChanId` INTEGER, `cltvLimit` INTEGER, `routeHints` TEXT, `features` TEXT, `contactId` INTEGER, `message` TEXT, `includeSenderPubkey` INTEGER, `isKeysend` INTEGER, `noAuth` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.purpose",
+            "columnName": "purpose",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.invoiceDescription",
+            "columnName": "invoiceDescription",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.invoiceDescriptionHashHex",
+            "columnName": "invoiceDescriptionHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.invoiceFallbackAddr",
+            "columnName": "invoiceFallbackAddr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.invoiceTimestamp",
+            "columnName": "invoiceTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.expiry",
+            "columnName": "expiry",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.maxTries",
+            "columnName": "maxTries",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.destPubkey",
+            "columnName": "destPubkey",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.valueSat",
+            "columnName": "valueSat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.paymentHashHex",
+            "columnName": "paymentHashHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.paymentRequest",
+            "columnName": "paymentRequest",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.finalCltvDelta",
+            "columnName": "finalCltvDelta",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.feeLimitFixedMsat",
+            "columnName": "feeLimitFixedMsat",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.feeLimitPercent",
+            "columnName": "feeLimitPercent",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.outgoingChanId",
+            "columnName": "outgoingChanId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.cltvLimit",
+            "columnName": "cltvLimit",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.routeHints",
+            "columnName": "routeHints",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.features",
+            "columnName": "features",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.contactId",
+            "columnName": "contactId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.includeSenderPubkey",
+            "columnName": "includeSenderPubkey",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.isKeysend",
+            "columnName": "isKeysend",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.noAuth",
+            "columnName": "noAuth",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "txShareContactRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '508fcbe321142f04a021fcae97fe0fa2')"
+    ]
+  }
+}

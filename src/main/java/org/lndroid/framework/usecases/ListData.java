@@ -172,6 +172,12 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
         }
 
         private void buildPagedList(){
+
+            // FIXME if this call is made second time while the first
+            //  is still loading, we should just raise a 'retry' flag
+            //  and re-start itself after previous call ends, this should
+            //  avoid races that produce double records...
+
             // get current cursor
             Long initializeKey = null;
             if (pagedList_.getValue() != null) {

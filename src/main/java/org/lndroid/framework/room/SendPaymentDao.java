@@ -166,8 +166,7 @@ public class SendPaymentDao
         public abstract long insertPayment(RoomData.Payment p);
 
         @Override
-        protected long insertResponse(WalletData.SendPayment v,
-                                      IActionDao.OnResponseMerge<WalletData.SendPayment> merger) {
+        protected long insertResponse(WalletData.SendPayment v) {
             RoomData.SendPayment r = new RoomData.SendPayment();
             r.setData(v);
             insertSendPayment(r);
@@ -184,7 +183,7 @@ public class SendPaymentDao
             WalletData.SendPayment sp = payment.sendPayments().get(payment.sourceId());
 
             // insert sendpayment
-            insertResponse(sp, null);
+            insertResponse(sp);
 
             // write route hints
             routeDao.upsertRouteHints(RoomData.routeHintsParentId(sp), sp.routeHints());
