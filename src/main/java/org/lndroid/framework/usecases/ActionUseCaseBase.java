@@ -246,4 +246,8 @@ public abstract class ActionUseCaseBase<Request, Response> implements IActionUse
         // start
         tx_.start(request_, getRequestType());
     }
+
+    public void detach() {
+        tx_.detach();
+    }
 }

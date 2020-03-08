@@ -54,6 +54,7 @@ public final class DefaultPlugins {
     public static final String ADD_CONTACT = "org.lndroid.plugins.ADD_CONTACT";
     public static final String ADD_APP_CONTACT = "org.lndroid.plugins.ADD_APP_CONTACT";
     public static final String GET_CONTACT = "org.lndroid.plugins.GET_CONTACT";
+    public static final String GET_PAYMENT_PEER_CONTACT = "org.lndroid.plugins.GET_PAYMENT_PEER_CONTACT";
     public static final String LIST_CONTACTS = "org.lndroid.plugins.LIST_CONTACTS";
 
     public static final String ADD_LIST_CONTACTS_PRIVILEGE = "org.lndroid.plugins.ADD_LIST_CONTACTS_PRIVILEGE";

@@ -133,6 +133,11 @@ public class RoomTransactions {
     static class NotifiedInvoicesRequest extends TransactionRequestBase<WalletData.NotifiedInvoicesRequest> {
     }
 
+    @Entity(tableName = "txSubscribeNewPaidInvoicesRequest")
+    static class SubscribeNewPaidInvoicesRequest
+            extends TransactionRequestBase<WalletData.SubscribeNewPaidInvoicesRequest> {
+    }
+
     @Dao
     abstract static class TransactionDao implements ITransactionDao {
         @Override

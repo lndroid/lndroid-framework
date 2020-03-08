@@ -1096,20 +1096,27 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         Contexts ctxs = c.pluginContexts.get(pm.pluginId());
         Context ctx = ctxs.contexts.get(pc.txId);
 
-        // restored timed-out sessions might have empty client
-        if (ctx != null && ctx.client != null) {
-            Messenger client = ctx.client.get();
-            // client might be GCed if local caller was terminated by OS
-            if (client != null) {
-                final boolean sent = sendTxMessage(pm, ctx.ctx.ipc, client, ctx.ctx.user);
-                if (!sent && ctx.ctx.broadcastComponent != null) {
-                    sendBroadcast(pm.pluginId(), pc.txId, ctx.ctx.broadcastComponent);
+        if (ctx != null) {
+            boolean sent = false;
+            // restored timed-out sessions might have empty client
+            if (ctx.client != null) {
+                Messenger client = ctx.client.get();
+                // client might be GCed if local caller was terminated by OS
+                if (client != null) {
+                    sent = sendTxMessage(pm, ctx.ctx.ipc, client, ctx.ctx.user);
+                } else {
+                    Log.i(TAG, "client lost due to GC");
                 }
             } else {
-                Log.i(TAG, "client lost due to GC");
+                Log.i(TAG, "client not attached to recovered tx");
+            }
+
+            if (!sent) {
+                if (ctx.ctx.broadcastComponent != null)
+                    sendBroadcast(pm.pluginId(), pc.txId, ctx.ctx.broadcastComponent);
             }
         } else {
-            Log.i(TAG, "client not attached to recovered tx");
+            Log.e(TAG, "reply context doesn't exist");
         }
     }
 

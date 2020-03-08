@@ -37,8 +37,8 @@ public class SetNotifiedInvoices
 
     @Override
     protected boolean isUserPrivileged(WalletData.NotifiedInvoicesRequest req, WalletData.User user) {
-        // FIXME open method, except for app, which must have some privilege?
-        return !user.isApp();
+        // FIXME add some privilege?
+        return !user.isAnonymous();
     }
 
     protected IDao dao() { return (IDao)super.dao();}

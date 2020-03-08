@@ -214,9 +214,8 @@ final class RoomConverters {
                 if (len > (d.length - o))
                     break;
 
-                byte[] value = null;
+                byte[] value = new byte[(int)len];
                 if (len > 0) {
-                    value = new byte[(int)len];
                     System.arraycopy(d, o, value, 0, (int)len);
                 }
                 o += len;

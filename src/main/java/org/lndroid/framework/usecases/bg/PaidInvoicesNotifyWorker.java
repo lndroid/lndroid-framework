@@ -11,7 +11,9 @@ import org.lndroid.framework.common.IPluginData;
 import org.lndroid.framework.defaults.DefaultPlugins;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class PaidInvoicesNotifyWorker {
@@ -28,7 +30,6 @@ public class PaidInvoicesNotifyWorker {
     private IPluginClient client_;
     private IPluginTransaction tx_;
     private INotificationManager notificationManager_;
-    private Set<IPluginTransaction> setNotifiedTxs_ = new HashSet<>();
 
     private PaidInvoicesNotifyWorker() {
     }
@@ -48,51 +49,38 @@ public class PaidInvoicesNotifyWorker {
         tx_ = null;
     }
 
-    private class SetNotified {
-        private IPluginTransaction tx_;
+    private void setNotified(final WalletData.PaidInvoicesEvent e) {
+        IPluginTransaction tx = client_.createTransaction(DefaultPlugins.SET_NOTIFIED_INVOICES, "", new IPluginTransactionCallback() {
+            @Override
+            public void onResponse(IPluginData r) {
+                Log.i(TAG, "set notified invoices done for "+e);
+            }
 
-        SetNotified(final WalletData.PaidInvoicesEvent e){
-            tx_ = client_.createTransaction(DefaultPlugins.SET_NOTIFIED_INVOICES, "", new IPluginTransactionCallback() {
-                @Override
-                public void onResponse(IPluginData r) {
-                    Log.i(TAG, "set notified invoices done for "+e);
-                    tx_.destroy();
-                    setNotifiedTxs_.remove(tx_);
-                    tx_ = null;
-                }
+            @Override
+            public void onAuth(WalletData.AuthRequest r) {
+                throw new RuntimeException("Unexpected auth");
+            }
 
-                @Override
-                public void onAuth(WalletData.AuthRequest r) {
-                    throw new RuntimeException("Unexpected auth");
-                }
+            @Override
+            public void onAuthed(WalletData.AuthResponse r) {
+                throw new RuntimeException("Unexpected authed");
+            }
 
-                @Override
-                public void onAuthed(WalletData.AuthResponse r) {
-                    throw new RuntimeException("Unexpected authed");
-                }
+            @Override
+            public void onError(String code, String message) {
+                Log.e(TAG, "set notified invoices failed for "+e+" code "+code+" message "+message);
+            }
+        });
 
-                @Override
-                public void onError(String code, String message) {
-                    Log.e(TAG, "set notified invoices failed for "+e+" code "+code+" message "+message);
-                    tx_.destroy();
-                    setNotifiedTxs_.remove(tx_);
-                    tx_ = null;
-                }
-            });
+        // start
+        WalletData.NotifiedInvoicesRequest r = WalletData.NotifiedInvoicesRequest.builder()
+                .setInvoiceIds(e.invoiceIds())
+                .build();
+        tx.start(r, WalletData.NotifiedInvoicesRequest.class);
 
-            // store a reference to not let GC clear it!
-            setNotifiedTxs_.add(tx_);
-
-            // start
-            WalletData.NotifiedInvoicesRequest r = WalletData.NotifiedInvoicesRequest.builder()
-                    .setInvoiceIds(e.invoiceIds())
-                    .build();
-            tx_.start(r, WalletData.NotifiedInvoicesRequest.class);
-        }
-    }
-
-    private void setNotified(WalletData.PaidInvoicesEvent e) {
-        new SetNotified(e);
+        // make sure that client holds a strong reference to this tx
+        // and that it is destroyed after done
+        tx.detach();
     }
 
     private void start() {

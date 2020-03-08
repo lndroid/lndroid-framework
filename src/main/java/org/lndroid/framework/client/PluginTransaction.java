@@ -18,6 +18,7 @@ class PluginTransaction implements IPluginTransaction {
     private String txId_;
     private IPluginTransactionCallback cb_;
     private boolean started_;
+    private boolean detached_;
 
     PluginTransaction(String pluginId,
                       String txId,
@@ -29,6 +30,12 @@ class PluginTransaction implements IPluginTransaction {
         client_ = client;
         txId_ = txId;
         cb_ = cb;
+    }
+
+    @Override
+    public void detach() {
+        detached_ = true;
+        client_.detachTransaction(this);
     }
 
     @Override
@@ -142,6 +149,16 @@ class PluginTransaction implements IPluginTransaction {
         }
     }
 
+    private void onError(String code, String error) {
+        started_ = false;
+        cb_.onError(code, error);
+        if (!detached_)
+            return;
+
+        destroy();
+        detached_ = false;
+    }
+
     void handleMessage(PluginData.PluginMessage pm) {
         switch(pm.type()) {
             case PluginData.MESSAGE_TYPE_REPLY:
@@ -150,14 +167,12 @@ class PluginTransaction implements IPluginTransaction {
 
             case PluginData.MESSAGE_TYPE_ERROR:
                 // tx not usable any more
-                started_ = false;
-                cb_.onError(pm.code(), pm.error());
+                onError(pm.code(), pm.error());
                 break;
 
             case PluginData.MESSAGE_TYPE_DONE:
                 // tx not usable any more
-                started_ = false;
-                cb_.onError(Errors.TX_DONE, Errors.errorMessage(Errors.TX_DONE));
+                onError(Errors.TX_DONE, Errors.errorMessage(Errors.TX_DONE));
                 break;
 
             case PluginData.MESSAGE_TYPE_AUTH: {

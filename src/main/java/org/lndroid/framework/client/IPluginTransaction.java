@@ -23,4 +23,10 @@ public interface IPluginTransaction {
     // release tx resources, optional, but
     // might allow client to release some memory
     void destroy();
+
+    // if owner does not want to store a reference to the tx,
+    // and instead want's it to exist until done,
+    // call detach: client will hold a strong reference to this tx,
+    // and it will self-destruct when done
+    void detach();
 }

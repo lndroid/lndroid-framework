@@ -38,13 +38,16 @@ public abstract class RecvPaymentWorker extends androidx.work.Worker {
 
         SyncWorkerImpl impl = new SyncWorkerImpl(getPluginClient(), TAG);
 
-        getNotificationManager().showNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
+        ISyncNotificationManager nm = getNotificationManager();
+        nm.showNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
+
         Result r;
         if (impl.execute(MIN_SYNC_TIME, MAX_SYNC_TIME))
             r = Result.success();
         else
             r = Result.retry();
-        getNotificationManager().hideNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
+
+        nm.hideNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
 
         Log.i(TAG, "done "+r);
         return r;

@@ -45,6 +45,7 @@ import androidx.room.RoomDatabase;
         RoomTransactions.SendCoinsRequest.class,
         RoomTransactions.SendPaymentRequest.class,
         RoomTransactions.ShareContactRequest.class,
+        RoomTransactions.SubscribeNewPaidInvoicesRequest.class,
 })
 abstract class RoomDB extends RoomDatabase {
 
@@ -100,6 +101,7 @@ abstract class RoomDB extends RoomDatabase {
 
     abstract AddContactDao.DaoRoom addContactDao();
     abstract GetContactDao.DaoRoom getContactDao();
+    abstract GetPaymentPeerContactDao.DaoRoom getPaymentPeerContactDao();
     abstract ListContactsDao.DaoRoom listContactsDao();
 
     abstract AddListContactsPrivilegeDao.DaoRoom addListContactsPrivilegeDao();

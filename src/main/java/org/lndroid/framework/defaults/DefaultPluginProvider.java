@@ -33,6 +33,7 @@ import org.lndroid.framework.plugins.GetChannel;
 import org.lndroid.framework.plugins.GetChannelBalance;
 import org.lndroid.framework.plugins.GetContact;
 import org.lndroid.framework.plugins.GetInvoice;
+import org.lndroid.framework.plugins.GetPaymentPeerContact;
 import org.lndroid.framework.plugins.GetPeer;
 import org.lndroid.framework.plugins.GetSendPayment;
 import org.lndroid.framework.plugins.GetTransaction;
@@ -185,6 +186,7 @@ public class DefaultPluginProvider implements IPluginProvider {
         plugins_.put(DefaultPlugins.ADD_CONTACT, new ForegroundPlugin(new AddContact()));
         plugins_.put(DefaultPlugins.ADD_APP_CONTACT, new ForegroundPlugin(new AddAppContact()));
         plugins_.put(DefaultPlugins.GET_CONTACT, new ForegroundPlugin(new GetContact()));
+        plugins_.put(DefaultPlugins.GET_PAYMENT_PEER_CONTACT, new ForegroundPlugin(new GetPaymentPeerContact()));
         plugins_.put(DefaultPlugins.LIST_CONTACTS, new ForegroundPlugin(new ListContacts()));
 
         plugins_.put(DefaultPlugins.ADD_LIST_CONTACTS_PRIVILEGE, new ForegroundPlugin(new AddListContactsPrivilege()));

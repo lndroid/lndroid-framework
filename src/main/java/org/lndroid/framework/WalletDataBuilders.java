@@ -685,7 +685,7 @@ public class WalletDataBuilders {
     interface NotifiedInvoicesResponseBuilder<Builder> {
     }
 
-    interface SubscribeNewPaidInvoicesBuilder<Builder> {
+    interface SubscribeNewPaidInvoicesRequestBuilder<Builder> {
         Builder setNoAuth(boolean noAuth);
         Builder setProtocolExtension(String protocolExtension);
         Builder setComponentPackageName(String componentPackageName);

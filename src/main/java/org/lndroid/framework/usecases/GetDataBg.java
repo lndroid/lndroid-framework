@@ -53,12 +53,6 @@ public abstract class GetDataBg<DataType, /*optional*/IdType> {
                 // NOTE: data might be null which is fine, plugins might return
                 // empty replies if record is not found
                 cb_.onResponse(data);
-//                if (data != null) {
-//                    cb_.onResponse(data);
-//                } else {
-//                    cb_.onError(Errors.PLUGIN_MESSAGE, Errors.errorMessage(Errors.PLUGIN_MESSAGE));
-//                    destroy();
-//                }
             }
 
             @Override
@@ -87,5 +81,9 @@ public abstract class GetDataBg<DataType, /*optional*/IdType> {
         if (tx_ != null)
             tx_.destroy();
         tx_ = null;
+    }
+
+    public void detach() {
+        tx_.detach();
     }
 }

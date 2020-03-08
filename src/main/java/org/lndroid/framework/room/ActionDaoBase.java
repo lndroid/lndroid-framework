@@ -59,14 +59,10 @@ class ActionDaoBase<Request, Response>
 
     @Override
     public void startTransaction(Transaction<Request> t) {
-        try {
-            RoomTransactions.RoomTransaction tx = new RoomTransactions.RoomTransaction();
-            tx.txData = t.tx;
-            tx.jobData = t.job;
-            dao_.createTransaction(tx, t.request);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        RoomTransactions.RoomTransaction tx = new RoomTransactions.RoomTransaction();
+        tx.txData = t.tx;
+        tx.jobData = t.job;
+        dao_.createTransaction(tx, t.request);
     }
 
     @Override

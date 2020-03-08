@@ -2979,14 +2979,29 @@ public final class WalletData {
         }
     }
 
-    public static final String PROTOCOL_MESSAGES = "org.lndroid.protocol.MESSAGES";
+    public static final String PROTOCOL_MESSAGES = "org.lndroid.protocols.MESSAGES";
 
     @AutoValue
-    @AutoValueClass(className = AutoValue_WalletData_SubscribeNewPaidInvoices.class)
-    public static abstract class SubscribeNewPaidInvoices implements WalletDataDecl.SubscribeNewPaidInvoices {
+    @AutoValueClass(className = AutoValue_WalletData_SubscribeNewPaidInvoicesRequest.class)
+    public static abstract class SubscribeNewPaidInvoicesRequest
+            implements WalletDataDecl.SubscribeNewPaidInvoicesRequest {
+
+        public static SubscribeNewPaidInvoicesRequest create(
+                boolean noAuth,
+                String protocolExtension,
+                String componentPackageName,
+                String componentClassName
+        ) {
+            return builder()
+                    .setNoAuth(noAuth)
+                    .setProtocolExtension(protocolExtension)
+                    .setComponentPackageName(componentPackageName)
+                    .setComponentClassName(componentClassName)
+                    .build();
+        }
 
         public static Builder builder() {
-            return new AutoValue_WalletData_SubscribeNewPaidInvoices.Builder()
+            return new AutoValue_WalletData_SubscribeNewPaidInvoicesRequest.Builder()
                     // defaults
                     .setNoAuth(false)
                     ;
@@ -2996,9 +3011,9 @@ public final class WalletData {
 
         @AutoValue.Builder
         public abstract static class Builder implements
-                WalletDataDecl.SubscribeNewPaidInvoices,
-                WalletDataBuilders.IBuilder<SubscribeNewPaidInvoices>,
-                WalletDataBuilders.SubscribeNewPaidInvoicesBuilder<Builder> {
+                WalletDataDecl.SubscribeNewPaidInvoicesRequest,
+                WalletDataBuilders.IBuilder<SubscribeNewPaidInvoicesRequest>,
+                WalletDataBuilders.SubscribeNewPaidInvoicesRequestBuilder<Builder> {
         }
     }
 

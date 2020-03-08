@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 66,
-    "identityHash": "4aebf2d27aa02695c2e8babffa542541",
+    "identityHash": "7cc9334e43734b2273f7359614699445",
     "entities": [
       {
         "tableName": "AuthRequest",
@@ -3606,12 +3606,56 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "txSubscribeNewPaidInvoicesRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id_` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `noAuth` INTEGER, `protocolExtension` TEXT, `componentPackageName` TEXT, `componentClassName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id_",
+            "columnName": "id_",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data.noAuth",
+            "columnName": "noAuth",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.protocolExtension",
+            "columnName": "protocolExtension",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.componentPackageName",
+            "columnName": "componentPackageName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "data.componentClassName",
+            "columnName": "componentClassName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id_"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4aebf2d27aa02695c2e8babffa542541')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7cc9334e43734b2273f7359614699445')"
     ]
   }
 }

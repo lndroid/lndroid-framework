@@ -107,15 +107,26 @@ public class SubscribePaidInvoicesEvents implements IPluginForeground {
             return;
 
         long sats = 0;
+        long count = 0;
         ImmutableList.Builder<Long> ib = ImmutableList.builder();
         for(WalletData.Invoice i: list) {
+            // FIXME message payments are notified by the Messenger,
+            // instead of his hard-coded shit we should rely on privileges!
+            if (i.message() != null)
+                continue;
             ib.add(i.id());
             sats += i.amountPaidMsat() / 1000;
+            count++;
         }
+        // even if we did get some invoices settled, user probably doesn't care unless
+        // those had sats
+        if (sats == 0)
+            return;
+
         WalletData.PaidInvoicesEvent e = WalletData.PaidInvoicesEvent.builder()
                 .setInvoiceIds(ib.build())
                 .setSatsReceived(sats)
-                .setInvoicesCount(list.size())
+                .setInvoicesCount(count)
                 .build();
         engine_.onReply(id(), ctx, e, WalletData.PaidInvoicesEvent.class);
     }

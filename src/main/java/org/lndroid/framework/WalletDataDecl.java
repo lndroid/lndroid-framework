@@ -2238,14 +2238,18 @@ public class WalletDataDecl {
     public interface NotifiedInvoicesResponse {
     }
 
-    public interface SubscribeNewPaidInvoices {
+    public interface SubscribeNewPaidInvoicesRequest {
 
         boolean noAuth();
 
+        @Nullable
         String protocolExtension();
 
         // for broadcast-based notifications
+        @Nullable
         String componentPackageName();
+
+        @Nullable
         String componentClassName();
     }
 

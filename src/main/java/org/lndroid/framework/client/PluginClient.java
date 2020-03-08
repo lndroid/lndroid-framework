@@ -60,6 +60,7 @@ class PluginClient extends Handler implements IPluginClient {
         private String pluginId_;
         private PluginClient client_;
         private Map<String, WeakReference<PluginTransaction>> transactions_ = new HashMap<>();
+        private Map<String, PluginTransaction> detachedTransactions_ = new HashMap<>();
 
         Plugin(String pluginId, PluginClient client) {
             pluginId_ = pluginId;
@@ -71,19 +72,28 @@ class PluginClient extends Handler implements IPluginClient {
                 txId = pluginId_ + "_"+System.currentTimeMillis();
 
             PluginTransaction t = new PluginTransaction(pluginId_, txId, userId_, cb, client_);
-            transactions_.put(txId, new WeakReference<PluginTransaction>(t));
+            transactions_.put(txId, new WeakReference<>(t));
 
             return t;
         }
 
         PluginTransaction getTransaction(String txId) {
             WeakReference<PluginTransaction> ref = transactions_.get(txId);
-            return ref != null ? ref.get() : null;
+            if (ref != null)
+                return ref.get();
+
+            return detachedTransactions_.get(txId);
         }
 
         void releaseTransaction(String id) {
             Log.i(TAG, "transaction released "+id);
             transactions_.remove(id);
+        }
+
+        void detachTransaction(PluginTransaction tx) {
+            Log.i(TAG, "transaction detached "+tx.id());
+            detachedTransactions_.put(tx.id(), tx);
+            transactions_.remove(tx.id());
         }
     }
 
@@ -186,6 +196,13 @@ class PluginClient extends Handler implements IPluginClient {
         if (p == null)
             throw new RuntimeException("Unknown plugin");
         p.releaseTransaction(tx.id());
+    }
+
+    public void detachTransaction(PluginTransaction tx) {
+        Plugin p = plugins_.get(tx.pluginId());
+        if (p == null)
+            throw new RuntimeException("Unknown plugin");
+        p.detachTransaction(tx);
     }
 
     public void handlePluginMessage(PluginData.PluginMessage pm) {

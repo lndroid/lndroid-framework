@@ -98,7 +98,7 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.SET_NOTIFIED_INVOICES, new SetNotifiedInvoicesDao(
                 db_.setNotifiedInvoicesDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.SUBSCRIBE_NEW_PAID_INVOICES, new SubscribeNewPaidInvoicesDao(
-                db_.subscribeNewPaidInvoicesDao()));
+                db_.subscribeNewPaidInvoicesDao(), db_.txDao()));
         pluginDaos_.put(DefaultPlugins.SUBSCRIBE_PAID_INVOICES_EVENTS, new SubscribePaidInvoicesEventsDao(
                 db_.subscribePaidInvoicesEventsDao()));
 
@@ -134,6 +134,8 @@ public class RoomDaoProvider implements IDBDaoProvider {
         pluginDaos_.put(DefaultPlugins.ADD_APP_CONTACT, pluginDaos_.get(DefaultPlugins.ADD_CONTACT));
         pluginDaos_.put(DefaultPlugins.GET_CONTACT, new GetContactDao(
                 db_.getContactDao(), db_.routeHintsDao()));
+        pluginDaos_.put(DefaultPlugins.GET_PAYMENT_PEER_CONTACT, new GetPaymentPeerContactDao(
+                db_.getPaymentPeerContactDao(), db_.routeHintsDao()));
         pluginDaos_.put(DefaultPlugins.LIST_CONTACTS, new ListContactsDao(
                 db_.listContactsDao()));
 

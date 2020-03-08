@@ -145,7 +145,7 @@ public class InvoiceStateWorker implements IPluginBackground {
 
         dao_.updateInvoiceState(invoice, htlcs, payments);
 
-        engine_.onSignal(id(), DefaultTopics.INVOICE_STATE, null);
+        engine_.onSignal(id(), DefaultTopics.INVOICE_STATE, invoice);
     }
 
     @Override
@@ -166,7 +166,7 @@ public class InvoiceStateWorker implements IPluginBackground {
 
             @Override
             public void onResponse(Data.Invoice invoice) {
-                Log.e(TAG, "subscribe invoices update ai "+invoice.addIndex+" si "+invoice.settleIndex);
+                Log.i(TAG, "subscribe invoices update ai "+invoice.addIndex+" si "+invoice.settleIndex);
                 onUpdate(invoice);
             }
 
