@@ -19,3 +19,4 @@ public class RPCGenSeed extends AuthRPCUseCaseBase<WalletData.GenSeedRequest, Wa
         });
     }
 }
+

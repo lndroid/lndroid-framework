@@ -29,6 +29,7 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
     private String pluginId_;
     private IPluginTransaction tx_;
     private IResponseCallback<WalletDataDecl.ListResultTmpl<Response>> cb_;
+    private IResponseCallback<WalletDataDecl.ListResultTmpl<Response>> pagerCb_;
     private MutableLiveData<WalletDataDecl.ListResultTmpl<Response>> results_ = new MutableLiveData<>();
     private MutableLiveData<WalletData.Error> error_ = new MutableLiveData<>();
 
@@ -48,17 +49,14 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
         // clear tx
         destroy();
 
-        if (cb_ != null)
-            cb_.onError(code, message);
-
         // notify observers
         error_.setValue(WalletData.Error.builder().setCode(code).setMessage(message).build());
 
-        // notify data source, note that this call might
-        // result in a new tx being created, including
-        // new current data source being set!
-//        if (pager_ != null && pager_.currentDataSource_ != null)
-//            pager_.currentDataSource_.onError(error_.getValue());
+        // exec callbacks
+        if (cb_ != null)
+            cb_.onError(code, message);
+        if (pagerCb_ != null)
+            pagerCb_.onError(code, message);
     }
 
     @Override
@@ -74,8 +72,11 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
                 WalletDataDecl.ListResultTmpl<Response> r = getData(in);
                 if (r != null) {
                     results_.setValue(r);
+
                     if (cb_ != null)
                         cb_.onResponse(r);
+                    if (pagerCb_ != null)
+                        pagerCb_.onResponse(r);
                 } else {
                     ListData.this.onError(Errors.PLUGIN_MESSAGE, Errors.errorMessage(Errors.PLUGIN_MESSAGE));
                 }
@@ -154,6 +155,9 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
         // request stored to reload data in case of invalidation
         private Request request_;
 
+        // retry buildPagedList when current attempt finishes
+        private boolean retry_;
+
         private Pager(PagedList.Config config) {
             config_ = config;
 
@@ -171,12 +175,15 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
             });
         }
 
-        private void buildPagedList(){
+        private void buildPagedList() {
 
-            // FIXME if this call is made second time while the first
-            //  is still loading, we should just raise a 'retry' flag
-            //  and re-start itself after previous call ends, this should
-            //  avoid races that produce double records...
+            // avoid parallel calls, instead set
+            // a flag that we need to retry
+            // when existing load finishes
+            if (pagerCb_ != null) {
+                retry_ = true;
+                return;
+            }
 
             // get current cursor
             Long initializeKey = null;
@@ -213,19 +220,22 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
 
             // make sure that the after loadInitial is finished,
             // pagedList is delivered to the adapter
-            setCallback(new IResponseCallback<WalletDataDecl.ListResultTmpl<Response>>() {
+            pagerCb_ = new IResponseCallback<WalletDataDecl.ListResultTmpl<Response>>() {
                 @Override
                 public void onResponse(WalletDataDecl.ListResultTmpl<Response> r) {
                     pagedList_.setValue(pagedList);
-                    setCallback(null);
+                    pagerCb_ = null;
+                    if (retry_) {
+                        retry_ = false;
+                        buildPagedList();
+                    }
                 }
 
                 @Override
                 public void onError(String code, String e) {
-                    pagedList_.setValue(pagedList);
-                    setCallback(null);
+                    this.onResponse(null);
                 }
-            });
+            };
         }
 
         @Override

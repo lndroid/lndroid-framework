@@ -57,7 +57,7 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
     }
 
     public Pager createPager() {
-        return new Pager();
+        return new Pager(new DefaultFieldMapper<DataType>());
     }
 
     public Pager createPager(IFieldMapper<DataType> mapper) {
@@ -88,10 +88,7 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
         // request stored to reload data in case of invalidation
         private WalletDataDecl.GetRequestTmpl<IdType> request_;
 
-        private Pager() {
-            mapper_ = new DefaultFieldMapper<>();
-        }
-
+        // construct and subscribe to data updates
         private Pager(IFieldMapper<DataType> mapper) {
             mapper_ = mapper;
 
@@ -103,13 +100,28 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
                             || error.code().equals(Errors.TX_TIMEOUT)
                             || error.code().equals(Errors.TX_DONE)
                     ) {
-                        buildPagedList();
+                        buildPagedList(true);
                     }
+                }
+            });
+
+            // get doesn't return 'invalidate', instead it returns
+            // the updated object on every signal
+            data_.observeForever(new Observer<DataType>() {
+                @Override
+                public void onChanged(DataType dataType) {
+                    buildPagedList(false);
                 }
             });
         }
 
-        private void buildPagedList(){
+        private void buildPagedList(boolean restart){
+
+            // avoid parallel calls
+            if (pagerCb_ != null) {
+                return;
+            }
+
             // get current cursor
             String initializeKey = null;
             if (pagedList_.getValue() != null) {
@@ -155,10 +167,15 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
 
                 @Override
                 public void onError(String code, String e) {
-                    pagedList_.setValue(pagedList);
-                    pagerCb_ = null;
+                    this.onResponse(null);
                 }
             };
+
+            // if we're not restarting the tx but reusing existing
+            // value then pagedList should be set immediately
+            if (!restart) {
+                pagerCb_.onResponse(data_.getValue());
+            }
         }
 
         @Override
@@ -168,13 +185,22 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
 
         @Override
         public void setRequest(WalletDataDecl.GetRequestTmpl<IdType> req) {
+            // stop previously running tx
+            destroy();
+
+            // set request
             request_ = req;
-            buildPagedList();
+
+            // build list w/ new tx
+            buildPagedList(true);
         }
 
         @Override
         public void invalidate() {
-            buildPagedList();
+            // drop existing tx
+            destroy();
+            // build new list w/ new tx
+            buildPagedList(true);
         }
 
         public int count() {
@@ -234,9 +260,13 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
                 // save callback
                 initialCallback_ = callback;
 
+                // tx not active? start it!
                 if (!GetData.this.isActive()) {
+                    // start new request
                     GetData.this.setRequest(request_);
                     start();
+                } else {
+                    onChanged(data_.getValue());
                 }
             }
 
@@ -244,22 +274,13 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
             public void loadAfter(@NonNull LoadParams<String> params,
                                   @NonNull LoadCallback<WalletData.Field> callback) {
                 // no more data available
-                callback_.onResult(new ArrayList<WalletData.Field>());
-                // save callback
-//                callback_ = callback;
-
-//                GetData.this.setRequest(request_);
-//                start();
+                callback.onResult(new ArrayList<WalletData.Field>());
             }
 
             @Override
             public void loadBefore(@NonNull LoadParams<String> params,
                                    @NonNull LoadCallback<WalletData.Field> callback) {
-                callback_.onResult(new ArrayList<WalletData.Field>());
-                // save callback
-//                callback_ = callback;
-
-                // request page
+                callback.onResult(new ArrayList<WalletData.Field>());
             }
 
             @NonNull

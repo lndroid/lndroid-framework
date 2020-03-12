@@ -8,7 +8,7 @@ import org.lndroid.framework.defaults.DefaultPlugins;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-public class ActionDisconnectPeer extends ActionUseCaseBase<WalletData.ConnectPeerRequest, WalletData.Peer> {
+public class ActionDisconnectPeer extends ActionUseCaseBase<WalletData.DisconnectPeerRequest, WalletData.Peer> {
     public ActionDisconnectPeer(IPluginClient client) {
         super(DefaultPlugins.DISCONNECT_PEER, client, "ActionDisconnectPeer");
     }

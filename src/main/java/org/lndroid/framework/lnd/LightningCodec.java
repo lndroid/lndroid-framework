@@ -21,9 +21,9 @@ import lnrpc.Rpc;
 public class LightningCodec {
 
     public static final long TLV_MESSAGE = 34349334;
-    public static final long TLV_SENDER_PUBKEY = 34349339;
-    public static final long TLV_SENDER_TIME = 34349343;
-//    tlvSigRecord    = 34349337
+    public static final long TLV_MESSAGE_SENDER_PUBKEY = 34349339;
+    public static final long TLV_MESSAGE_SENDER_TIME = 34349343;
+    public static final long TLV_MESSAGE_SIGNATURE = 34349337;
 
     public static final long TLV_PREIMAGE = 5482373484L;
 
@@ -175,28 +175,49 @@ public class LightningCodec {
                 r.destCustomRecords.put(TLV_PREIMAGE, LightningCodec.hexToBytes(req.paymentPreimageHex()));
             }
 
-            try {
-                if (req.message() != null) {
-                    r.destCustomRecords.put(TLV_MESSAGE, req.message().getBytes("UTF-8"));
-
-                    // ns
-                    final long ns = System.currentTimeMillis() * 1000;
-                    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-                    buffer.order(ByteOrder.BIG_ENDIAN);
-                    buffer.putLong(ns);
-
-                    r.destCustomRecords.put(TLV_SENDER_TIME, buffer.array());
-
-                }
-                if (req.senderPubkey() != null) {
-                    r.destCustomRecords.put(TLV_SENDER_PUBKEY, hexToBytes(req.senderPubkey()));
-                }
-
-                // FIXME add signature as in WhatSat see here https://github.com/joostjager/whatsat/blob/b3759020e913727ef2f9661b3463a5035b6887a6/cmd_chat.go#L272
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
             return true;
+        }
+
+        public static byte[] encodeMessage(WalletData.SendPayment req, Data.QueryRoutesRequest r) {
+            byte[] receiver = hexToBytes(req.destPubkey());
+            byte[] message = null;
+            byte[] sendTime = null;
+            byte[] sender = null;
+
+            if (req.message() != null) {
+                message = req.message().getBytes();
+                r.destCustomRecords.put(TLV_MESSAGE, message);
+
+                // ns
+                final long ns = System.currentTimeMillis() * 1000;
+                ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+                buffer.order(ByteOrder.BIG_ENDIAN);
+                buffer.putLong(ns);
+                sendTime = buffer.array();
+
+                r.destCustomRecords.put(TLV_MESSAGE_SENDER_TIME, sendTime);
+
+            }
+            if (req.senderPubkey() != null) {
+                sender = hexToBytes(req.senderPubkey());
+                r.destCustomRecords.put(TLV_MESSAGE_SENDER_PUBKEY, sender);
+            }
+
+            if (sender != null && message != null) {
+                ByteBuffer data = ByteBuffer.allocate(receiver.length+message.length+sendTime.length+sender.length);
+                data.put(sender);
+                data.put(receiver);
+                data.put(sendTime);
+                data.put(message);
+
+                return data.array();
+            }
+
+            return null;
+        }
+
+        public static void encodeMessageSignature(byte[] signature, Data.QueryRoutesRequest r) {
+            r.destCustomRecords.put(TLV_MESSAGE_SIGNATURE, signature);
         }
     }
 
@@ -342,10 +363,10 @@ public class LightningCodec {
                         throw new RuntimeException(e);
                     }
                 }
-                byte[] pubkey = rep.tlv.get(TLV_SENDER_PUBKEY);
+                byte[] pubkey = rep.tlv.get(TLV_MESSAGE_SENDER_PUBKEY);
                 if (pubkey != null)
                     b.setSenderPubkey(bytesToHex(pubkey));
-                byte[] time = rep.tlv.get(TLV_SENDER_TIME);
+                byte[] time = rep.tlv.get(TLV_MESSAGE_SENDER_TIME);
                 if (time != null && time.length == 8) {
                     ByteBuffer buffer = ByteBuffer.wrap(time);
                     buffer.order(ByteOrder.BIG_ENDIAN);

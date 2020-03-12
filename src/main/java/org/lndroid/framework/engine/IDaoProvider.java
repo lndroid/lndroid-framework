@@ -24,6 +24,7 @@ public interface IDaoProvider {
     // password to decrypt the database
     void initWallet(WalletData.InitWalletRequest r, IResponseCallback<WalletData.InitWalletResponse> cb);
     void unlockWallet(WalletData.UnlockWalletRequest r, IResponseCallback<WalletData.UnlockWalletResponse> cb);
+    void insertRoot(WalletData.User user);
 
     // open databases and unlock lnd,
     // if state!=STATE_OK server+UI need to deal with it (initWallet/unlockWallet),

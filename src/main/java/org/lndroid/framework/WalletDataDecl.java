@@ -464,6 +464,10 @@ public class WalletDataDecl {
 
         // which contact's payments are granted
         long contactId();
+
+        // which protocol is requested
+        @Nullable
+        String protocolExtension();
     }
 
     public interface SubscribeRequest {

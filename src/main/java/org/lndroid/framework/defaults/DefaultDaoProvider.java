@@ -325,8 +325,7 @@ public class DefaultDaoProvider implements IDaoProvider {
         roomDaos_.init(config_.getDatabaseName(), password, new IDBDaoProvider.OpenCallback() {
             @Override
             public void onOpen() {
-                // ensure root user
-                if (roomDaos_.getAuthDao().get(WalletData.ROOT_USER_ID) == null) {
+/*                if (roomDaos_.getAuthDao().get(WalletData.ROOT_USER_ID) == null) {
                     final boolean secure = keyStore_.isDeviceSecure();
 
                     WalletData.User u = WalletData.User.builder()
@@ -348,6 +347,7 @@ public class DefaultDaoProvider implements IDaoProvider {
                     roomDaos_.insertUser(u);
                 }
 
+ */
             }
         });
 
@@ -361,6 +361,14 @@ public class DefaultDaoProvider implements IDaoProvider {
                 .setState(WalletData.WALLET_STATE_OK)
                 .build();
         notifyWalletState();
+    }
+
+    @Override
+    public void insertRoot(WalletData.User user) {
+        if (user.id() != WalletData.ROOT_USER_ID)
+            throw new RuntimeException("Invalid user provided");
+
+        roomDaos_.insertUser(user);
     }
 
     @Override

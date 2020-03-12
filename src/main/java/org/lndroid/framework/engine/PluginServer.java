@@ -692,6 +692,10 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 onGetUserAuthTypeRequest(pm, msg.replyTo);
                 break;
 
+            case AuthData.MESSAGE_TYPE_CREATE_ROOT:
+                onCreateRoot(pm, msg.replyTo);
+                break;
+
             default:
                 throw new RuntimeException("Bad plugin request");
         }
@@ -774,6 +778,48 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
                 .setId(pm.id())
                 .setType(pm.type())
                 .setData(u)
+                .build();
+
+        sendAuthMessage(m, client);
+    }
+
+    private void onCreateRoot(AuthData.AuthMessage pm, Messenger client) {
+        WalletData.AddUserRequest req = (WalletData.AddUserRequest)pm.data();
+
+        AuthData.AuthMessage.Builder builder = AuthData.AuthMessage.builder()
+                .setId(pm.id())
+                .setType(AuthData.MESSAGE_TYPE_CREATE_ROOT);
+
+        // make sure Root is created
+        if (!WalletData.USER_ROLE_ROOT.equals(req.role())) {
+            builder
+                    .setCode(Errors.AUTH_INPUT)
+                    .setError(Errors.errorMessage(Errors.AUTH_INPUT));
+            sendAuthMessage(builder.build(), client);
+            return;
+        }
+
+        // generate pubkey depending on authType
+        final String pubkey = keyStore_.generateKeyPair(
+                PluginUtils.userKeyAlias(WalletData.ROOT_USER_ID),
+                req.authType(),
+                req.password());
+
+        // create user
+        WalletData.User root = WalletData.User.builder()
+                .setId(WalletData.ROOT_USER_ID)
+                .setCreateTime(System.currentTimeMillis())
+                .setRole(WalletData.USER_ROLE_ROOT)
+                .setPubkey(pubkey)
+                .setAuthType(req.authType())
+                .build();
+
+        // write user
+        daoProvider_.insertRoot(root);
+
+        // reply
+        AuthData.AuthMessage m = builder
+                .setData(root)
                 .build();
 
         sendAuthMessage(m, client);
@@ -1288,7 +1334,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
 
             for (Caller c : callers_.values()) {
                 Contexts ctxs = c.pluginContexts.get(pid);
-                Log.i(TAG, "notify contexts "+pid+" ctxs "+(ctxs == null ? 0 : ctxs.contexts.size()));
+                Log.i(TAG, "notify contexts "+pid+" user "+c.user.id()+" ctxs "+(ctxs == null ? 0 : ctxs.contexts.size()));
                 if (ctxs == null)
                     continue;
 

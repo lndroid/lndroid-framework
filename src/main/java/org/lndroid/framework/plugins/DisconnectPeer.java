@@ -39,16 +39,20 @@ public class DisconnectPeer extends
         return MAX_TIMEOUT;
     }
 
-    @Override
-    protected lnrpc.Rpc.DisconnectPeerRequest createLndRequest(PluginContext ctx,
-                                                               WalletData.DisconnectPeerRequest req) {
-
+    private String getPubkey(WalletData.DisconnectPeerRequest req) {
         String pubkey = req.pubkey();
         if (pubkey == null && req.id() != 0)
             pubkey = dao().getPeerPubkey(req.id());
         if (pubkey == null && req.contactId() != 0)
             pubkey = dao().getContactPubkey(req.contactId());
+        return pubkey;
+    }
 
+    @Override
+    protected lnrpc.Rpc.DisconnectPeerRequest createLndRequest(PluginContext ctx,
+                                                               WalletData.DisconnectPeerRequest req) {
+
+        String pubkey = getPubkey(req);
         if (pubkey == null)
             return null;
 
@@ -65,7 +69,7 @@ public class DisconnectPeer extends
 
         return WalletData.Peer.builder()
                 .setId(server().getIdGenerator().generateId(WalletData.Peer.class))
-                .setPubkey(req.pubkey())
+                .setPubkey(getPubkey(req))
                 .setDisabled(true)
                 .setLastDisconnectTime(System.currentTimeMillis())
                 .setOnline(false)

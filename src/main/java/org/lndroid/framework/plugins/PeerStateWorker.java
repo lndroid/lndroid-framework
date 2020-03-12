@@ -22,6 +22,7 @@ public class PeerStateWorker implements IPluginBackground {
         WalletData.Peer getPeerByPubkey(String pubkey);
         void updatePeer(WalletData.Peer peer);
         void updatePeerOnline(String pubkey, boolean online);
+        void updatePeersOffline();
     }
 
     private static final String TAG = "PeerStateWorker";
@@ -46,6 +47,8 @@ public class PeerStateWorker implements IPluginBackground {
         dao_ = (IDao) server.getDaoProvider().getPluginDao(id());
         lnd_ = server.getDaoProvider().getLightningDao();
         engine_ = callback;
+
+        dao_.updatePeersOffline();
     }
 
     private void onUpdate(Rpc.Peer r) {

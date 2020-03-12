@@ -69,6 +69,7 @@ public class AuthClient extends Handler implements IAuthClient {
             case AuthData.MESSAGE_TYPE_GET:
             case AuthData.MESSAGE_TYPE_GET_TX:
             case AuthData.MESSAGE_TYPE_USER_AUTH_INFO:
+            case AuthData.MESSAGE_TYPE_CREATE_ROOT:
                 onCallback(pm);
                 break;
 
@@ -182,6 +183,16 @@ public class AuthClient extends Handler implements IAuthClient {
                 .setType(AuthData.MESSAGE_TYPE_GET_TX)
                 .setAuthId(authId)
                 .setData(cls);
+
+        send(b, cb);
+    }
+
+
+    @Override
+    public void createRoot(WalletData.AddUserRequest req, IResponseCallback<WalletData.User> cb) {
+        AuthData.AuthMessage.Builder b = AuthData.AuthMessage.builder()
+                .setType(AuthData.MESSAGE_TYPE_CREATE_ROOT)
+                .setData(req);
 
         send(b, cb);
     }

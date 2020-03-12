@@ -3,6 +3,7 @@ package org.lndroid.framework.defaults;
 import android.util.Log;
 
 import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import org.lndroid.framework.WalletData;
@@ -13,7 +14,19 @@ import org.lndroid.framework.engine.ISignAuthPrompt;
 
 public class DefaultSignAuthPrompt implements ISignAuthPrompt {
 
+    public interface IPasswordAuthPrompt {
+        void start(FragmentActivity activity,
+                   final WalletData.User u,
+                   final IResponseCallback<String> cb);
+    }
+
     private static final String TAG = "DefaultSignAuthPrompt";
+
+    private IPasswordAuthPrompt passwordAuthPrompt_;
+
+    public void setPasswordAuthPrompt(IPasswordAuthPrompt p){
+        passwordAuthPrompt_ = p;
+    }
 
     private void authDevice(
             final ISigner signer,
@@ -33,15 +46,16 @@ public class DefaultSignAuthPrompt implements ISignAuthPrompt {
 
         BiometricPrompt biometricPrompt = new BiometricPrompt(
                 activity,
-                activity.getMainExecutor(),
+                ContextCompat.getMainExecutor(activity),
                 new BiometricPrompt.AuthenticationCallback() {
 
                     @Override
                     public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
 
-                        // retry
-                        signer.setAuthObject(result.getCryptoObject());
+                        // set auth object, if was requested
+                        if (result.getCryptoObject() != null)
+                            signer.setAuthObject(result.getCryptoObject());
                         cb.onResponse(null);
                     }
 
@@ -76,10 +90,21 @@ public class DefaultSignAuthPrompt implements ISignAuthPrompt {
             final WalletData.User u,
             final IResponseCallback cb)
     {
-        // FIXME show password dialog, when user is done do
-        String password = null;
-        signer.setAuthObject(password);
-        cb.onResponse(null);
+        if (passwordAuthPrompt_ == null)
+            throw new RuntimeException("Password auth prompt not provided");
+
+        passwordAuthPrompt_.start(activity, u, new IResponseCallback<String>() {
+            @Override
+            public void onResponse(String r) {
+                signer.setAuthObject(r);
+                cb.onResponse(null);
+            }
+
+            @Override
+            public void onError(String code, String e) {
+                cb.onError(code, e);
+            }
+        });
     }
 
     @Override

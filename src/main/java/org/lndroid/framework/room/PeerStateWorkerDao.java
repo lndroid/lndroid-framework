@@ -36,6 +36,11 @@ public class PeerStateWorkerDao implements PeerStateWorker.IDao, IPluginDao {
     }
 
     @Override
+    public void updatePeersOffline() {
+        dao_.updatePeersOffline();
+    }
+
+    @Override
     public void init() {
         // noop
     }
@@ -50,6 +55,9 @@ public class PeerStateWorkerDao implements PeerStateWorker.IDao, IPluginDao {
 
         @Query("UPDATE Peer SET online = :online WHERE pubkey = :pubkey")
         abstract void updatePeerOnline(String pubkey, boolean online);
+
+        @Query("UPDATE Peer SET online = 0 WHERE online != 0")
+        abstract void updatePeersOffline();
     }
 
 }

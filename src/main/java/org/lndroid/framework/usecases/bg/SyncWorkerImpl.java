@@ -103,8 +103,6 @@ public class SyncWorkerImpl {
         Looper.loop();
 
         // clean up
-        if (info.isActive())
-            info.stop();
         info.destroy();
 
         return !restart_;

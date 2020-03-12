@@ -20,6 +20,7 @@ public class Errors {
     public static final String WALLET_LOCKED = "org.lndroid.errors.WALLET_LOCKED";
 
     // device locked, txs from user roles are rejected
+    // FIXME not used! do we need it?
     public static final String DEVICE_LOCKED = "org.lndroid.errors.DEVICE_LOCKED";
 
     // transaction timed out, authorization of this tx is no longer possible,

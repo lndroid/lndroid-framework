@@ -120,6 +120,16 @@ abstract class AuthRPCUseCaseBase<Request, Response> implements IRPCUseCase<Requ
     protected void execute(IExecutor<Request, Response> e) {
         if (executing_)
             throw new RuntimeException("Use case already executing");
+        if (factory_ == null)
+            throw new RuntimeException("Request factory not provided");
+
+        // create request
+        request_ = factory_.create();
+
+        // if factory failed, sitently return as client
+        // should have reacted by showing an error message to user
+        if (request_ == null)
+            return;
 
         Log.i(tag_, "started");
         executing_ = true;
@@ -127,12 +137,6 @@ abstract class AuthRPCUseCaseBase<Request, Response> implements IRPCUseCase<Requ
         // clear previous response
         error_ = null;
         response_ = null;
-
-        if (factory_ == null)
-            throw new RuntimeException("Request factory not provided");
-
-        // store
-        request_ = factory_.create();
 
         // call
         e.execute(request_, new IResponseCallback<Response>() {

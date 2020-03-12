@@ -71,15 +71,12 @@ public abstract class GetDataBg<DataType, /*optional*/IdType> {
         tx_.start(req_, getRequestType());
     }
 
-    public void stop() {
-        if (tx_ != null && tx_.isActive())
-            tx_.stop();
-        destroy();
-    }
-
     public void destroy() {
-        if (tx_ != null)
+        if (tx_ != null) {
+            if (tx_.isActive())
+                tx_.stop();
             tx_.destroy();
+        }
         tx_ = null;
     }
 

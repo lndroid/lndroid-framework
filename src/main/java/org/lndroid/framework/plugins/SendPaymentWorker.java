@@ -2,6 +2,8 @@ package org.lndroid.framework.plugins;
 
 import android.util.Log;
 
+import com.google.protobuf.ByteString;
+
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
@@ -22,6 +24,8 @@ import org.lndroid.framework.engine.IPluginBackgroundCallback;
 import org.lndroid.framework.common.PluginData;
 import org.lndroid.framework.lnd.ILightningDao;
 import org.lndroid.framework.lnd.LightningCodec;
+
+import lnrpc.Rpc;
 
 public class SendPaymentWorker implements IPluginBackground {
 
@@ -218,9 +222,8 @@ public class SendPaymentWorker implements IPluginBackground {
         });
     }
 
-    private void queryRoutes(final Job job, WalletData.SendPayment p_) {
-
-        WalletData.SendPayment.Builder b = p_.toBuilder();
+    private WalletData.SendPayment.Builder preparePayment(WalletData.SendPayment p) {
+        WalletData.SendPayment.Builder b = p.toBuilder();
 
         // new preimage on every send attempt
         if (b.isKeysend()) {
@@ -248,12 +251,13 @@ public class SendPaymentWorker implements IPluginBackground {
             }
         }
 
-        final WalletData.SendPayment p = b.build();
+        return b;
+    }
 
-        Data.QueryRoutesRequest r = new Data.QueryRoutesRequest();
-        LightningCodec.QueryRoutesConvertor.encode(p, r);
+    private void queryRoutesImpl(
+            final Job job, final WalletData.SendPayment p, Data.QueryRoutesRequest req) {
 
-        lnd_.client().queryRoutes(r, new ILightningCallback<Data.QueryRoutesResponse>() {
+        lnd_.client().queryRoutes(req, new ILightningCallback<Data.QueryRoutesResponse>() {
             @Override
             public void onResponse(Data.QueryRoutesResponse r) {
                 Log.i(TAG, "queryRoutes response routes "+r.routes.size());
@@ -283,6 +287,50 @@ public class SendPaymentWorker implements IPluginBackground {
         });
     }
 
+    private void signMessageThenQueryRoutes(
+            final Job job, final WalletData.SendPayment p, final Data.QueryRoutesRequest req,
+            byte[] signData) {
+
+        Rpc.SignMessageRequest sr = Rpc.SignMessageRequest.newBuilder()
+                .setMsg(ByteString.copyFrom(signData))
+                .build();
+        lnd_.client().signMessage(sr, new ILightningCallback<Rpc.SignMessageResponse>() {
+            @Override
+            public void onResponse(Rpc.SignMessageResponse res) {
+                Log.e(TAG, "signMessage result "+res);
+                LightningCodec.QueryRoutesConvertor.encodeMessageSignature(
+                        res.getSignature().getBytes(), req);
+                queryRoutesImpl(job, p, req);
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                Log.e(TAG, "signMessage error "+i+" err "+s);
+                WalletData.SendPayment.Builder b = p.toBuilder();
+                b.setErrorCode(Errors.LND_ERROR);
+                b.setErrorMessage(s);
+                onFailure(job, b);
+                onUpdate(job, b.build());
+            }
+        });
+    }
+
+    private void queryRoutes(final Job job, WalletData.SendPayment p) {
+
+        p = preparePayment(p).build();
+
+        Data.QueryRoutesRequest r = new Data.QueryRoutesRequest();
+        LightningCodec.QueryRoutesConvertor.encode(p, r);
+        if (p.message() != null || p.senderPubkey() != null) {
+            byte[] signData = LightningCodec.QueryRoutesConvertor.encodeMessage(p, r);
+            if (signData != null) {
+                signMessageThenQueryRoutes(job, p, r, signData);
+                return;
+            }
+        }
+
+        queryRoutesImpl(job, p, r);
+    }
 
     private void onFailure(Job job, WalletData.SendPayment.Builder b) {
         boolean permanent = false;

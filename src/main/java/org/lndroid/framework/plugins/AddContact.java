@@ -85,7 +85,10 @@ public class AddContact extends ActionBase<WalletData.AddContactRequest, WalletD
     protected WalletData.AddContactRequest getRequestData(IPluginData in) {
         in.assignDataType(WalletData.AddContactRequest.class);
         try {
-            return in.getData();
+            WalletData.AddContactRequest r = in.getData();
+            return r.toBuilder()
+                    .setRouteHints(Utils.assignRouteHintsIds(r.routeHints(), server().getIdGenerator()))
+                    .build();
         } catch (IOException e) {
             return null;
         }

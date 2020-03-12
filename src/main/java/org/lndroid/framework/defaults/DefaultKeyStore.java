@@ -42,8 +42,8 @@ public class DefaultKeyStore implements IKeyStore {
     private static final String WP_CIPHER = "AES/GCM/NoPadding";
     private static final String PASSWORD_ALIAS_SUFFIX = "_pwd";
     private static int DEFAULT_WP_AUTH_VALIDITY_DURATION = 6 * 60 * 60; // 6h
-    private static int PASSWORD_KEY_SIZE = 256;
-    private static int PASSWORD_NONCE_SIZE = 256; // sha256
+    private static int PASSWORD_KEY_SIZE = 32; // bytes
+    private static int PASSWORD_NONCE_SIZE = 32; // sha256
 
     private static final Object lock_ = new Object();
     private static DefaultKeyStore instance_;
@@ -267,7 +267,7 @@ public class DefaultKeyStore implements IKeyStore {
                     password.toCharArray(),
                     nonce,
                     iterationCount,
-                    PASSWORD_KEY_SIZE);
+                    PASSWORD_KEY_SIZE * 8);
             SecretKeyFactory keyFactory = SecretKeyFactory
                     .getInstance("PBKDF2WithHmacSHA1");
 

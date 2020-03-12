@@ -99,8 +99,11 @@ public class LightningDao implements ILightningDao {
 
     @Override
     public void genSeed(WalletData.GenSeedRequest r, final IResponseCallback<WalletData.GenSeedResponse> cb) {
-        if (!isUnlockReady())
-            throw new RuntimeException("GenSeed needs unlocker ready");
+        if (!isUnlockReady()) {
+            // user needs to retry later
+            cb.onError(Errors.REJECTED, "Please retry later, unlocker not ready");
+            return;
+        }
         Data.GenSeedRequest req = new Data.GenSeedRequest();
         req.aezeedPassphrase = r.aezeedPassphrase;
         req.seedEntropy = r.seedEntropy;
@@ -121,7 +124,7 @@ public class LightningDao implements ILightningDao {
             @Override
             public void onError(int i, String s) {
                 Log.e(TAG, "genSeed error "+i+" err "+s);
-                cb.onError(Errors.WALLET_ERROR, Errors.errorMessage(Errors.WALLET_ERROR));
+                cb.onError(Errors.LND_ERROR, s);
             }
         });
     }
@@ -148,7 +151,7 @@ public class LightningDao implements ILightningDao {
             @Override
             public void onError(int i, String s) {
                 Log.e(TAG, "initWallet error "+i+" err "+s);
-                cb.onError(Errors.WALLET_ERROR, Errors.errorMessage(Errors.WALLET_ERROR));
+                cb.onError(Errors.LND_ERROR, s);
             }
         });
     }
@@ -160,8 +163,10 @@ public class LightningDao implements ILightningDao {
 
     @Override
     public void unlockWallet(WalletData.UnlockWalletRequest r, final IResponseCallback<WalletData.UnlockWalletResponse> cb) {
-        if (!isUnlockReady())
-            throw new RuntimeException("Unlock needs unlocker ready");
+        if (!isUnlockReady()) {
+            cb.onError(Errors.REJECTED, "Please try again later");
+            return;
+        }
 
         Data.UnlockWalletRequest req = new Data.UnlockWalletRequest();
         req.walletPassword = r.walletPassword;
@@ -180,7 +185,7 @@ public class LightningDao implements ILightningDao {
                 } else if (s.contains("not found")) {
                     cb.onError(Errors.NO_WALLET, Errors.errorMessage(Errors.NO_WALLET));
                 } else {
-                    cb.onError(Errors.FORBIDDEN, Errors.errorMessage(Errors.FORBIDDEN));
+                    cb.onError(Errors.FORBIDDEN, s);
                 }
             }
         });

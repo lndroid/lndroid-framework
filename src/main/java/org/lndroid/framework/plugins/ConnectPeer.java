@@ -50,7 +50,8 @@ public class ConnectPeer extends
                 .setAddress(req.address())
                 .setPerm(req.perm())
                 .setDisabled(false)
-                .setOnline(true)
+                // don't set 'online' as connection is not yet established
+//                .setOnline(true)
                 .setLastConnectTime(System.currentTimeMillis())
                 .build();
     }
@@ -62,7 +63,8 @@ public class ConnectPeer extends
             @Override
             public WalletData.Peer merge(WalletData.Peer old, WalletData.Peer cur) {
                 return old.toBuilder()
-                        .setOnline(true)
+                        // don't set 'online' as connection is not yet established
+//                        .setOnline(true)
                         .setDisabled(false)
                         .setPerm(cur.perm())
                         .setAddress(cur.address())

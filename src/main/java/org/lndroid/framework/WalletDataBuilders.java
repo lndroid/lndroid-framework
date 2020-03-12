@@ -221,6 +221,7 @@ public class WalletDataBuilders {
         Builder setAuthUserId(long authUserId);
         Builder setCreateTime(long createTime);
         Builder setContactId(long contactId);
+        Builder setProtocolExtension(String protocolExtension);
     }
 
     interface SubscribeRequestBuilder<Builder> {

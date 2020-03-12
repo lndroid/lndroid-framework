@@ -40,4 +40,5 @@ public interface IAuthClient {
     // but for now left for later!
 //    <T> void getTransactionRequest(String pluginId, long userId, String txId, IResponseCallback<T> cb);
 
+    void createRoot(WalletData.AddUserRequest req, IResponseCallback<WalletData.User> cb);
 }

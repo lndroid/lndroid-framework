@@ -23,4 +23,6 @@ public interface IPluginClient {
     // set token to be used by the following createTransaction calls
     void setSessionToken(String token);
 
+    // callback w/ true when connected and false when disconnected
+    void setOnConnection(IResponseCallback<Boolean> cb);
 }

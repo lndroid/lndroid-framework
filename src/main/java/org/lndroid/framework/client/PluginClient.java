@@ -52,6 +52,7 @@ class PluginClient extends Handler implements IPluginClient {
     private String sessionToken_;
 
     private ServiceConnection connection_;
+    private IResponseCallback<Boolean> connectionCallback_;
     private Queue<Pair<WeakReference<PluginTransaction>, PluginData.PluginMessage>> queue_ = new LinkedList<>();
 
 
@@ -166,12 +167,16 @@ class PluginClient extends Handler implements IPluginClient {
                 server_ = new Messenger(service);
                 bound_ = true;
                 sendQueuedMessages();
+                if (connectionCallback_ != null)
+                    connectionCallback_.onResponse(true);
             }
             @Override
             public void onServiceDisconnected(ComponentName className) {
                 server_ = null;
                 bound_ = false;
                 Log.i(TAG, "disconnected");
+                if (connectionCallback_ != null)
+                    connectionCallback_.onResponse(false);
             }
         };
     }
@@ -348,8 +353,12 @@ class PluginClient extends Handler implements IPluginClient {
         Intent intent = new Intent();
         intent.setComponent(comp);
         final boolean ok = ctx.bindService(intent, connection_, Context.BIND_AUTO_CREATE);
-        if (!ok)
-            throw new RuntimeException("No permission to bind to wallet service, or service not found");
+        if (!ok) {
+            if (connectionCallback_ != null)
+                connectionCallback_.onError(Errors.FORBIDDEN, "No permission to bind to wallet service, or service not found");
+            else
+                throw new RuntimeException("No permission to bind to wallet service, or service not found");
+        }
     }
 
     @Override
@@ -359,4 +368,10 @@ class PluginClient extends Handler implements IPluginClient {
         connection_ = null;
         bound_ = false;
     }
+
+    @Override
+    public void setOnConnection(IResponseCallback<Boolean> cb) {
+        connectionCallback_ = cb;
+    }
+
 }
