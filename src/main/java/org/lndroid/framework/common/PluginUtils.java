@@ -40,6 +40,11 @@ public class PluginUtils {
         return codec.decode(payload);
     }
 
+    public static boolean validApiVersion(PluginData.PluginMessage pm) {
+        // FIXME implement this check
+        return true;
+    }
+
     public static Bundle encodePluginMessageIpc(
             PluginData.PluginMessage msg,
             ICodecProvider codecProvider,

@@ -60,6 +60,9 @@ public class Errors {
     // IPC server identity changed, need to run connect-to-wallet flow
     public static final String IPC_IDENTITY_ERROR = "org.lndroid.errors.IPC_IDENTITY_ERROR";
 
+    // IPC API version mismatch btw client/server
+    public static final String IPC_API_VERSION = "org.lndroid.errors.IPC_API_VERSION";
+
     public static String errorMessage(String e) {
         switch (e) {
             case UNKNOWN_CALLER: return "Calling user not found";
@@ -81,6 +84,7 @@ public class Errors {
             case IPC_ERROR: return "IPC error";
             case IPC_IDENTITY_ERROR: return "IPC server identity error";
             case AUTH_INPUT: return "Unknown auth request";
+            case IPC_API_VERSION: return "API version mismatch, please update your app and wallet";
         }
 
         return "";

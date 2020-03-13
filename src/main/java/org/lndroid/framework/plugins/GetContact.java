@@ -16,7 +16,9 @@ import org.lndroid.framework.engine.PluginContext;
 public class GetContact extends GetBase<Long> {
 
     // plugin's Dao must implement this
-    public interface IDao extends IGetDao<WalletData.Contact>{};
+    public interface IDao extends IGetDao<WalletData.Contact>{
+        boolean hasPrivilege(WalletDataDecl.GetRequestTmpl<Long> req, WalletData.User user);
+    };
 
     private static final String TAG = "GetContact";
     private static final long DEFAULT_TIMEOUT = 3600000; // 1h
@@ -35,7 +37,7 @@ public class GetContact extends GetBase<Long> {
     @Override
     protected boolean isUserPrivileged(
             PluginContext ctx, WalletDataDecl.GetRequestTmpl<Long> req, WalletData.User user) {
-        return user.isRoot();
+        return user.isRoot() || dao_.hasPrivilege(req, user);
     }
 
     @Override

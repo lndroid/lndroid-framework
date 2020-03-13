@@ -516,6 +516,15 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         if (ipc) {
             // deserialize IPC message
             pm = PluginUtils.decodePluginMessageIpc(msg.getData(), ipcPluginMessageCodec_);
+
+            // drop bad messages that we don't know how to decode
+            if (pm == null)
+                return;
+
+            if (!PluginUtils.validApiVersion(pm)) {
+                sendTxError(pm, ipc, Errors.IPC_API_VERSION, msg.replyTo);
+                return;
+            }
         }
 
         // basic checks

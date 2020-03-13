@@ -21,6 +21,8 @@ public class PluginData {
     public static final int MESSAGE_WHAT_LOCAL_TX = 1;
     public static final int MESSAGE_WHAT_AUTH = 2;
 
+    public static final String API_VERSION = "0.1.0";
+
     // ipc Bundle keys
     public static final String IPC_VERSION = "ver";
     public static final String IPC_MESSAGE = "msg";
@@ -48,6 +50,8 @@ public class PluginData {
         public abstract String type();
 
         public abstract long timestamp();
+
+        public abstract String apiVersion();
 
         // the caller identity, null for in-process server replies,
         // IPC replies will have the identity w/ server appPubkey.
@@ -162,7 +166,8 @@ public class PluginData {
 
         public static Builder builder() {
             return new AutoValue_PluginData_PluginMessage.Builder()
-                    .setTimestamp(System.currentTimeMillis());
+                    .setTimestamp(System.currentTimeMillis())
+                    .setApiVersion(API_VERSION);
         }
 
         public abstract Builder toBuilder();
@@ -171,6 +176,7 @@ public class PluginData {
         public static abstract class Builder {
             public abstract Builder setType(String type);
             public abstract Builder setTimestamp(long timestamp);
+            public abstract Builder setApiVersion(String apiVersion);
             public abstract Builder setUserIdentity(WalletData.UserIdentity ui);
             public abstract Builder setPluginId(String pluginId);
             public abstract Builder setTxId(String txId);

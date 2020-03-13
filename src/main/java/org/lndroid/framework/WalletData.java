@@ -1959,8 +1959,7 @@ public final class WalletData {
                 long userId,
                 long authUserId,
                 long createTime,
-                long contactId,
-                String protocolExtension
+                long contactId
         ) {
             return builder()
                     .setId(id)
@@ -1968,7 +1967,6 @@ public final class WalletData {
                     .setAuthUserId(authUserId)
                     .setCreateTime(createTime)
                     .setContactId(contactId)
-                    .setProtocolExtension(protocolExtension)
                     .build();
         }
 

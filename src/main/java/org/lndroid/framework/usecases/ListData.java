@@ -49,14 +49,17 @@ abstract class  ListData<Request extends WalletData.ListRequestBase, Response ex
         // clear tx
         destroy();
 
+        // NOTE: pagerCb must execute before error observers,
+        //  ugly, I know, maybe fix it later
+        if (pagerCb_ != null)
+            pagerCb_.onError(code, message);
+
         // notify observers
         error_.setValue(WalletData.Error.builder().setCode(code).setMessage(message).build());
 
         // exec callbacks
         if (cb_ != null)
             cb_.onError(code, message);
-        if (pagerCb_ != null)
-            pagerCb_.onError(code, message);
     }
 
     @Override

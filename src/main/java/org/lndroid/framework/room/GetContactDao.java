@@ -5,6 +5,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.WalletDataDecl;
 import org.lndroid.framework.dao.IGetDao;
 import org.lndroid.framework.engine.IPluginDao;
 import org.lndroid.framework.plugins.GetContact;
@@ -30,6 +31,11 @@ public class GetContactDao implements
         // noop
     }
 
+    @Override
+    public boolean hasPrivilege(WalletDataDecl.GetRequestTmpl<Long> req, WalletData.User user) {
+        return dao_.hasListContactsPrivilege(user.id());
+    }
+
 
     @Dao
     abstract static class DaoRoom {
@@ -41,6 +47,9 @@ public class GetContactDao implements
 
         @Query("SELECT * FROM Contact WHERE id = :id")
         abstract RoomData.Contact getContact(long id);
+
+        @Query("SELECT id FROM ListContactsPrivilege WHERE userId = :userId")
+        abstract boolean hasListContactsPrivilege(long userId);
 
         @Transaction
         WalletData.Contact get(long id) {
