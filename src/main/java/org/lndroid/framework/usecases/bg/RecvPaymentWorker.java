@@ -18,10 +18,10 @@ public abstract class RecvPaymentWorker extends androidx.work.Worker {
     public static final String WORK_ID = "org.lndroid.framework.work.RECV_PAYMENT_WORK";
     private static final String TAG = "RecvPaymentWorker";
 
-    private static final long MIN_SYNC_TIME = 5 * 60 * 1000; // 5 min
-    private static final long MAX_SYNC_TIME = 15 * 60 * 1000; // 15 min
-    private static final long WORK_INTERVAL = 60 * 60 * 1000; // 1 h
-    private static final long FLEX_INTERVAL = 15 * 60 * 1000; // 15 min
+    private static final long MIN_SYNC_TIME = 3 * 60 * 1000; // 3 min
+    private static final long MAX_SYNC_TIME = 6 * 60 * 1000; // 6 min
+    private static final long WORK_INTERVAL = 15 * 60 * 1000; // 30 min
+    private static final long FLEX_INTERVAL = 7 * 60 * 1000; // 10 min
 
     public RecvPaymentWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);

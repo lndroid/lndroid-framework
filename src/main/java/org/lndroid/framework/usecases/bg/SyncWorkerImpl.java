@@ -80,10 +80,11 @@ public class SyncWorkerImpl {
                 if (r == null)
                     return;
                 boolean synched = r.syncedToChain() && r.syncedToGraph();
-                Log.i(tag_, "synched " + synched);
                 long workTime = synched ? minTime : maxTime;
                 final long stopTime = startTime + workTime;
-                if (System.currentTimeMillis() > stopTime)
+                final long now = System.currentTimeMillis();
+                Log.i(tag_, "synched " + synched+" start "+startTime+" stop "+stopTime+" now "+now);
+                if (now > stopTime)
                     stopLooper();
             }
 
@@ -105,7 +106,7 @@ public class SyncWorkerImpl {
         // clean up
         info.destroy();
 
-        return !restart_;
+        return restart_;
     }
 
     public boolean execute(final long minTime, final long maxTime) {
@@ -120,7 +121,7 @@ public class SyncWorkerImpl {
 
         // listen to the wallet state until minTime of
         // listening has passed
-        while (!run(startTime, minTime, maxTime)) {
+        while (run(startTime, minTime, maxTime)) {
             // repeat
         }
 
@@ -141,9 +142,9 @@ public class SyncWorkerImpl {
         for (int v = 0; v < version; v++)
             wm.cancelAllWorkByTag(getVersionTag(workId, version));
 
-        // KEEP existing work (w/ same version) to not break the schedule,
-        // otherwise SyncWorker will start immediately on every wallet launch
-        wm.enqueueUniquePeriodicWork(workId, ExistingPeriodicWorkPolicy.KEEP, work);
+        // we need to REPLACE the existing work otherwise all our
+        // changes to the workId are ignored
+        wm.enqueueUniquePeriodicWork(workId, ExistingPeriodicWorkPolicy.REPLACE, work);
     }
 
 }

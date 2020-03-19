@@ -1,5 +1,7 @@
 package org.lndroid.framework.room;
 
+import android.util.Log;
+
 import androidx.room.TypeConverter;
 
 import com.google.common.collect.ImmutableList;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.lndroid.framework.WalletData;
+import org.lndroid.framework.common.HEX;
 import org.lndroid.framework.plugins.Transaction;
 
 final class RoomConverters {
@@ -220,7 +223,12 @@ final class RoomConverters {
                 }
                 o += len;
 
-                b.put(key, value);
+                try {
+                    b.put(key, value);
+                } catch (IllegalArgumentException e) {
+                    Log.e("DestTLVConverter", "toDestTLV error "+e+" data "+ HEX.fromBytes(d));
+                    throw e;
+                }
             }
             return b.build();
         }

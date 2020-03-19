@@ -661,7 +661,7 @@ class PluginServer extends Handler implements IPluginServer, IPluginForegroundCa
         if (msg.replyTo == null)
             throw new RuntimeException("Client not provided");
 
-        Log.i(TAG, "Auth message authId " + pm.authId() + " type " + pm.type());
+        Log.i(TAG, "Got auth message authId " + pm.authId() + " type " + pm.type());
 
         switch (pm.type()) {
             case AuthData.MESSAGE_TYPE_AUTHED:

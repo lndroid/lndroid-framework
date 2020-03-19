@@ -218,18 +218,14 @@ class PluginClient extends Handler implements IPluginClient {
 
         if (PluginData.MESSAGE_TYPE_ERROR.equals(pm.type())) {
 
-            if (Errors.IPC_ERROR.equals(pm.code())) {
-                // FIXME reconnect!
-            }
-
-            if (Errors.IPC_IDENTITY_ERROR.equals(pm.code())
+            if (Errors.IPC_API_VERSION.equals(pm.code())
                     || Errors.MESSAGE_AUTH.equals(pm.code())
                     || Errors.DEVICE_LOCKED.equals(pm.code())
             ) {
                 // notify UI:
-                //  - identity error should cause UI to restart connect-to-wallet flow
                 //  - message_auth error should force requesting a new token
                 //  - device_locked error should hint that subscribed read plugins need to restart
+                //  - api version error must notify User that he needs to update the server
                 if (onError_ != null) {
                     onError_.onResponse(WalletData.Error.builder()
                         .setCode(pm.code())

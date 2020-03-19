@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,8 @@ import org.lndroid.framework.WalletData;
 import org.lndroid.framework.common.PluginData;
 
 public class AuthClient extends Handler implements IAuthClient {
+
+    private static final String TAG = "AuthClient";
 
     private static class Callback<T> {
         int id;
@@ -80,6 +83,7 @@ public class AuthClient extends Handler implements IAuthClient {
 
     private void send(AuthData.AuthMessage pm) {
 
+        Log.i(TAG, "Send auth message authId " + pm.authId() + " type " + pm.type());
         Message m = this.obtainMessage(PluginData.MESSAGE_WHAT_AUTH, pm);
 
         // set self as client

@@ -60,6 +60,9 @@ class PluginTransaction implements IPluginTransaction {
 
     public String sessionToken() { return sessionToken_; }
 
+    // FIXME this is not used now bcs we assume that client will be restarted
+    //  using onConnect callback and all messages are queued while
+    //  the connection is broken.., Think more about it...
     public void onIpcError() {
         cb_.onError(Errors.IPC_ERROR, Errors.errorMessage(Errors.IPC_ERROR));
         started_ = false;

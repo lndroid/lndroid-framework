@@ -2,6 +2,7 @@ package org.lndroid.framework.usecases.bg;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -148,11 +149,31 @@ public class BackgroundActivityService {
             return null;
         }
 
+        @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             Toast.makeText(this, "Starting background service", Toast.LENGTH_SHORT).show();
             BackgroundActivityService ps = BackgroundActivityService.getInstance();
             startForeground(ps.serviceManager_.notificationId(), ps.serviceManager_.notification());
             return START_STICKY;
         }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            Log.i(TAG, "destroyed");
+//            Intent broadcastIntent = new Intent(this, RestartBroadcastReceiver.class);
+//            sendBroadcast(broadcastIntent);
+        }
     }
+
+/*    public static class RestartBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final BroadcastReceiver.PendingResult pendingResult = goAsync();
+            Task asyncTask = new Task(pendingResult, context);
+            asyncTask.execute();
+        }
+    }
+
+ */
 }
