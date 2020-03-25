@@ -41,8 +41,12 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
 
             @Override
             public void onError(String code, String e) {
+                // clear tx
+                destroy();
+
                 if (pagerCb_ != null)
                     pagerCb_.onError(code, e);
+
                 error_.setValue(WalletData.Error.builder().setCode(code).setMessage(e).build());
             }
         });
@@ -135,7 +139,11 @@ public abstract class GetData<DataType, /*optional*/IdType> extends GetDataBg<Da
             // create new data source
             currentDataSource_ = new DataSource(mapper_);
 
-            // make datasource observe list results
+            // make datasource observe list results,
+            // note that it will immediately call
+            // currentDataSource_.onChanged, but it won't
+            // have any effect bcs PagedList callbacks
+            // won't be provided here
             data_.observeForever(currentDataSource_);
 
             // sync executor

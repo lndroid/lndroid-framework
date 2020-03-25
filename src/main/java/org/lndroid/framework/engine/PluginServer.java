@@ -32,7 +32,11 @@ import org.lndroid.framework.plugins.Transaction;
 class PluginServer extends Handler implements IPluginServer, IPluginForegroundCallback, IPluginBackgroundCallback {
 
     private static final String TAG = "PluginServer";
-    private static final int WORK_INTERVAL = 100; // ms
+    // FIXME think about better ways to invoke the plugins,
+    // either make them schedule themselves, or maybe do some
+    // smart backoff in case of say, no clients... Cause this shit's
+    // draining up my battery and using +35% CPU!
+    private static final int WORK_INTERVAL = 200; // ms
 
     private static class AuthSub {
         WeakReference<Messenger> client;

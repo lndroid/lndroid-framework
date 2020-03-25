@@ -31,6 +31,7 @@ public class ChannelStateWorker implements IPluginBackground {
     };
 
     private static final String TAG = "ChannelStateWorker";
+    private static final long SYNC_TRY_INTERVAL = 5000;
 
     private IPluginServer server_;
     private IDao dao_;
@@ -42,6 +43,7 @@ public class ChannelStateWorker implements IPluginBackground {
     private boolean closedSynched_;
     private boolean pendingSynched_;
     private boolean pendingRetry_;
+    private long nextSyncTryTime_ = 0;
     private List<Data.ChannelEventUpdate> buffer_ = new ArrayList<>();
 
     @Override
@@ -156,12 +158,18 @@ public class ChannelStateWorker implements IPluginBackground {
             return;
 
         if (started_) {
-            if (pendingRetry_)
+            if (nextSyncTryTime_ > System.currentTimeMillis())
+                return;
+
+            if (pendingRetry_) {
+                nextSyncTryTime_ = System.currentTimeMillis() + SYNC_TRY_INTERVAL;
                 syncPendingChannels();
+            }
             return;
         }
 
         started_ = true;
+        nextSyncTryTime_ = System.currentTimeMillis() + SYNC_TRY_INTERVAL;
 
         Data.ChannelEventSubscription s = new Data.ChannelEventSubscription();
         lnd_.client().subscribeChannelEventsStream(s, new ILightningCallback<Data.ChannelEventUpdate>() {

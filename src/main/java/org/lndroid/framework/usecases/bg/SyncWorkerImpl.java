@@ -3,6 +3,7 @@ package org.lndroid.framework.usecases.bg;
 import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Printer;
 
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
@@ -101,6 +102,12 @@ public class SyncWorkerImpl {
         info.start();
 
         // start looping
+        Looper.myLooper().setMessageLogging(new Printer() {
+            @Override
+            public void println(String s) {
+                Log.i(tag_, "looper log: "+s);
+            }
+        });
         Looper.loop();
 
         // clean up
@@ -113,8 +120,10 @@ public class SyncWorkerImpl {
 
         // ensure looper exists in our thread
         Log.i(tag_, "starting on thread " + Thread.currentThread().getId());
-        if (Looper.myLooper() == null)
+        if (Looper.myLooper() == null) {
+            Log.i(tag_, "preparing looper");
             Looper.prepare();
+        }
 
         // store start time
         final long startTime = System.currentTimeMillis();

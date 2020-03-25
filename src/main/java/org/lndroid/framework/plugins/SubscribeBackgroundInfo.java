@@ -129,8 +129,9 @@ public class SubscribeBackgroundInfo implements IPluginForeground {
                 Log.e(TAG, "unknown job plugin "+job);
         }
 
-        boolean active =
-                pendingChannels != 0
+        boolean active = false
+                // this might take weeks, no need to watch it so closely
+//                || pendingChannels != 0
                 || openChannel != 0
                 || closeChannel != 0
                 || sendCoins != 0

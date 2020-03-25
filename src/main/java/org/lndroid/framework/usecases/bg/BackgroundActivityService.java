@@ -153,8 +153,13 @@ public class BackgroundActivityService {
         public int onStartCommand(Intent intent, int flags, int startId) {
             Toast.makeText(this, "Starting background service", Toast.LENGTH_SHORT).show();
             BackgroundActivityService ps = BackgroundActivityService.getInstance();
-            startForeground(ps.serviceManager_.notificationId(), ps.serviceManager_.notification());
-            return START_STICKY;
+            if (ps.serviceManager_.notification() != null) {
+                startForeground(ps.serviceManager_.notificationId(), ps.serviceManager_.notification());
+                return START_STICKY;
+            } else {
+                Log.e(TAG, "notification is null, was the service shut down requested?");
+                return START_NOT_STICKY;
+            }
         }
 
         @Override

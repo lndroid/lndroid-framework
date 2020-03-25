@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.protobuf.ByteString;
 
+import org.lndroid.framework.common.HEX;
 import org.lndroid.framework.defaults.DefaultTopics;
 import org.lndroid.framework.engine.IPluginServer;
 import org.lndroid.lnd.daemon.ILightningCallback;
@@ -12,6 +13,7 @@ import org.lndroid.lnd.data.Data;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,18 +33,22 @@ public class SendPaymentWorker implements IPluginBackground {
 
     public interface IDao {
         List<Job> getSendingJobs();
+
         List<Job> getPendingJobs(long now);
 
         WalletData.Contact getContact(String contactPubkey);
 
         void updateJob(Job j);
+
         void updatePayment(Job j, WalletData.SendPayment p);
+
         void settlePayment(Job j, WalletData.SendPayment sp, WalletData.HTLCAttempt htlc);
     }
 
     private static final String TAG = "SendPaymentWorker";
     private static final long DEFAULT_EXPIRY = 3600000; // 1h
     private static final long TRY_INTERVAL = 60000; // 1m
+    private static final long FAST_TRY_INTERVAL = 300; // 0.3s
     private static final long WORK_INTERVAL = 10000; // 10sec
 
     private IPluginServer server_;
@@ -53,6 +59,12 @@ public class SendPaymentWorker implements IPluginBackground {
     private boolean started_;
     private boolean notified_;
     private long nextWorkTime_;
+
+    private static class JobContext {
+        List<String> ignoredNodes = new ArrayList<>();
+    }
+
+    private Map<String, JobContext> jobContexts_ = new HashMap<>();
 
     @Override
     public String id() {
@@ -67,13 +79,23 @@ public class SendPaymentWorker implements IPluginBackground {
         lnd_ = server.getDaoProvider().getLightningDao();
     }
 
+    private String jobContextId(Job job) {
+        return job.txId + "_" + job.userId;
+    }
+
     private void onUpdate(Job job, WalletData.SendPayment sp) {
-        Log.i(TAG, "onUpdate payment "+sp);
+        Log.i(TAG, "onUpdate payment " + sp);
 
         if (sp.state() == WalletData.SEND_PAYMENT_STATE_FAILED) {
             job.job.jobState = Transaction.JOB_STATE_FAILED;
             job.job.jobErrorCode = sp.errorCode();
             job.job.jobErrorMessage = sp.errorMessage();
+        }
+
+        if (job.job.jobState == Transaction.JOB_STATE_DONE
+                || job.job.jobState == Transaction.JOB_STATE_FAILED) {
+
+            jobContexts_.remove(jobContextId(job));
         }
 
         if (sp.state() == WalletData.SEND_PAYMENT_STATE_OK) {
@@ -113,7 +135,7 @@ public class SendPaymentWorker implements IPluginBackground {
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "delete payments error "+i+" err "+s);
+                Log.e(TAG, "delete payments error " + i + " err " + s);
                 throw new RuntimeException(s);
             }
         });
@@ -122,8 +144,8 @@ public class SendPaymentWorker implements IPluginBackground {
     private void checkPayments(List<Job> list) {
 
         final Map<String, Job> map = new HashMap<>();
-        for(Job job: list) {
-            WalletData.SendPayment p = (WalletData.SendPayment)job.objects.get(0);
+        for (Job job : list) {
+            WalletData.SendPayment p = (WalletData.SendPayment) job.objects.get(0);
             if (p.paymentHashHex() == null || p.paymentHashHex().equals("")) {
                 p = p.toBuilder()
                         .setErrorCode(Errors.PLUGIN_INPUT)
@@ -149,10 +171,10 @@ public class SendPaymentWorker implements IPluginBackground {
         lnd_.client().listPayments(r, new ILightningCallback<Data.ListPaymentsResponse>() {
             @Override
             public void onResponse(Data.ListPaymentsResponse r) {
-                Log.i(TAG, "list payments response "+r);
+                Log.i(TAG, "list payments response " + r);
 
                 // scan all payments until
-                for(Data.Payment p: r.payments) {
+                for (Data.Payment p : r.payments) {
                     if (map.isEmpty())
                         break;
 
@@ -160,7 +182,7 @@ public class SendPaymentWorker implements IPluginBackground {
                     if (job == null)
                         continue;
 
-                    WalletData.SendPayment.Builder b = ((WalletData.SendPayment)job.objects.get(0)).toBuilder();
+                    WalletData.SendPayment.Builder b = ((WalletData.SendPayment) job.objects.get(0)).toBuilder();
                     LightningCodec.PaymentConverter.decode(p, b);
                     b.setState(WalletData.SEND_PAYMENT_STATE_OK);
 
@@ -172,10 +194,10 @@ public class SendPaymentWorker implements IPluginBackground {
                 }
 
                 // payments that weren't found need to be retried
-                for(Job job: map.values()) {
+                for (Job job : map.values()) {
                     // reset state to pending to try again
                     job.job.jobState = Transaction.JOB_STATE_NEW;
-                    WalletData.SendPayment p = ((WalletData.SendPayment)job.objects.get(0))
+                    WalletData.SendPayment p = ((WalletData.SendPayment) job.objects.get(0))
                             .toBuilder()
                             .setState(WalletData.SEND_PAYMENT_STATE_PENDING)
                             .build();
@@ -188,7 +210,7 @@ public class SendPaymentWorker implements IPluginBackground {
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "list payments error "+i+" err "+s);
+                Log.e(TAG, "list payments error " + i + " err " + s);
                 throw new RuntimeException(s);
             }
         });
@@ -201,7 +223,7 @@ public class SendPaymentWorker implements IPluginBackground {
         lnd_.client().decodePayReq(r, new ILightningCallback<Data.PayReq>() {
             @Override
             public void onResponse(Data.PayReq r) {
-                Log.i(TAG, "pay req response dest "+r);
+                Log.i(TAG, "pay req response dest " + r);
                 WalletData.SendPayment.Builder b = p.toBuilder();
                 LightningCodec.PayReqConverter.decode(r, b);
                 WalletData.SendPayment decodedPayment = b.build();
@@ -211,13 +233,13 @@ public class SendPaymentWorker implements IPluginBackground {
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "decode payreq error "+i+" err "+s);
+                Log.e(TAG, "decode payreq error " + i + " err " + s);
 
                 onUpdate(job, p.toBuilder()
-                    .setErrorCode(Errors.LND_ERROR)
-                    .setErrorMessage(s)
-                    .setState(WalletData.SEND_PAYMENT_STATE_FAILED)
-                    .build());
+                        .setErrorCode(Errors.LND_ERROR)
+                        .setErrorMessage(s)
+                        .setState(WalletData.SEND_PAYMENT_STATE_FAILED)
+                        .build());
             }
         });
     }
@@ -260,11 +282,14 @@ public class SendPaymentWorker implements IPluginBackground {
         lnd_.client().queryRoutes(req, new ILightningCallback<Data.QueryRoutesResponse>() {
             @Override
             public void onResponse(Data.QueryRoutesResponse r) {
-                Log.i(TAG, "queryRoutes response routes "+r.routes.size());
+                Log.i(TAG, "queryRoutes response routes " + r.routes.size());
                 if (!r.routes.isEmpty()) {
                     sendPayment(job, p, r);
                 } else {
                     Log.e(TAG, "queryRoutes no route");
+
+                    // maybe we've ignored too much...
+                    jobContexts_.remove(jobContextId(job));
 
                     WalletData.SendPayment.Builder b = p.toBuilder();
                     b.setErrorCode(Errors.LND_ERROR);
@@ -276,7 +301,7 @@ public class SendPaymentWorker implements IPluginBackground {
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "queryRoutes error "+i+" err "+s);
+                Log.e(TAG, "queryRoutes error " + i + " err " + s);
 
                 WalletData.SendPayment.Builder b = p.toBuilder();
                 b.setErrorCode(Errors.LND_ERROR);
@@ -297,7 +322,7 @@ public class SendPaymentWorker implements IPluginBackground {
         lnd_.client().signMessage(sr, new ILightningCallback<Rpc.SignMessageResponse>() {
             @Override
             public void onResponse(Rpc.SignMessageResponse res) {
-                Log.e(TAG, "signMessage result "+res);
+                Log.e(TAG, "signMessage result " + res);
                 LightningCodec.QueryRoutesConvertor.encodeMessageSignature(
                         res.getSignature().getBytes(), req);
                 queryRoutesImpl(job, p, req);
@@ -305,7 +330,7 @@ public class SendPaymentWorker implements IPluginBackground {
 
             @Override
             public void onError(int i, String s) {
-                Log.e(TAG, "signMessage error "+i+" err "+s);
+                Log.e(TAG, "signMessage error " + i + " err " + s);
                 WalletData.SendPayment.Builder b = p.toBuilder();
                 b.setErrorCode(Errors.LND_ERROR);
                 b.setErrorMessage(s);
@@ -321,6 +346,13 @@ public class SendPaymentWorker implements IPluginBackground {
 
         Data.QueryRoutesRequest r = new Data.QueryRoutesRequest();
         LightningCodec.QueryRoutesConvertor.encode(p, r);
+        JobContext jc = jobContexts_.get(jobContextId(job));
+        if (jc != null && !jc.ignoredNodes.isEmpty()) {
+            r.ignoredNodes = new ArrayList<>();
+            for(String node: jc.ignoredNodes)
+                r.ignoredNodes.add(HEX.toBytes(node));
+        }
+
         if (p.message() != null || p.senderPubkey() != null) {
             byte[] signData = LightningCodec.QueryRoutesConvertor.encodeMessage(p, r);
             if (signData != null) {
@@ -332,6 +364,38 @@ public class SendPaymentWorker implements IPluginBackground {
         queryRoutesImpl(job, p, r);
     }
 
+    private void onRouteFailure(Job job, WalletData.SendPayment.Builder b, Data.QueryRoutesResponse qr) {
+
+        if (b.paymentError() == null) // || !b.paymentError().contains("UnknownNextPeer"))
+            return;
+
+        JobContext jc = jobContexts_.get(jobContextId(job));
+        if (jc == null) {
+            jc = new JobContext();
+            jobContexts_.put(jobContextId(job), jc);
+        }
+        for(int i = qr.routes.get(0).hops.size() - 1; i >= 0; i--) {
+            Data.Hop hop = qr.routes.get(0).hops.get(i);
+            if (hop.pubKey.equals(b.destPubkey()))
+                continue;
+
+            if (b.routeHints() != null) {
+                boolean isHint = false;
+                for(WalletData.RouteHint rh: b.routeHints()) {
+                    for (WalletData.HopHint hh: rh.hopHints()) {
+                        isHint |= hh.nodeId().equals(hop.pubKey);
+                    }
+                }
+                if (isHint)
+                    continue;
+            }
+
+            jc.ignoredNodes.add(hop.pubKey);
+            Log.i(TAG, "will ignore node "+hop.pubKey+" on next try");
+            break;
+        }
+    }
+
     private void onFailure(Job job, WalletData.SendPayment.Builder b) {
         boolean permanent = false;
         boolean notReady = false;
@@ -341,6 +405,7 @@ public class SendPaymentWorker implements IPluginBackground {
             permanent |= b.paymentError().contains("invoice is already paid");
             permanent |= b.paymentError().contains("invoice expired");
             permanent |= b.paymentError().contains("IncorrectOrUnknownPaymentDetails");
+            permanent |= b.paymentError().contains("destination hop doesn't understand");
         }
 
         if (b.errorMessage() != null) {
@@ -357,7 +422,10 @@ public class SendPaymentWorker implements IPluginBackground {
         if (permanent || job.job.tries >= job.job.maxTries || expired) {
             b.setState(WalletData.SEND_PAYMENT_STATE_FAILED);
         } else {
-            job.job.nextTryTime = System.currentTimeMillis() + TRY_INTERVAL;
+            if (jobContexts_.get(jobContextId(job)) != null)
+                job.job.nextTryTime = System.currentTimeMillis() + FAST_TRY_INTERVAL;
+            else
+                job.job.nextTryTime = System.currentTimeMillis() + TRY_INTERVAL;
             job.job.jobState = Transaction.JOB_STATE_NEW;
 
             b.setState(WalletData.SEND_PAYMENT_STATE_PENDING);
@@ -369,7 +437,7 @@ public class SendPaymentWorker implements IPluginBackground {
         }
     }
 
-    private void sendPayment(final Job job, final WalletData.SendPayment p, Data.QueryRoutesResponse qr) {
+    private void sendPayment(final Job job, final WalletData.SendPayment p, final Data.QueryRoutesResponse qr) {
 
         // mark as sending
         job.job.jobState = Transaction.JOB_STATE_EXECUTING;
@@ -427,7 +495,7 @@ public class SendPaymentWorker implements IPluginBackground {
                 LightningCodec.SendToRouteCodec.decode(r, b);
                 if (r.paymentError != null && !r.paymentError.isEmpty()) {
                     Log.i(TAG, "send payment target error " + r);
-
+                    onRouteFailure(job, b, qr);
                     // check if we'd want to retry
                     onFailure(job, b);
                 } else {

@@ -10,6 +10,9 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkerParameters;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.lndroid.framework.client.IPluginClient;
@@ -36,21 +39,40 @@ public abstract class RecvPaymentWorker extends androidx.work.Worker {
     public Result doWork() {
         Log.i(TAG, "starting");
 
-        SyncWorkerImpl impl = new SyncWorkerImpl(getPluginClient(), TAG);
+        FutureTask<Result> f = new FutureTask<>(new Callable<Result>() {
+            @Override
+            public Result call() throws Exception {
+                SyncWorkerImpl impl = new SyncWorkerImpl(getPluginClient(), TAG);
 
-        ISyncNotificationManager nm = getNotificationManager();
-        nm.showNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
+                ISyncNotificationManager nm = getNotificationManager();
+                nm.showNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
 
-        Result r;
-        if (impl.execute(MIN_SYNC_TIME, MAX_SYNC_TIME))
-            r = Result.success();
-        else
-            r = Result.retry();
+                Result r;
+                if (impl.execute(MIN_SYNC_TIME, MAX_SYNC_TIME))
+                    r = Result.success();
+                else
+                    r = Result.retry();
 
-        nm.hideNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
+                nm.hideNotification(ISyncNotificationManager.SYNC_TYPE_RECV_PAYMENTS);
+                return r;
+            }
+        });
 
-        Log.i(TAG, "done "+r);
-        return r;
+        Thread t = new Thread(f);
+        t.start();
+
+        while (true) {
+            try {
+                Result r = f.get();
+                Log.i(TAG, "done "+r);
+                return r;
+            } catch (ExecutionException e) {
+                Log.e(TAG, "execution error " + e);
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
     }
 
     public static <Worker extends RecvPaymentWorker>
